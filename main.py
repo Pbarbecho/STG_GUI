@@ -9,7 +9,7 @@ class DlgMain(QDialog):
         super().__init__()
         # ventana principal
         self.setWindowTitle("STG")
-        self.resize(800, 500)
+        self.resize(1000, 500)
 
         ####################### CREATE LABELS ######################
         # TITLES FONTS
@@ -64,8 +64,12 @@ class DlgMain(QDialog):
 
         ####################### CREATE BUTTONS ######################
         # Input button open File
-        self.inputFile_btn = QPushButton('Input')
-        self.inputFile_btn.clicked.connect(self.evt_input_file_clicked)
+        self.simtime_int_btn = QSpinBox()
+        self.simtime_int_btn.setWrapping(True)
+        self.simtime_int_btn.setRange(1,24)
+        self.simtime_int_btn.setValue(1)
+        self.simtime_int_btn.setSingleStep(1)
+        self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
 
         # ORIGIN TAZ button open File
         self.taz_file_btn = QPushButton('TAZ File')
@@ -100,6 +104,10 @@ class DlgMain(QDialog):
         self.wdg_outputs = QWidget()
 
         self.setuplayout()
+
+    def evt_simtime_int_btn_clicked(self, value):
+        print(value)
+
 
     def evt_taz_file_btn_clicked(self):
         # input one file
@@ -154,7 +162,7 @@ class DlgMain(QDialog):
 
         ###################  TAB INPUT / OUTPUT CONTAINERS ##################
         self.ly_input_TAB = QFormLayout()
-        #self.ly_input_TAB.addRow('', self.inputFile_btn)
+        self.ly_input_TAB.addRow('', self.simtime_int_btn)
         self.ly_input_TAB.addRow('O-District', self.O_distric)
         self.ly_input_TAB.addRow('D-District', self.D_distric)
         self.wdg_inputs.setLayout(self.ly_input_TAB)
