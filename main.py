@@ -1,12 +1,22 @@
-import sys, time
+import os, sys, time
 from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
+
+
 class DlgMain(QDialog):
     def __init__(self):
         super().__init__()
+
+        # initial configurations
+        self.traffic_file = ''
+        self.simtime = 1
+        self.taz_file = ''
+        self.O_distric_name = ''
+        self.D_distric_name = ''
+
         # ventana principal
         self.setWindowTitle("STG")
         self.resize(1000, 500)
@@ -32,8 +42,6 @@ class DlgMain(QDialog):
         self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
         self.D_distric = QPlainTextEdit()
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
-
-
 
         # Text description of sumo tools
         self.RT_description = QTextEdit()
@@ -79,24 +87,19 @@ class DlgMain(QDialog):
         self.rt_file_btn = QPushButton('Traffic File')
         self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
 
-        # DESTINATION TAZ button open File
-        self.destination_input_file_btn = QPushButton('D-District')
-        self.destination_input_file_btn.clicked.connect(self.evt_destination_input_file_btn_clicked)
-
         # Output button save File
         self.outputFile_btn = QPushButton('Output')
         self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
 
-        # generate button
+        # generate simulation button
         self.gen_btn = QPushButton('Generate', self)
         self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
-
 
         # INSTANCIATE  TAB WIDGET
         self.tab_selector = QTabWidget()
         self.tab_main = QTabWidget()
 
-        # create widgets for each radio option
+        # INSTANCIATE widgets for each radio option
         self.wdg_RT = QWidget()
         self.wdg_MA = QWidget()
         self.wdg_DUA = QWidget()
@@ -110,33 +113,21 @@ class DlgMain(QDialog):
         self.setuplayout()
 
 
-
+    #################  DEFINE EVENTS ###############################
 
     def evt_simtime_int_btn_clicked(self, value):
-        print(value)
+        self.simtime = value
 
     def evt_rt_file_btn_clicked(self):
-        # input one file
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'JPG Files (*.jpg);; PNG Files (*.png)')
-        print(fpath)
+        # input of the path to the traffic file .csv
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/',
+                                                       'CSV (*.csv)')
+        self.traffic_file = fpath
 
     def evt_taz_file_btn_clicked(self):
         # input one file
         fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
-        print(fpath)
-
-    def evt_destination_input_file_btn_clicked(self):
-        # input one file
-        fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
-        print(fpath)
-
-
-    def evt_input_file_clicked(self):
-        # input one file
-        fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
-        print(fpath)
-
+        self.taz_file = fpath
 
     def evt_output_file_clicked(self):
         # save new file
@@ -144,15 +135,20 @@ class DlgMain(QDialog):
                                                         'JPG Files (*.jpg);; JPEG Files (*.jpeg)')
         print(fpath)
 
-
     def evt_gen_btn_clicked(self):
         # input dialog
+        #if self.traffic_file == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
+        if self.O_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
+                                                                         'Please enter a valid O-Distric NAME')
+
+
+        """
         for x in range(100):
             print(x)
             time.sleep(0.1)
             self.progress_bar.setValue(x)
             app.processEvents()
-
+        """
 
     def setuplayout(self):
         #####################  LAYOUT #########################3
