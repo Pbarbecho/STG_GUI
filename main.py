@@ -12,7 +12,7 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
-        self.traffic_file = ''
+        self.realtraffic = ''
         self.simtime = 1
         self.taz_file = ''
         self.O_distric_name = ''
@@ -124,7 +124,7 @@ class DlgMain(QDialog):
         # input of the path to the traffic file .csv
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/',
                                                        'CSV (*.csv)')
-        self.traffic_file = fpath
+        self.realtraffic = fpath
 
     def evt_taz_file_btn_clicked(self):
         # input one file
@@ -140,7 +140,7 @@ class DlgMain(QDialog):
     def evt_gen_btn_clicked(self):
         # input dialog
         """
-        if self.traffic_file == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
+        if self.realtraffic == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
         if self.O_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
                                                                          'Please enter a valid O-Distric NAME')
         if self.D_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
