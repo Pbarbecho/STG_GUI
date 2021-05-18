@@ -147,6 +147,8 @@ class DlgMain(QDialog):
         self.lymainlayer = QHBoxLayout()
         self.lyvertical = QVBoxLayout()
 
+
+
         # CREATE LAYOUT - ORDER IMPORTANT
         self.lyvertical.addWidget(self.title_label)
         self.lyvertical.addWidget(self.tab_selector)
@@ -162,9 +164,11 @@ class DlgMain(QDialog):
 
         ###################  TAB INPUT / OUTPUT CONTAINERS ##################
         self.ly_input_TAB = QFormLayout()
-        self.ly_input_TAB.addRow('', self.simtime_int_btn)
+        self.ly_input_TAB.setAlignment(Qt.AlignRight)
+        self.ly_input_TAB.addRow('Time [hours]', self.simtime_int_btn)
         self.ly_input_TAB.addRow('O-District', self.O_distric)
         self.ly_input_TAB.addRow('D-District', self.D_distric)
+        self.ly_input_TAB.setRowWrapPolicy(QFormLayout.DontWrapRows)
         self.wdg_inputs.setLayout(self.ly_input_TAB)
 
 
