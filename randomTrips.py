@@ -150,6 +150,8 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
     None.
 
     """
+    print('hello')
+    """
     # trips per hour
     trips_for_traffic(config, end_hour, repetitions)
     # via route Travessera
@@ -172,3 +174,4 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
 
     # process sumo outputs
     SUMO_outputs_process(config)
+    """

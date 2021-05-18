@@ -1,8 +1,9 @@
+import multiprocessing
 import os, sys, time
 from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
+from randomTrips import rt
 
 
 
@@ -16,6 +17,7 @@ class DlgMain(QDialog):
         self.taz_file = ''
         self.O_distric_name = ''
         self.D_distric_name = ''
+        self.processors = multiprocessing.cpu_count()
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -137,10 +139,15 @@ class DlgMain(QDialog):
 
     def evt_gen_btn_clicked(self):
         # input dialog
-        #if self.traffic_file == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
+        """
+        if self.traffic_file == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
         if self.O_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
                                                                          'Please enter a valid O-Distric NAME')
-
+        if self.D_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
+                                                                         'Please enter a valid D-Distric NAME')
+        """
+        if self.tab_selector.currentIndex() == 0:
+            rt(self,0,1,self.simtime,self.processors,'RT',False)
 
         """
         for x in range(100):
@@ -218,6 +225,7 @@ class DlgMain(QDialog):
         self.tab_selector.addTab(self.wdg_DUA, "DUARouter")
         self.tab_selector.addTab(self.wdg_DUAI, "DUAIterate")
         self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
+
 
         # Match with main layout
         self.setLayout(self.lymainlayer)

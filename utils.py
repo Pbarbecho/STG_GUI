@@ -401,7 +401,7 @@ def merge_detector_lanes(dtor_df, tool, routing):
         L4_L5 = dtor_df_L4.merge(dtor_df_L4, on=['interval_begin', 'interval_end'], suffixes=['_L4', '_L5'])
         new_df = L0_L1.merge(L2_L3, on=['interval_begin', 'interval_end']).merge(L4_L5,
                                                                                  on=['interval_begin', 'interval_end'])
-
+        """
         # Add L0 .. L5 and filter conteo vehiculos
         new_df[f'{tool}'] = new_df['interval_nVehContrib_L0'] \
                             + new_df['interval_nVehContrib_L1'] \
@@ -409,10 +409,9 @@ def merge_detector_lanes(dtor_df, tool, routing):
                             + new_df['interval_nVehContrib_L3'] \
                             + new_df['interval_nVehContrib_L4'] \
                             + new_df['interval_nVehContrib_L5'] \
- \
-                new_df['interval_occupancy'] = new_df['interval_occupancy_L0'] + new_df['interval_occupancy_L1'] + \
+                 new_df['interval_occupancy'] = new_df['interval_occupancy_L0'] + new_df['interval_occupancy_L1'] + \
                                                new_df['interval_occupancy_L2']
-
+        """
         """
         #Add L0 ..L6 and filter ocupacion de vehiculos
         new_df[f'{tool}'] = new_df['interval_occupancy_L0']\
