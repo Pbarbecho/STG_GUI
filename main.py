@@ -75,6 +75,10 @@ class DlgMain(QDialog):
         self.taz_file_btn = QPushButton('TAZ File')
         self.taz_file_btn.clicked.connect(self.evt_taz_file_btn_clicked)
 
+        # Real traffic button open File
+        self.rt_file_btn = QPushButton('Traffic File')
+        self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
+
         # DESTINATION TAZ button open File
         self.destination_input_file_btn = QPushButton('D-District')
         self.destination_input_file_btn.clicked.connect(self.evt_destination_input_file_btn_clicked)
@@ -105,9 +109,17 @@ class DlgMain(QDialog):
 
         self.setuplayout()
 
+
+
+
     def evt_simtime_int_btn_clicked(self, value):
         print(value)
 
+    def evt_rt_file_btn_clicked(self):
+        # input one file
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
+                                                       'JPG Files (*.jpg);; PNG Files (*.png)')
+        print(fpath)
 
     def evt_taz_file_btn_clicked(self):
         # input one file
@@ -146,8 +158,7 @@ class DlgMain(QDialog):
         #####################  LAYOUT #########################3
         self.lymainlayer = QHBoxLayout()
         self.lyvertical = QVBoxLayout()
-
-
+        self.ly_settings = QHBoxLayout()
 
         # CREATE LAYOUT - ORDER IMPORTANT
         self.lyvertical.addWidget(self.title_label)
@@ -158,14 +169,17 @@ class DlgMain(QDialog):
         self.lymainlayer.addLayout(self.lyvertical)
         self.lymainlayer.addWidget(self.tab_main)
 
-        # add top layer titles
+        self.ly_settings.addWidget(self.simtime_int_btn)
+        self.ly_settings.addWidget(self.rt_file_btn)
+        # add tab
         self.tab_main.addTab(self.wdg_inputs, 'Inputs')
         self.tab_main.addTab(self.wdg_outputs, 'Outputs')
 
         ###################  TAB INPUT / OUTPUT CONTAINERS ##################
         self.ly_input_TAB = QFormLayout()
         self.ly_input_TAB.setAlignment(Qt.AlignRight)
-        self.ly_input_TAB.addRow('Time [hours]', self.simtime_int_btn)
+        self.ly_input_TAB.addRow('Time[h]',self.ly_settings)
+        #self.ly_input_TAB.addRow('Time [h]', self.simtime_int_btn)
         self.ly_input_TAB.addRow('O-District', self.O_distric)
         self.ly_input_TAB.addRow('D-District', self.D_distric)
         self.ly_input_TAB.setRowWrapPolicy(QFormLayout.DontWrapRows)
