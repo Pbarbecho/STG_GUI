@@ -63,18 +63,17 @@ def custom_routes():
 
 
 def trips_for_traffic(folders, end_hour, repetitions):
+    # read real traffic file
     traffic_df = pd.read_csv(folders.realtraffic)
-
     # generate randomtrips file each 15 min
     col = list(traffic_df)
     col = col[1:-1]
-
     # cpu script
     # subprocess.Popen(['/root/cpu_mem_check.sh', f'{folders.cpu}'])
 
     print(f'\nGenerating {len(col) * end_hour} randomTrips ......')
     for hour in tqdm(range(end_hour)):  # hora
-        for minute in col:  # minuto
+        for minute in col:  # minute
             vehicles = traffic_df[minute][hour]
             name = f'{hour}_{minute}_randomTrips'
             # convert to sec
@@ -111,6 +110,7 @@ def update_vehicle_ID(folders):
     veh_id = 0
     print('Update vehicle IDs......\n')
     for f in tqdm(trips): veh_id = change_veh_ID(f, veh_id, folders)
+    print('Update vehicle IDs End......\n')
 
 
 def singlexml2csv(f):
@@ -150,12 +150,13 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
     None.
 
     """
-    print('hello')
-    """
+
+
     # trips per hour
     trips_for_traffic(config, end_hour, repetitions)
     # via route Travessera
     # custom_routes()
+
 
     # update bundle of trips
     update_vehicle_ID(config)
@@ -168,7 +169,7 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
     gen_sumo_cfg(routing, trips, k, config, config.reroute_probability)
     # execute simulations
     simulate(config, processors, gui)
-
+    """
     # detectors
     # singlexml2csv('detector.xml')
 

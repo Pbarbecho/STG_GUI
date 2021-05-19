@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
-
+from utils import create_folder
+#import subprocess
 
 
 class DlgMain(QDialog):
@@ -18,6 +19,12 @@ class DlgMain(QDialog):
         self.O_distric_name = ''
         self.D_distric_name = ''
         self.processors = multiprocessing.cpu_count()
+        self.SUMO_exec = ''
+        self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
+        self.trips = ''
+        self.outputs = ''
+        self.SUMO_tool = ''
+        self.SUMO_outputs = ''
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -133,21 +140,62 @@ class DlgMain(QDialog):
 
     def evt_output_file_clicked(self):
         # save new file
-        fpath, extension = QFileDialog.getSaveFileName(self, 'Save File', '/Users/Pablo/',
-                                                        'JPG Files (*.jpg);; JPEG Files (*.jpeg)')
-        print(fpath)
+        fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
+        self.outputs = fpath
+
+    def update_paths(self):
+        self.SUMO_outputs = os.path.join(self.parents_dir, 'outputs')
+        if not os.path.lexists(config.SUMO_outputs): os.makedirs(config.SUMO_outputs)
+
+        config.SUMO_tool = os.path.join(config.SUMO_outputs, config.tool)
+
+        create_folder(self.SUMO_tool)
+        subfolders = ['trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
+                      'edges', 'duaiterate']
+        """
+        for sf in tqdm(subfolders):
+            create_folder(os.path.join(config.SUMO_tool, sf))
+        config.trips = os.path.join(config.SUMO_tool, 'trips')
+        config.O = os.path.join(config.SUMO_tool, 'O')
+        config.dua = os.path.join(config.SUMO_tool, 'dua')
+        config.ma = os.path.join(config.SUMO_tool, 'ma')
+        config.cfg = os.path.join(config.SUMO_tool, 'cfg')
+        config.outputs = os.path.join(config.SUMO_tool, 'outputs')
+        config.detector = os.path.join(config.SUMO_tool, 'detector')
+        config.xmltocsv = os.path.join(config.SUMO_tool, 'xmltocsv')
+        config.parsed = os.path.join(config.SUMO_tool, 'parsed')
+        config.reroute = os.path.join(config.SUMO_tool, 'reroute')
+        config.edges = os.path.join(config.SUMO_tool, 'edges')
+        """
+
 
     def evt_gen_btn_clicked(self):
-        # input dialog
-        """
-        if self.realtraffic == '' : warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a Traffic File')
-        if self.O_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
-                                                                         'Please enter a valid O-Distric NAME')
-        if self.D_distric.toPlainText() == '': warn_empty = QMessageBox.information(self, 'Missing File',
-                                                                         'Please enter a valid D-Distric NAME')
-        """
+        # Find sumo installation
+        SUMO = os.environ['SUMO_HOME']
+        if SUMO == '':
+            warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
+            sys.exit('SUMO_HOME environment variable is not found.')
+        else:
+            self.SUMO_exec = f'{SUMO}/bin/'
+
+        # check for input files and general settings
+        list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
+        inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
+        inputs_type = ['File', 'File', 'NAME', 'NAME']
+
+        empty_inputs = True
+        while empty_inputs:
+            for index, input in enumerate(list_inputs):
+                if input == '':
+                    warn_empty = QMessageBox.information(self, 'Missing File', f'Please select a valid {inputs_index[index]}'
+                                                                       f' {inputs_type[index]}')
+                    break
+            empty_inputs = False
+
+        # Routing selector
         if self.tab_selector.currentIndex() == 0:
-            rt(self,0,1,self.simtime,self.processors,'RT',False)
+            self.update_paths(self)
+            #rt(self,0,1,self.simtime,self.processors,'RT',False)
 
         """
         for x in range(100):
@@ -229,7 +277,6 @@ class DlgMain(QDialog):
 
         # Match with main layout
         self.setLayout(self.lymainlayer)
-
 
 
 

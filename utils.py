@@ -171,14 +171,18 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
 
     # outputs
     outputs = ['emission', 'summary', 'tripinfo']
+
+
+
     for out in outputs:
         ET.SubElement(parent, f'{out}-output').set('value', os.path.join(
             folders.outputs, f'{curr_name}_{out}_{k}.xml'))
 
-        # Write xml
+    # Write xml
     output_dir = os.path.join(folders.cfg, f'{curr_name}_{routing}_{k}.sumo.cfg')
     tree.write(output_dir)
     return output_dir
+
 
 
 def edges_path(folders):
