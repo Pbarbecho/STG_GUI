@@ -25,6 +25,17 @@ class DlgMain(QDialog):
         self.outputs = ''
         self.SUMO_tool = ''
         self.SUMO_outputs = ''
+        self.O = ''
+        self.dua = ''
+        self.ma = ''
+        self.cfg = ''
+        self.detector = ''
+        self.xmltocsv = ''
+        self.parsed = ''
+        self.reroute = ''
+        self.edges = ''
+        self.reroute_probability = 0
+
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -80,6 +91,10 @@ class DlgMain(QDialog):
         #'Generates random distribuition of vehicles'
 
         ####################### CREATE BUTTONS ######################
+        # check box for routing options
+        self.sumo_output_trips = QCheckBox()
+
+
         # Input button open File
         self.simtime_int_btn = QSpinBox()
         self.simtime_int_btn.setWrapping(True)
@@ -145,28 +160,31 @@ class DlgMain(QDialog):
 
     def update_paths(self):
         self.SUMO_outputs = os.path.join(self.parents_dir, 'outputs')
-        if not os.path.lexists(config.SUMO_outputs): os.makedirs(config.SUMO_outputs)
-
-        config.SUMO_tool = os.path.join(config.SUMO_outputs, config.tool)
-
+        if not os.path.lexists(self.SUMO_outputs): os.makedirs(self.SUMO_outputs)
+        self.SUMO_tool = os.path.join(self.SUMO_outputs, self.tool)
         create_folder(self.SUMO_tool)
         subfolders = ['trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
                       'edges', 'duaiterate']
-        """
-        for sf in tqdm(subfolders):
-            create_folder(os.path.join(config.SUMO_tool, sf))
-        config.trips = os.path.join(config.SUMO_tool, 'trips')
-        config.O = os.path.join(config.SUMO_tool, 'O')
-        config.dua = os.path.join(config.SUMO_tool, 'dua')
-        config.ma = os.path.join(config.SUMO_tool, 'ma')
-        config.cfg = os.path.join(config.SUMO_tool, 'cfg')
-        config.outputs = os.path.join(config.SUMO_tool, 'outputs')
-        config.detector = os.path.join(config.SUMO_tool, 'detector')
-        config.xmltocsv = os.path.join(config.SUMO_tool, 'xmltocsv')
-        config.parsed = os.path.join(config.SUMO_tool, 'parsed')
-        config.reroute = os.path.join(config.SUMO_tool, 'reroute')
-        config.edges = os.path.join(config.SUMO_tool, 'edges')
-        """
+        # create subfolders
+        for sf in subfolders : create_folder(os.path.join(self.SUMO_tool, sf))
+        # update subfolders paths
+        self.trips = os.path.join(self.SUMO_tool, 'trips')
+        self.O = os.path.join(self.SUMO_tool, 'O')
+        self.dua = os.path.join(self.SUMO_tool, 'dua')
+        self.ma = os.path.join(self.SUMO_tool, 'ma')
+        self.cfg = os.path.join(self.SUMO_tool, 'cfg')
+        self.outputs = os.path.join(self.SUMO_tool, 'outputs')
+        self.detector = os.path.join(self.SUMO_tool, 'detector')
+        self.xmltocsv = os.path.join(self.SUMO_tool, 'xmltocsv')
+        self.parsed = os.path.join(self.SUMO_tool, 'parsed')
+        self.reroute = os.path.join(self.SUMO_tool, 'reroute')
+        self.edges = os.path.join(self.SUMO_tool, 'edges')
+
+
+    def get_selected_tool_str(self):
+        tool_index = self.tab_selector.currentIndex()
+        switcher = {0: "rt",1: "ma",2: "dua",3: "duai", 3:"od2"}
+        return switcher.get(tool_index)
 
 
     def evt_gen_btn_clicked(self):
@@ -178,11 +196,14 @@ class DlgMain(QDialog):
         else:
             self.SUMO_exec = f'{SUMO}/bin/'
 
+        # Update Selected tool
+        self.tool = self.get_selected_tool_str()
+
         # check for input files and general settings
         list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
         inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
         inputs_type = ['File', 'File', 'NAME', 'NAME']
-
+        """
         empty_inputs = True
         while empty_inputs:
             for index, input in enumerate(list_inputs):
@@ -191,10 +212,10 @@ class DlgMain(QDialog):
                                                                        f' {inputs_type[index]}')
                     break
             empty_inputs = False
-
+        """
         # Routing selector
         if self.tab_selector.currentIndex() == 0:
-            self.update_paths(self)
+            self.update_paths()
             #rt(self,0,1,self.simtime,self.processors,'RT',False)
 
         """
