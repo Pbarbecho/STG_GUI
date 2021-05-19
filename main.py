@@ -35,6 +35,9 @@ class DlgMain(QDialog):
         self.reroute = ''
         self.edges = ''
         self.reroute_probability = 0
+        self.sumo_var_tripinfo = False
+        self.sumo_var_emissions = False
+        self.sumo_var_summary = False
 
 
         # ventana principal
@@ -92,8 +95,21 @@ class DlgMain(QDialog):
 
         ####################### CREATE BUTTONS ######################
         # check box for routing options
-        self.sumo_output_trips = QCheckBox()
+        self.sumo_groupbox = QGroupBox('SUMO Outputs')
+        self.sumo_groupbox.setFont(subtitle_font)
+        self.sumo_output_tripinfo = QCheckBox('Tripinfo')
+        self.sumo_output_emissions = QCheckBox('Emissions')
+        self.sumo_output_summary = QCheckBox('Summary')
+        self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
+        self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
+        self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
 
+        self.sumo_rerouting_prob_spin = QSpinBox()
+        self.sumo_rerouting_prob_spin.setWrapping(True)
+        self.sumo_rerouting_prob_spin.setRange(0, 100)
+        self.sumo_rerouting_prob_spin.setValue(0)
+        self.sumo_rerouting_prob_spin.setSingleStep(10)
+        self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
 
         # Input button open File
         self.simtime_int_btn = QSpinBox()
@@ -139,8 +155,21 @@ class DlgMain(QDialog):
 
     #################  DEFINE EVENTS ###############################
 
+    def evt_tripinfo_clicked(self, value):
+        self.sumo_var_tripinfo = value
+
+    def evt_emissions_clicked(self, value):
+        self.sumo_var_emissions = value
+
+    def evt_summary_clicked(self, value):
+        self.sumo_var_summary = value
+
     def evt_simtime_int_btn_clicked(self, value):
         self.simtime = value
+
+    def evt_sumo_rerouting_prob_spin_clicked(self, value):
+        self.reroute_probability = value
+
 
     def evt_rt_file_btn_clicked(self):
         # input of the path to the traffic file .csv
@@ -203,7 +232,7 @@ class DlgMain(QDialog):
         list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
         inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
         inputs_type = ['File', 'File', 'NAME', 'NAME']
-        """
+
         empty_inputs = True
         while empty_inputs:
             for index, input in enumerate(list_inputs):
@@ -212,11 +241,11 @@ class DlgMain(QDialog):
                                                                        f' {inputs_type[index]}')
                     break
             empty_inputs = False
-        """
+
         # Routing selector
         if self.tab_selector.currentIndex() == 0:
             self.update_paths()
-            #rt(self,0,1,self.simtime,self.processors,'RT',False)
+            rt(self,0,1,False)
 
         """
         for x in range(100):
@@ -231,6 +260,8 @@ class DlgMain(QDialog):
         self.lymainlayer = QHBoxLayout()
         self.lyvertical = QVBoxLayout()
         self.ly_settings = QHBoxLayout()
+
+        self.lysumooptions = QHBoxLayout()
 
         # CREATE LAYOUT - ORDER IMPORTANT
         self.lyvertical.addWidget(self.title_label)
@@ -247,6 +278,13 @@ class DlgMain(QDialog):
         self.tab_main.addTab(self.wdg_inputs, 'Inputs')
         self.tab_main.addTab(self.wdg_outputs, 'Outputs')
 
+        # add  sumo options to layout
+        self.lysumooptions.addWidget(self.sumo_output_tripinfo)
+        self.lysumooptions.addWidget(self.sumo_output_emissions)
+        self.lysumooptions.addWidget(self.sumo_output_summary)
+        self.lysumooptions.addWidget(self.sumo_rerouting_prob_spin)
+        self.sumo_groupbox.setLayout(self.lysumooptions)
+
         ###################  TAB INPUT / OUTPUT CONTAINERS ##################
         self.ly_input_TAB = QFormLayout()
         self.ly_input_TAB.setAlignment(Qt.AlignRight)
@@ -258,14 +296,15 @@ class DlgMain(QDialog):
         self.wdg_inputs.setLayout(self.ly_input_TAB)
 
 
-
         self.ly_output_TAB = QFormLayout()
         self.ly_output_TAB.addRow('', self.outputFile_btn)
         self.wdg_outputs.setLayout(self.ly_output_TAB)
 
         ################### SELECTOR CONTAINERS ##################
         self.ly_RT = QFormLayout()
+
         self.ly_RT.addRow(self.RT_description)
+        self.ly_RT.addRow(self.sumo_groupbox)
         self.wdg_RT.setLayout(self.ly_RT)
 
         # setup MA

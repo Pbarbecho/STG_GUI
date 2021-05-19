@@ -126,7 +126,7 @@ def singlexml2csv(f):
     # os.system(cmd)
 
 
-def rt(config, k, repetitions, end_hour, processors, routing, gui):
+def rt(config, k, repetitions, gui):
     """
     Parameters
     ----------
@@ -150,10 +150,8 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
     None.
 
     """
-
-
     # trips per hour
-    trips_for_traffic(config, end_hour, repetitions)
+    trips_for_traffic(config, config.simtime, repetitions)
     # via route Travessera
     # custom_routes()
 
@@ -166,9 +164,9 @@ def rt(config, k, repetitions, end_hour, processors, routing, gui):
     trips = ','.join([f'{os.path.join(config.trips, elem)}' for elem in read_trips])
 
     # generate sumo cfg file
-    gen_sumo_cfg(routing, trips, k, config, config.reroute_probability)
+    gen_sumo_cfg(config.routing, trips, k, config, config.reroute_probability)
     # execute simulations
-    simulate(config, processors, gui)
+    simulate(config, config.processors, gui)
     """
     # detectors
     # singlexml2csv('detector.xml')
