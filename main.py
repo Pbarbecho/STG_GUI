@@ -52,7 +52,7 @@ class DlgMain(QDialog):
         ####################### CREATE LABELS ######################
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
-        subtitle_font = QFont("Times New Roman", 11, 10, False)
+        subtitle_font = QFont("Times New Roman", 12, 12, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -390,11 +390,13 @@ class DlgMain(QDialog):
         self.osm_sublayout = QHBoxLayout()
         self.osm_sublayout.addWidget(self.osm_file_btn)
         self.osm_sublayout.addWidget(self.check_osm_file)
+        self.osm_sublayout.setAlignment(Qt.AlignRight)
         self.osm_groupbox.setLayout(self.osm_sublayout)
 
         self.netconvert_sublayout = QHBoxLayout()
         self.netconvert_sublayout.addWidget(self.netconvert_btn)
         self.netconvert_sublayout.addWidget(self.check_netconvert_file)
+        self.netconvert_sublayout.setAlignment(Qt.AlignRight)
 
         self.netconvert_options_sublayout = QVBoxLayout()
         self.netconvert_options_sublayout.addWidget(self.netconvert_urban_op)
@@ -408,6 +410,7 @@ class DlgMain(QDialog):
         self.polyconvert_sublayout = QHBoxLayout()
         self.polyconvert_sublayout.addWidget(self.polyconvert_btn)
         self.polyconvert_sublayout.addWidget(self.check_polyconvert_file)
+        self.polyconvert_sublayout.setAlignment(Qt.AlignRight)
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
 
 
