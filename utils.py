@@ -80,10 +80,16 @@ def simulate(folders, processors, gui):
         batch = parallel_batch_size(simulations)
         # Execute simulations
         print('\nExecuting simulations ....')
+        for s in simulations:
+            exec_sim_cmd(s, folders, gui)
+            print(f'Simulating .... {s}')
+        """ 
         with parallel_backend("loky"):
             Parallel(n_jobs=processors, verbose=0, batch_size=batch)(
                 delayed(exec_sim_cmd)(s, folders, gui) for s in simulations)
         clean_memory()
+        """
+
         print(f'\n{len(os.listdir(folders.outputs))} outputs generated: {folders.outputs}')
     else:
         sys.exit('No sumo.cfg files}')

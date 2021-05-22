@@ -16,8 +16,8 @@ class DlgMain(QDialog):
         self.realtraffic = ''
         self.simtime = 1
         self.taz_file = ''
-        self.O_distric_name = ''
-        self.D_distric_name = ''
+        self.O_district = ''
+        self.D_district = ''
         self.processors = multiprocessing.cpu_count()
         self.SUMO_exec = ''
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
@@ -38,7 +38,7 @@ class DlgMain(QDialog):
         self.sumo_var_tripinfo = False
         self.sumo_var_emissions = False
         self.sumo_var_summary = False
-
+        self.routing = ''
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -65,6 +65,7 @@ class DlgMain(QDialog):
         self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
         self.D_distric = QPlainTextEdit()
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
+
 
         # Text description of sumo tools
         self.RT_description = QTextEdit()
@@ -227,6 +228,8 @@ class DlgMain(QDialog):
 
         # Update Selected tool
         self.tool = self.get_selected_tool_str()
+        self.O_district = self.O_distric.toPlainText()
+        self.D_district = self.D_distric.toPlainText()
 
         # check for input files and general settings
         list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
@@ -245,7 +248,7 @@ class DlgMain(QDialog):
         # Routing selector
         if self.tab_selector.currentIndex() == 0:
             self.update_paths()
-            rt(self,0,1,False)
+            rt(self, 0, 1, False)
 
         """
         for x in range(100):

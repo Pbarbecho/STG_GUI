@@ -41,7 +41,7 @@ def exec_randomTrips(folders, fname, ini_time, veh_number, repetitions):
 # --edge-permission {vtype}  \
 
 
-def custom_routes():
+def custom_routes(folders):
     randomtrips = os.listdir(folders.random_dir)
 
     for trip in randomtrips:
@@ -64,6 +64,7 @@ def custom_routes():
 
 def trips_for_traffic(folders, end_hour, repetitions):
     # read real traffic file
+
     traffic_df = pd.read_csv(folders.realtraffic)
     # generate randomtrips file each 15 min
     col = list(traffic_df)
@@ -153,7 +154,7 @@ def rt(config, k, repetitions, gui):
     # trips per hour
     trips_for_traffic(config, config.simtime, repetitions)
     # via route Travessera
-    # custom_routes()
+    # custom_routes(config)
 
 
     # update bundle of trips
@@ -163,9 +164,11 @@ def rt(config, k, repetitions, gui):
     read_trips = os.listdir(config.trips)
     trips = ','.join([f'{os.path.join(config.trips, elem)}' for elem in read_trips])
 
+
     # generate sumo cfg file
-    gen_sumo_cfg(config.routing, trips, k, config, config.reroute_probability)
+    gen_sumo_cfg(config.tool, trips, k, config, config.reroute_probability)
     # execute simulations
+
     simulate(config, config.processors, gui)
     """
     # detectors
