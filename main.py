@@ -238,7 +238,8 @@ class DlgMain(QDialog):
 
         if self.network:
             # SUMO 1.2.0
-            cmd = f'polyconvert -n {osm.network} --osm-files {self.osm} -o {self.poly} --ignore-errors true'
+            cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {self.poly} --ignore-errors true'
+            print(cmd)
             os.system(cmd)
             self.check_polyconvert_file.setChecked(True)
         else:
