@@ -42,6 +42,8 @@ class DlgMain(QDialog):
         self.routing = ''
         self.osm = ''
         self.network = ''
+        self.poly =''
+
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -151,11 +153,11 @@ class DlgMain(QDialog):
 
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
-        self.netconvert_btn.clicked.connect(self.netconvert_btn_clicked)
+        self.netconvert_btn.clicked.connect(self.evt_netconvert_btn_clicked)
 
         # Polyconvert
         self.polyconvert_btn = QPushButton('Polyconvert')
-        self.polyconvert_btn.clicked.connect(self.polyconvert_btn_clicked)
+        self.polyconvert_btn.clicked.connect(self.evt_polyconvert_btn_clicked)
 
         # Check boxes
         self.check_osm_file = QCheckBox()
@@ -229,7 +231,21 @@ class DlgMain(QDialog):
         self.osm = fpath
         self.check_osm_file.setChecked(True)
 
-    def netconvert_btn_clicked(self):
+
+    def evt_polyconvert_btn_clicked(self):
+        parent_dir = os.path.abspath(self.osm)
+        self.poly = f'{parent_dir}.poly.xml'
+
+        if self.network:
+            # SUMO 1.2.0
+            cmd = f'polyconvert -n {osm.network} --osm-files {self.osm} -o {self.poly} --ignore-errors true'
+            os.system(cmd)
+            self.check_polyconvert_file.setChecked(True)
+        else:
+            QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
+
+
+    def evt_netconvert_btn_clicked(self):
         parent_dir = os.path.abspath(self.osm)
         self.network = f'{parent_dir}.net.xml'
         self.Update_SUMO_exec_path()
@@ -242,9 +258,6 @@ class DlgMain(QDialog):
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
 
-    def polyconvert_btn_clicked(self):
-
-        self.check_polyconvert_file.setChecked(True)
 
     def evt_netconvert_highway_op(self):
         if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
