@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
 from utils import create_folder
+
 #import subprocess
 
 
@@ -19,7 +20,7 @@ class DlgMain(QDialog):
         self.O_district = ''
         self.D_district = ''
         self.processors = multiprocessing.cpu_count()
-        self.SUMO_exec = ''
+        self.SUMO_exec = os.environ['SUMO_HOME']
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
         self.trips = ''
         self.outputs = ''
@@ -153,11 +154,7 @@ class DlgMain(QDialog):
         self.polyconvert_btn = QPushButton('Polyconvert')
         self.polyconvert_btn.clicked.connect(self.polyconvert_btn_clicked)
 
-        # Save WebWizard directory
-        self.webwizard_dir_btn = QPushButton('Output')
-        self.webwizard_dir_btn.clicked.connect(self.evt_webwizard_dir_btn_clicked)
-
-        #################   GROUP BOXES  NETWORK BUILD  ##############################
+         #################   GROUP BOXES  NETWORK BUILD  ##############################
         self.webwizard_groupbox = QGroupBox('1. Select MAP from OpenStreetMaps (.osm)')
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO map (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
@@ -195,14 +192,33 @@ class DlgMain(QDialog):
 
         self.setuplayout()
 
+    def Update_SUMO_exec_path(self):
+        if self.SUMO_exec == '':
+            warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
+            # sys.exit('SUMO_HOME environment variable is not found.')
+        else:
+            # Update SUMO bin path
+            if os.path.basename(self.SUMO_exec) != 'bin': self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin')
 
-     #################  DEFINE EVENTS ###############################
 
-    def evt_webwizard_dir_btn_clicked(self):
-        self.osm = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
-
+    #################  DEFINE EVENTS ###############################
     def WebWizard_btn_clicked(self):
-        self.webwizard_dir_btn.
+        path_str, state = QInputDialog.getText(self, 'Save OSM file', 'Enter path to save OSM file')
+        if state:
+            # path exist
+            if os.path.exists(path_str):
+                #update sumo path
+                self.Update_SUMO_exec_path()
+                # save path to osm file
+                self.osm = path_str
+                # WebWizard exec  python /opt/sumo-1.5.0/tools/osmWebWizard.py
+                webwizard_path = os.path.join(self.SUMO_exec, '..', 'tools/osmWebWizard.py')
+                os.system(f'python {webwizard_path}')
+
+
+            else:
+                QMessageBox.information(self, 'Information', 'Path is not valid')
+
 
     def netconvert_btn_clicked(self):
         print('netconvet')
