@@ -72,9 +72,10 @@ class DlgMain(QDialog):
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
 
         ########################################   TEXT BOX  ############################
+        self.cmd_str = QPlainTextEdit()
+        self.cmd_str.setPlaceholderText('Console logs')
 
-
-         ####################################################################################
+        ####################################################################################
 
         # Text description of sumo tools
         self.RT_description = QTextEdit()
@@ -230,7 +231,7 @@ class DlgMain(QDialog):
                                                           'OSM File (*.osm)')
         self.osm = fpath
         self.check_osm_file.setChecked(True)
-
+        self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
 
     def evt_polyconvert_btn_clicked(self):
         parent_dir = os.path.abspath(self.osm)
@@ -245,7 +246,6 @@ class DlgMain(QDialog):
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
 
-
     def evt_netconvert_btn_clicked(self):
         parent_dir = os.path.abspath(self.osm)
         self.network = f'{parent_dir}.net.xml'
@@ -255,7 +255,8 @@ class DlgMain(QDialog):
             cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
             print(cmd)
             os.system(cmd)
-            self.check_netconvert_file.setChecked(True)
+            self.cmd_str.setPlainText(f'SUMO Network file correcly generated: {self.network}')
+            fpath
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
 
@@ -300,8 +301,6 @@ class DlgMain(QDialog):
         # save new file
         fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
         self.outputs = fpath
-
-
 
 
     def update_paths(self):
@@ -418,6 +417,8 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.netconvert_options_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
+        self.container_build_network.addRow(self.cmd_str)
+
         self.wdg_build_network.setLayout(self.container_build_network)
         ####################################################3
 
