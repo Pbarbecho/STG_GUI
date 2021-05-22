@@ -39,6 +39,7 @@ class DlgMain(QDialog):
         self.sumo_var_emissions = False
         self.sumo_var_summary = False
         self.routing = ''
+        self.osm = ''
 
         # ventana principal
         self.setWindowTitle("STG")
@@ -66,6 +67,10 @@ class DlgMain(QDialog):
         self.D_distric = QPlainTextEdit()
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
 
+        ########################################   TEXT BOX  ############################
+
+
+         ####################################################################################
 
         # Text description of sumo tools
         self.RT_description = QTextEdit()
@@ -135,8 +140,40 @@ class DlgMain(QDialog):
         # generate simulation button
         self.gen_btn = QPushButton('Generate', self)
         self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
+        #################  NEW BUTTONS  ################################
+        # WebWizard map
+        self.WebWizard_btn = QPushButton('OSM WebWizard')
+        self.WebWizard_btn.clicked.connect(self.WebWizard_btn_clicked)
+
+        # Netconvert button
+        self.netconvert_btn = QPushButton('Netconvert')
+        self.netconvert_btn.clicked.connect(self.netconvert_btn_clicked)
+
+        # Polyconvert
+        self.polyconvert_btn = QPushButton('Polyconvert')
+        self.polyconvert_btn.clicked.connect(self.polyconvert_btn_clicked)
+
+        # Save WebWizard directory
+        self.webwizard_dir_btn = QPushButton('Output')
+        self.webwizard_dir_btn.clicked.connect(self.evt_webwizard_dir_btn_clicked)
+
+        #################   GROUP BOXES  NETWORK BUILD  ##############################
+        self.webwizard_groupbox = QGroupBox('1. Select MAP from OpenStreetMaps (.osm)')
+        self.netconvert_groupbox = QGroupBox('2. Generate SUMO map (.net.xml)')
+        self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
+        self.webwizard_groupbox.setFont(subtitle_font)
+        self.netconvert_groupbox.setFont(subtitle_font)
+        self.polyconvert_groupbox.setFont(subtitle_font)
+        #########################################################################
+
+
+
 
         # INSTANCIATE  TAB WIDGET
+
+        # MAIN TAB
+        self.tab_main_menu = QTabWidget()
+
         self.tab_selector = QTabWidget()
         self.tab_main = QTabWidget()
 
@@ -147,6 +184,11 @@ class DlgMain(QDialog):
         self.wdg_DUAI = QWidget()
         self.wdg_OD2 = QWidget()
 
+        self.wdg_build_network = QWidget()
+        self.wdg_webwizard = QWidget()
+        self.wdg_traffic_demand = QWidget()
+        self.wdg_simulation = QWidget()
+
         #create widgets for tabs
         self.wdg_inputs = QWidget()
         self.wdg_outputs = QWidget()
@@ -154,8 +196,31 @@ class DlgMain(QDialog):
         self.setuplayout()
 
 
-    #################  DEFINE EVENTS ###############################
+     #################  DEFINE EVENTS ###############################
 
+    def evt_webwizard_dir_btn_clicked(self):
+        self.osm = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
+
+    def WebWizard_btn_clicked(self):
+        self.webwizard_dir_btn.
+
+    def netconvert_btn_clicked(self):
+        print('netconvet')
+    def polyconvert_btn_clicked(self):
+        print('polyconvert')
+
+
+
+
+
+
+
+
+
+
+
+
+    #########################################################################
     def evt_tripinfo_clicked(self, value):
         self.sumo_var_tripinfo = value
 
@@ -187,6 +252,9 @@ class DlgMain(QDialog):
         # save new file
         fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
         self.outputs = fpath
+
+
+
 
     def update_paths(self):
         self.SUMO_outputs = os.path.join(self.parents_dir, 'outputs')
@@ -258,9 +326,51 @@ class DlgMain(QDialog):
             app.processEvents()
         """
 
+
+
     def setuplayout(self):
+
         #####################  LAYOUT #########################3
-        self.lymainlayer = QHBoxLayout()
+        self.tab_main_layout = QHBoxLayout()
+        self.tab_main_layout.addWidget(self.tab_main_menu)
+
+
+        #####################  TABS OF THE MAIN MENU #########################3
+        self.tab_main_menu.addTab(self.wdg_build_network, "Build Network")
+        self.tab_main_menu.addTab(self.wdg_MA, "Traffic Demand")
+        self.tab_main_menu.addTab(self.wdg_DUA, "Simulation")
+
+        ##################   BUILD NETWORK SUB LAYOUTS      #####################3
+
+        self.webwizard_sublayout = QHBoxLayout()
+        self.webwizard_sublayout.addWidget(self.WebWizard_btn)
+        self.webwizard_groupbox.setLayout(self.webwizard_sublayout)
+
+        self.netconvert_sublayout = QHBoxLayout()
+        self.netconvert_sublayout.addWidget(self.netconvert_btn)
+        self.netconvert_groupbox.setLayout(self.netconvert_sublayout)
+
+        self.polyconvert_sublayout = QHBoxLayout()
+        self.polyconvert_sublayout.addWidget(self.polyconvert_btn)
+        self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
+
+
+        ##################   CONTAINERS    #####################3
+        self.container_build_network = QFormLayout()
+        self.container_build_network.addRow(self.webwizard_groupbox)
+        self.container_build_network.addRow(self.netconvert_groupbox)
+        self.container_build_network.addRow(self.polyconvert_groupbox)
+        self.wdg_build_network.setLayout(self.container_build_network)
+        ####################################################3
+
+        #self.webwizard_path = self.webwizard_dir.toPlainText()
+
+
+
+
+
+
+        """
         self.lyvertical = QVBoxLayout()
         self.ly_settings = QHBoxLayout()
 
@@ -337,9 +447,10 @@ class DlgMain(QDialog):
         self.tab_selector.addTab(self.wdg_DUAI, "DUAIterate")
         self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
 
+        """
 
         # Match with main layout
-        self.setLayout(self.lymainlayer)
+        self.setLayout(self.tab_main_layout)
 
 
 
