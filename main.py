@@ -225,7 +225,6 @@ class DlgMain(QDialog):
         self.osm = fpath
         self.check_osm_file.setChecked(True)
 
-
     def netconvert_btn_clicked(self):
         parent_dir = os.path.abspath(self.osm)
         self.network = f'{parent_dir}.net.xml'
@@ -237,7 +236,6 @@ class DlgMain(QDialog):
             self.check_netconvert_file(True)
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
-
 
     def polyconvert_btn_clicked(self):
 
