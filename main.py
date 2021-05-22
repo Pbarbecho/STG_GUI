@@ -41,10 +41,11 @@ class DlgMain(QDialog):
         self.sumo_var_summary = False
         self.routing = ''
         self.osm = ''
+        self.network = ''
 
         # ventana principal
         self.setWindowTitle("STG")
-        self.resize(1000, 500)
+        self.resize(400, 400)
 
         ####################### CREATE LABELS ######################
         # TITLES FONTS
@@ -141,10 +142,12 @@ class DlgMain(QDialog):
         # generate simulation button
         self.gen_btn = QPushButton('Generate', self)
         self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
+
+
         #################  NEW BUTTONS  ################################
-        # WebWizard map
-        self.WebWizard_btn = QPushButton('OSM WebWizard')
-        self.WebWizard_btn.clicked.connect(self.WebWizard_btn_clicked)
+        # osm file
+        self.osm_file_btn = QPushButton('OSM File')
+        self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
 
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
@@ -154,11 +157,26 @@ class DlgMain(QDialog):
         self.polyconvert_btn = QPushButton('Polyconvert')
         self.polyconvert_btn.clicked.connect(self.polyconvert_btn_clicked)
 
-         #################   GROUP BOXES  NETWORK BUILD  ##############################
-        self.webwizard_groupbox = QGroupBox('1. Select MAP from OpenStreetMaps (.osm)')
-        self.netconvert_groupbox = QGroupBox('2. Generate SUMO map (.net.xml)')
+        # Check boxes
+        self.check_osm_file = QCheckBox()
+        self.check_netconvert_file = QCheckBox()
+        self.check_polyconvert_file = QCheckBox()
+        self.check_osm_file.setEnabled(False)
+        self.check_netconvert_file.setEnabled(False)
+        self.check_polyconvert_file.setEnabled(False)
+
+        # check box for netconvert
+        self.netconvert_options_groupbox = QGroupBox()
+        self.netconvert_urban_op = QCheckBox('Urban')
+        self.netconvert_highway_op = QCheckBox('Highway')
+        self.netconvert_urban_op.toggled.connect(self.evt_netconvert_urban_op)
+        self.netconvert_highway_op.toggled.connect(self.evt_netconvert_highway_op)
+
+        #################   GROUP BOXES  NETWORK BUILD  ##############################
+        self.osm_groupbox = QGroupBox('1. Select OpenStreetMaps file (.osm)')
+        self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
-        self.webwizard_groupbox.setFont(subtitle_font)
+        self.osm_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
         self.polyconvert_groupbox.setFont(subtitle_font)
         #########################################################################
@@ -182,7 +200,6 @@ class DlgMain(QDialog):
         self.wdg_OD2 = QWidget()
 
         self.wdg_build_network = QWidget()
-        self.wdg_webwizard = QWidget()
         self.wdg_traffic_demand = QWidget()
         self.wdg_simulation = QWidget()
 
@@ -198,43 +215,41 @@ class DlgMain(QDialog):
             # sys.exit('SUMO_HOME environment variable is not found.')
         else:
             # Update SUMO bin path
-            if os.path.basename(self.SUMO_exec) != 'bin': self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin')
+            if os.path.basename(self.SUMO_exec) != 'bin': self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
 
 
     #################  DEFINE EVENTS ###############################
-    def WebWizard_btn_clicked(self):
-        path_str, state = QInputDialog.getText(self, 'Save OSM file', 'Enter path to save OSM file')
-        if state:
-            # path exist
-            if os.path.exists(path_str):
-                #update sumo path
-                self.Update_SUMO_exec_path()
-                # save path to osm file
-                self.osm = path_str
-                # WebWizard exec  python /opt/sumo-1.5.0/tools/osmWebWizard.py
-                webwizard_path = os.path.join(self.SUMO_exec, '..', 'tools/osmWebWizard.py')
-                os.system(f'python {webwizard_path}')
-
-
-            else:
-                QMessageBox.information(self, 'Information', 'Path is not valid')
+    def evt_osm_file_btn_clicked(self):
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
+                                                          'OSM File (*.osm)')
+        self.osm = fpath
+        self.check_osm_file.setChecked(True)
 
 
     def netconvert_btn_clicked(self):
-        print('netconvet')
+        parent_dir = os.path.abspath(self.osm)
+        self.network = f'{parent_dir}.net.xml'
+        self.Update_SUMO_exec_path()
+        if self.osm:
+            # SUMO 1.2.0
+            cmd = f'{self.SUMO_exec} ./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
+            os.system(cmd)
+            self.check_netconvert_file(True)
+        else:
+            QMessageBox.information(self, 'Missing File', 'OSM file is missing')
+
+
     def polyconvert_btn_clicked(self):
-        print('polyconvert')
 
+        self.check_polyconvert_file(True)
 
+    def evt_netconvert_highway_op(self):
+        if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
+        else:self.netconvert_urban_op.setDisabled(False)
 
-
-
-
-
-
-
-
-
+    def evt_netconvert_urban_op(self):
+        if self.netconvert_urban_op.checkState(): self.netconvert_highway_op.setDisabled(True)
+        else:self.netconvert_highway_op.setDisabled(False)
 
     #########################################################################
     def evt_tripinfo_clicked(self, value):
@@ -358,28 +373,38 @@ class DlgMain(QDialog):
 
         ##################   BUILD NETWORK SUB LAYOUTS      #####################3
 
-        self.webwizard_sublayout = QHBoxLayout()
-        self.webwizard_sublayout.addWidget(self.WebWizard_btn)
-        self.webwizard_groupbox.setLayout(self.webwizard_sublayout)
+        self.osm_sublayout = QHBoxLayout()
+        self.osm_sublayout.addWidget(self.osm_file_btn)
+        self.osm_sublayout.addWidget(self.check_osm_file)
+        self.osm_groupbox.setLayout(self.osm_sublayout)
 
         self.netconvert_sublayout = QHBoxLayout()
         self.netconvert_sublayout.addWidget(self.netconvert_btn)
-        self.netconvert_groupbox.setLayout(self.netconvert_sublayout)
+        self.netconvert_sublayout.addWidget(self.check_netconvert_file)
+        self.netconvert_options_sublayout = QVBoxLayout()
+        self.netconvert_options_sublayout.addWidget(self.netconvert_urban_op)
+        self.netconvert_options_sublayout.addWidget(self.netconvert_highway_op)
+        self.netconvert_main_layout = QHBoxLayout()
+        self.netconvert_main_layout.addLayout(self.netconvert_options_sublayout)
+        self.netconvert_main_layout.addLayout(self.netconvert_sublayout)
+        self.netconvert_groupbox.setLayout(self.netconvert_main_layout)
 
         self.polyconvert_sublayout = QHBoxLayout()
         self.polyconvert_sublayout.addWidget(self.polyconvert_btn)
+        self.polyconvert_sublayout.addWidget(self.check_polyconvert_file)
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
 
 
         ##################   CONTAINERS    #####################3
         self.container_build_network = QFormLayout()
-        self.container_build_network.addRow(self.webwizard_groupbox)
+        self.container_build_network.addRow(self.osm_groupbox)
         self.container_build_network.addRow(self.netconvert_groupbox)
+        self.container_build_network.addRow(self.netconvert_options_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
         self.wdg_build_network.setLayout(self.container_build_network)
         ####################################################3
 
-        #self.webwizard_path = self.webwizard_dir.toPlainText()
+
 
 
 
