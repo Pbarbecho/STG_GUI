@@ -52,7 +52,7 @@ class DlgMain(QDialog):
         ####################### CREATE LABELS ######################
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
-        subtitle_font = QFont("Times New Roman", 15, 70, False)
+        subtitle_font = QFont("Times New Roman", 11, 10, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -227,9 +227,8 @@ class DlgMain(QDialog):
                                                           'OSM File (*.osm)')
         self.osm = fpath
         self.check_osm_file.setChecked(True)
-        QMessageBox.information(self, 'Ok', 'OSM File imported')
         self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
-
+        QMessageBox.information(self, 'Ok', 'OSM File imported')
 
     def evt_polyconvert_btn_clicked(self):
         parent_dir = os.path.abspath(self.osm)
@@ -240,8 +239,8 @@ class DlgMain(QDialog):
             cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {self.poly} --ignore-errors true'
             os.system(cmd)
             self.check_polyconvert_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Polygons file successfully generated')
             self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
+            QMessageBox.information(self, 'Ok', 'Polygons file successfully generated')
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
 
@@ -254,8 +253,8 @@ class DlgMain(QDialog):
             cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
             os.system(cmd)
             self.check_netconvert_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
             self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
+            QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
 
@@ -396,9 +395,11 @@ class DlgMain(QDialog):
         self.netconvert_sublayout = QHBoxLayout()
         self.netconvert_sublayout.addWidget(self.netconvert_btn)
         self.netconvert_sublayout.addWidget(self.check_netconvert_file)
+
         self.netconvert_options_sublayout = QVBoxLayout()
         self.netconvert_options_sublayout.addWidget(self.netconvert_urban_op)
         self.netconvert_options_sublayout.addWidget(self.netconvert_highway_op)
+
         self.netconvert_main_layout = QHBoxLayout()
         self.netconvert_main_layout.addLayout(self.netconvert_options_sublayout)
         self.netconvert_main_layout.addLayout(self.netconvert_sublayout)
@@ -414,7 +415,6 @@ class DlgMain(QDialog):
         self.container_build_network = QFormLayout()
         self.container_build_network.addRow(self.osm_groupbox)
         self.container_build_network.addRow(self.netconvert_groupbox)
-        self.container_build_network.addRow(self.netconvert_options_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
         self.container_build_network.addRow(self.cmd_str)
 
