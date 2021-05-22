@@ -168,7 +168,9 @@ class DlgMain(QDialog):
         # check box for netconvert
         self.netconvert_options_groupbox = QGroupBox()
         self.netconvert_urban_op = QCheckBox('Urban')
+        self.netconvert_urban_op.setChecked(True)
         self.netconvert_highway_op = QCheckBox('Highway')
+        self.netconvert_highway_op.setEnabled(False)
         self.netconvert_urban_op.toggled.connect(self.evt_netconvert_urban_op)
         self.netconvert_highway_op.toggled.connect(self.evt_netconvert_highway_op)
 
@@ -215,7 +217,9 @@ class DlgMain(QDialog):
             # sys.exit('SUMO_HOME environment variable is not found.')
         else:
             # Update SUMO bin path
-            if os.path.basename(self.SUMO_exec) != 'bin': self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
+            list_sumo_path = os.path.abspath(self.SUMO_exec).split('/')
+            if 'bin' not in list_sumo_path:
+                self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
 
 
     #################  DEFINE EVENTS ###############################
@@ -231,15 +235,16 @@ class DlgMain(QDialog):
         self.Update_SUMO_exec_path()
         if self.osm:
             # SUMO 1.2.0
-            cmd = f'{self.SUMO_exec} ./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
+            cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
+            print(cmd)
             os.system(cmd)
-            self.check_netconvert_file(True)
+            self.check_netconvert_file.setChecked(True)
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
 
     def polyconvert_btn_clicked(self):
 
-        self.check_polyconvert_file(True)
+        self.check_polyconvert_file.setChecked(True)
 
     def evt_netconvert_highway_op(self):
         if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
