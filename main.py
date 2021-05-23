@@ -253,8 +253,11 @@ class DlgMain(QDialog):
             osm_parent_dir = os.path.dirname(self.osm)
             temp_poly_loc = os.path.join(osm_parent_dir,'osm.poly.xml')
             cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {temp_poly_loc} --ignore-errors true'
+            # convert to list for subprocess popoen
+            cmd_list = cmd.split(' ')
+
             try:
-                subprocess.Popen(cmd, shell=True)
+                subprocess.Popen(cmd_list)
                 self.poly = temp_poly_loc
                 self.check_polyconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
@@ -272,17 +275,20 @@ class DlgMain(QDialog):
             osm_parent_dir = os.path.dirname(self.osm)
             temp_network_loc = os.path.join(osm_parent_dir, 'osm.net.xml')
 
-
             # TO DO update highway else netconvert options
             if self.netconvert_urban_op.isChecked():
-                cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+                cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
             elif self.netconvert_highway_op.isChecked():
-                cmd = f'{self.SUMO_exec}./netconvert -v -W --osm-files {self.osm} -o {temp_network_loc}'
+                cmd = f'{self.SUMO_exec}./netconvert -W --osm-files {self.osm} -o {temp_network_loc}'
             else:
-                cmd = f'{self.SUMO_exec}./netconvert -v -W --no-turnarounds.tls --no-turnarounds --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+                cmd = f'{self.SUMO_exec}./netconvert -W --no-turnarounds.tls --no-turnarounds --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+
+            cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+            # convert to list for subprocess popoen
+            cmd_list = cmd.split(' ')
 
             try:
-                subprocess.Popen(cmd, shell=True)
+                subprocess.Popen(cmd_list)
                 self.network = temp_network_loc
                 self.check_netconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
