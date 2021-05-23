@@ -253,6 +253,7 @@ class DlgMain(QDialog):
             osm_parent_dir = os.path.dirname(self.osm)
             temp_poly_loc = os.path.join(osm_parent_dir,'osm.poly.xml')
             cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {temp_poly_loc} --ignore-errors true'
+
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
 
