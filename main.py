@@ -145,9 +145,8 @@ class DlgMain(QDialog):
         self.polyconvert_groupbox.setFont(subtitle_font)
         self.taz_groupbox.setFont(subtitle_font)
 
-
         self.label_netedit = QLabel('Create traffic assigment zone (TAZ)')
-        self.label_netedit.setfont(subtitle_font)
+        self.label_netedit.setFont(subtitle_font)
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
         self.sumo_groupbox = QGroupBox('SUMO Outputs')
