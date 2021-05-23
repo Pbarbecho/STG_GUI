@@ -250,7 +250,7 @@ class DlgMain(QDialog):
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
         if self.network and self.poly:
-            cmd = f'netedit --sumo-shapes-file {self.poly} --sumo-net-file {self.network}'
+            cmd = f'{self.SUMO_exec}/netedit --sumo-shapes-file {self.poly} --sumo-net-file {self.network}'
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
 
