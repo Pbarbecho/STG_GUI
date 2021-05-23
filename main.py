@@ -7,6 +7,7 @@ from randomTrips import rt
 from utils import create_folder
 import subprocess
 
+
 class DlgMain(QDialog):
     def __init__(self):
         super().__init__()
@@ -44,12 +45,12 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("STG")
-        self.resize(400, 400)
+        self.resize(400, 500)
 
         ####################### CREATE LABELS ########################
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
-        subtitle_font = QFont("Times New Roman", 12, 12, False)
+        subtitle_font = QFont("Times New Roman", 13, 13, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -248,13 +249,12 @@ class DlgMain(QDialog):
 
 
     def evt_polyconvert_btn_clicked(self):
-        osm_parent_dir = os.path.dirname(self.osm)
-        temp_poly_loc = f'{osm_parent_dir}/osm.poly.xml'
-
         if self.network:
+            osm_parent_dir = os.path.dirname(self.osm)
+            temp_poly_loc = os.path.join(osm_parent_dir,'osm.poly.xml')
             cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {temp_poly_loc} --ignore-errors true'
             try:
-                subprocess.Popen(cmd)
+                subprocess.Popen(cmd, shell=True)
                 self.poly = temp_poly_loc
                 self.check_polyconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
@@ -267,16 +267,22 @@ class DlgMain(QDialog):
 
 
     def evt_netconvert_btn_clicked(self):
-        osm_parent_dir = os.path.dirname(self.osm)
-        temp_network_loc = f'{osm_parent_dir}/osm.net.xml'
         self.Update_SUMO_exec_path()
-
-        print(self.network)
         if self.osm:
-            # SUMO 1.2.0
-            cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+            osm_parent_dir = os.path.dirname(self.osm)
+            temp_network_loc = os.path.join(osm_parent_dir, 'osm.net.xml')
+
+
+            # TO DO update highway else netconvert options
+            if self.netconvert_urban_op.isChecked():
+                cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+            elif self.netconvert_highway_op.isChecked():
+                cmd = f'{self.SUMO_exec}./netconvert -v -W --osm-files {self.osm} -o {temp_network_loc}'
+            else:
+                cmd = f'{self.SUMO_exec}./netconvert -v -W --no-turnarounds.tls --no-turnarounds --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+
             try:
-                subprocess.Popen(cmd)
+                subprocess.Popen(cmd, shell=True)
                 self.network = temp_network_loc
                 self.check_netconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
