@@ -5,9 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
 from utils import create_folder
-
-#import subprocess
-
+import subprocess
 
 class DlgMain(QDialog):
     def __init__(self):
@@ -42,14 +40,13 @@ class DlgMain(QDialog):
         self.routing = ''
         self.osm = ''
         self.network = ''
-        self.poly =''
-
+        self.poly = ''
 
         # ventana principal
         self.setWindowTitle("STG")
         self.resize(400, 400)
 
-        ####################### CREATE LABELS ######################
+        ####################### CREATE LABELS ########################
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
         subtitle_font = QFont("Times New Roman", 12, 12, False)
@@ -59,31 +56,28 @@ class DlgMain(QDialog):
         self.title_label.setAlignment(Qt.AlignCenter)
         # requirements label
         self.requirements_label = QLabel('Requirements:')
-        ################ PROGRESS BAR ######################
+        ###################### PROGRESS BAR ##########################
         self.progress_bar = QProgressBar()
         self.progress_bar.setStyle(QStyleFactory.create('Windows'))
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(True)
 
-        # User text inputs
+        ####################### User text inputs districts ##################################
         self.O_distric = QPlainTextEdit()
         self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
         self.D_distric = QPlainTextEdit()
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
-
-        ########################################   TEXT BOX  ############################
+        #######################  BUILD NETWORK LOG TEXT BOX  ################################
         self.cmd_str = QPlainTextEdit()
         self.cmd_str.setPlaceholderText('Console logs')
-
-        ####################################################################################
-
-        # Text description of sumo tools
+        ######################  Text box  description of sumo tools     #####################
         self.RT_description = QTextEdit()
         self.MA_description = QTextEdit()
         self.DUA_description = QTextEdit()
         self.DUAI_description = QTextEdit()
         self.OD2_description = QTextEdit()
 
+        #########
         # TO DO FALTA CREAR TEXTO HTML CON  LA DESCRIPCION DE CADA HERRAMIENTA
         html_RT = """
         < b > This text is bold < / b >
@@ -104,50 +98,7 @@ class DlgMain(QDialog):
         #('This tool allows researchers to quicklygenerate a set of random trips within a time interval. The RT tool prevents bottlenecksin the network. ')
         #'Generates random distribuition of vehicles'
 
-        ####################### CREATE BUTTONS ######################
-        # check box for routing options
-        self.sumo_groupbox = QGroupBox('SUMO Outputs')
-        self.sumo_groupbox.setFont(subtitle_font)
-        self.sumo_output_tripinfo = QCheckBox('Tripinfo')
-        self.sumo_output_emissions = QCheckBox('Emissions')
-        self.sumo_output_summary = QCheckBox('Summary')
-        self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
-        self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
-        self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
-
-        self.sumo_rerouting_prob_spin = QSpinBox()
-        self.sumo_rerouting_prob_spin.setWrapping(True)
-        self.sumo_rerouting_prob_spin.setRange(0, 100)
-        self.sumo_rerouting_prob_spin.setValue(0)
-        self.sumo_rerouting_prob_spin.setSingleStep(10)
-        self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
-
-        # Input button open File
-        self.simtime_int_btn = QSpinBox()
-        self.simtime_int_btn.setWrapping(True)
-        self.simtime_int_btn.setRange(1,24)
-        self.simtime_int_btn.setValue(1)
-        self.simtime_int_btn.setSingleStep(1)
-        self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
-
-        # ORIGIN TAZ button open File
-        self.taz_file_btn = QPushButton('TAZ File')
-        self.taz_file_btn.clicked.connect(self.evt_taz_file_btn_clicked)
-
-        # Real traffic button open File
-        self.rt_file_btn = QPushButton('Traffic File')
-        self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
-
-        # Output button save File
-        self.outputFile_btn = QPushButton('Output')
-        self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
-
-        # generate simulation button
-        self.gen_btn = QPushButton('Generate', self)
-        self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
-
-
-        #################  NEW BUTTONS  ################################
+        ##########################  TRAFFIC DEMAND BUTTONS    ################################
         # osm file
         self.osm_file_btn = QPushButton('OSM File')
         self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
@@ -177,21 +128,61 @@ class DlgMain(QDialog):
         self.netconvert_urban_op.toggled.connect(self.evt_netconvert_urban_op)
         self.netconvert_highway_op.toggled.connect(self.evt_netconvert_highway_op)
 
-        #################   GROUP BOXES  NETWORK BUILD  ##############################
+        #   GROUP BOXES  NETWORK BUILD
         self.osm_groupbox = QGroupBox('1. Select OpenStreetMaps file (.osm)')
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
         self.osm_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
         self.polyconvert_groupbox.setFont(subtitle_font)
-        #########################################################################
-        # INSTANCIATE  TAB WIDGET
 
-        # MAIN TAB
+        #######################    BUILD TRAFFIC BUTTONS   ############################
+        # check box for sumo outputs
+        self.sumo_groupbox = QGroupBox('SUMO Outputs')
+        self.sumo_groupbox.setFont(subtitle_font)
+        self.sumo_output_tripinfo = QCheckBox('Tripinfo')
+        self.sumo_output_emissions = QCheckBox('Emissions')
+        self.sumo_output_summary = QCheckBox('Summary')
+        self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
+        self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
+        self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
+        # spinbox for reroute probability
+        self.sumo_rerouting_prob_spin = QSpinBox()
+        self.sumo_rerouting_prob_spin.setWrapping(True)
+        self.sumo_rerouting_prob_spin.setRange(0, 100)
+        self.sumo_rerouting_prob_spin.setValue(0)
+        self.sumo_rerouting_prob_spin.setSingleStep(10)
+        self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
+        # spinbox for number of simulation hours
+        self.simtime_int_btn = QSpinBox()
+        self.simtime_int_btn.setWrapping(True)
+        self.simtime_int_btn.setRange(1, 24)
+        self.simtime_int_btn.setValue(1)
+        self.simtime_int_btn.setSingleStep(1)
+        self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
+        # READ ORIGIN TAZ button open File
+        self.taz_file_btn = QPushButton('TAZ File')
+        self.taz_file_btn.clicked.connect(self.evt_taz_file_btn_clicked)
+        # READ real traffic button open File
+        self.rt_file_btn = QPushButton('Traffic File')
+        self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
+        # Output button save File
+        self.outputFile_btn = QPushButton('Output')
+        self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
+        # generate simulation button
+        self.gen_btn = QPushButton('Generate', self)
+        self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
+
+        ########################     INSTANCIATE  TAB WIDGET  #############################
         self.tab_main_menu = QTabWidget()
-
-        self.tab_selector = QTabWidget()
         self.tab_main = QTabWidget()
+        self.tab_selector = QTabWidget()
+
+        # INSTANCIATE widgets for each TAB option
+        self.wdg_build_network = QWidget()
+        self.wdg_traffic_demand = QWidget()
+        self.wdg_simulation = QWidget()
+        self.wdg_outputs = QWidget()
 
         # INSTANCIATE widgets for each radio option
         self.wdg_RT = QWidget()
@@ -200,16 +191,15 @@ class DlgMain(QDialog):
         self.wdg_DUAI = QWidget()
         self.wdg_OD2 = QWidget()
 
-        self.wdg_build_network = QWidget()
-        self.wdg_traffic_demand = QWidget()
-        self.wdg_simulation = QWidget()
-
-        #create widgets for tabs
+        # create widgets for TAB options
         self.wdg_inputs = QWidget()
         self.wdg_outputs = QWidget()
 
+        # SETUP LAYOUT
         self.setuplayout()
 
+
+    #########################   GENERAL FUNCTIONS ############################################
     def Update_SUMO_exec_path(self):
         if self.SUMO_exec == '':
             warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
@@ -219,87 +209,6 @@ class DlgMain(QDialog):
             list_sumo_path = os.path.abspath(self.SUMO_exec).split('/')
             if 'bin' not in list_sumo_path:
                 self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
-
-
-    #################  DEFINE EVENTS ###############################
-    def evt_osm_file_btn_clicked(self):
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                          'OSM File (*.osm)')
-        self.osm = fpath
-        self.check_osm_file.setChecked(True)
-        self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
-        QMessageBox.information(self, 'Ok', 'OSM File imported')
-
-    def evt_polyconvert_btn_clicked(self):
-        parent_dir = os.path.abspath(self.osm)
-        self.poly = f'{parent_dir}.poly.xml'
-
-        if self.network:
-            # SUMO 1.2.0
-            cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {self.poly} --ignore-errors true'
-            os.system(cmd)
-            self.check_polyconvert_file.setChecked(True)
-            self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
-            QMessageBox.information(self, 'Ok', 'Polygons file successfully generated')
-        else:
-            QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
-
-    def evt_netconvert_btn_clicked(self):
-        parent_dir = os.path.abspath(self.osm)
-        self.network = f'{parent_dir}.net.xml'
-        self.Update_SUMO_exec_path()
-        if self.osm:
-            # SUMO 1.2.0
-            cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {self.network}'
-            os.system(cmd)
-            self.check_netconvert_file.setChecked(True)
-            self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
-            QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
-        else:
-            QMessageBox.information(self, 'Missing File', 'OSM file is missing')
-
-
-    def evt_netconvert_highway_op(self):
-        if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
-        else:self.netconvert_urban_op.setDisabled(False)
-
-    def evt_netconvert_urban_op(self):
-        if self.netconvert_urban_op.checkState(): self.netconvert_highway_op.setDisabled(True)
-        else:self.netconvert_highway_op.setDisabled(False)
-
-    #########################################################################
-    def evt_tripinfo_clicked(self, value):
-        self.sumo_var_tripinfo = value
-
-    def evt_emissions_clicked(self, value):
-        self.sumo_var_emissions = value
-
-    def evt_summary_clicked(self, value):
-        self.sumo_var_summary = value
-
-    def evt_simtime_int_btn_clicked(self, value):
-        self.simtime = value
-
-    def evt_sumo_rerouting_prob_spin_clicked(self, value):
-        self.reroute_probability = value
-
-
-    def evt_rt_file_btn_clicked(self):
-        # input of the path to the traffic file .csv
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/',
-                                                       'CSV (*.csv)')
-        self.realtraffic = fpath
-
-    def evt_taz_file_btn_clicked(self):
-        # input one file
-        fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
-        self.taz_file = fpath
-
-    def evt_output_file_clicked(self):
-        # save new file
-        fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
-        self.outputs = fpath
-
 
     def update_paths(self):
         self.SUMO_outputs = os.path.join(self.parents_dir, 'outputs')
@@ -323,22 +232,105 @@ class DlgMain(QDialog):
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
-
     def get_selected_tool_str(self):
         tool_index = self.tab_selector.currentIndex()
         switcher = {0: "rt",1: "ma",2: "dua",3: "duai", 3:"od2"}
         return switcher.get(tool_index)
 
+    #########################  DEFINE BUILD NETWORK  EVENTS #############################################
+    def evt_osm_file_btn_clicked(self):
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
+                                                          'OSM File (*.osm)')
+        self.osm = fpath
+        self.check_osm_file.setChecked(True)
+        self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
+        QMessageBox.information(self, 'Ok', 'OSM File imported')
+
+
+    def evt_polyconvert_btn_clicked(self):
+        osm_parent_dir = os.path.dirname(self.osm)
+        temp_poly_loc = f'{osm_parent_dir}/osm.poly.xml'
+
+        if self.network:
+            cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {temp_poly_loc} --ignore-errors true'
+            try:
+                subprocess.Popen(cmd)
+                self.poly = temp_poly_loc
+                self.check_polyconvert_file.setChecked(True)
+                self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
+                QMessageBox.information(self, 'Ok', 'Polygons file successfully generated')
+            except Exception as e:
+                self.cmd_str.setPlainText(str(e))
+                QMessageBox.information(self, 'Error', 'SUMO polyconvert tool cannot executed. See console logs.')
+        else:
+            QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
+
+
+    def evt_netconvert_btn_clicked(self):
+        osm_parent_dir = os.path.dirname(self.osm)
+        temp_network_loc = f'{osm_parent_dir}/osm.net.xml'
+        self.Update_SUMO_exec_path()
+
+        print(self.network)
+        if self.osm:
+            # SUMO 1.2.0
+            cmd = f'{self.SUMO_exec}./netconvert -v -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+            try:
+                subprocess.Popen(cmd)
+                self.network = temp_network_loc
+                self.check_netconvert_file.setChecked(True)
+                self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
+                QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
+            except Exception as e:
+                self.cmd_str.setPlainText(str(e))
+                QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+        else:
+            QMessageBox.information(self, 'Missing File', 'OSM file is missing')
+
+
+    def evt_netconvert_highway_op(self):
+        if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
+        else:self.netconvert_urban_op.setDisabled(False)
+
+    def evt_netconvert_urban_op(self):
+        if self.netconvert_urban_op.checkState(): self.netconvert_highway_op.setDisabled(True)
+        else:self.netconvert_highway_op.setDisabled(False)
+
+    ############################    DEFINE TRAFFIC DEMAND EVENTS    ################################
+    def evt_tripinfo_clicked(self, value):
+        self.sumo_var_tripinfo = value
+
+    def evt_emissions_clicked(self, value):
+        self.sumo_var_emissions = value
+
+    def evt_summary_clicked(self, value):
+        self.sumo_var_summary = value
+
+    def evt_simtime_int_btn_clicked(self, value):
+        self.simtime = value
+
+    def evt_sumo_rerouting_prob_spin_clicked(self, value):
+        self.reroute_probability = value
+
+    def evt_rt_file_btn_clicked(self):
+        # input of the path to the traffic file .csv
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/',
+                                                       'CSV (*.csv)')
+        self.realtraffic = fpath
+
+    def evt_taz_file_btn_clicked(self):
+        # input one file
+        fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
+        self.taz_file = fpath
+
+    def evt_output_file_clicked(self):
+        # save new file
+        fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
+        self.outputs = fpath
 
     def evt_gen_btn_clicked(self):
         # Find sumo installation
-        SUMO = os.environ['SUMO_HOME']
-        if SUMO == '':
-            warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
-            sys.exit('SUMO_HOME environment variable is not found.')
-        else:
-            self.SUMO_exec = f'{SUMO}/bin/'
-
+        self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = self.get_selected_tool_str()
         self.O_district = self.O_distric.toPlainText()
@@ -357,36 +349,22 @@ class DlgMain(QDialog):
                                                                        f' {inputs_type[index]}')
                     break
             empty_inputs = False
-
         # Routing selector
         if self.tab_selector.currentIndex() == 0:
             self.update_paths()
             rt(self, 0, 1, False)
 
-        """
-        for x in range(100):
-            print(x)
-            time.sleep(0.1)
-            self.progress_bar.setValue(x)
-            app.processEvents()
-        """
-
-
 
     def setuplayout(self):
-
         #####################  LAYOUT #########################3
         self.tab_main_layout = QHBoxLayout()
         self.tab_main_layout.addWidget(self.tab_main_menu)
-
-
         #####################  TABS OF THE MAIN MENU #########################3
         self.tab_main_menu.addTab(self.wdg_build_network, "Build Network")
         self.tab_main_menu.addTab(self.wdg_MA, "Traffic Demand")
         self.tab_main_menu.addTab(self.wdg_DUA, "Simulation")
-
+        self.tab_main_menu.addTab(self.wdg_DUA, "Outputs")
         ##################   BUILD NETWORK SUB LAYOUTS      #####################3
-
         self.osm_sublayout = QHBoxLayout()
         self.osm_sublayout.addWidget(self.osm_file_btn)
         self.osm_sublayout.addWidget(self.check_osm_file)
@@ -412,17 +390,19 @@ class DlgMain(QDialog):
         self.polyconvert_sublayout.addWidget(self.check_polyconvert_file)
         self.polyconvert_sublayout.setAlignment(Qt.AlignRight)
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
+        ##################   BUILD TRAFFIC DEMAND SUB LAYOUTS    #####################3
 
 
-        ##################   CONTAINERS    #####################3
+
+
+        ##################   CONTAINER BUILD NETWORK    #####################3
         self.container_build_network = QFormLayout()
         self.container_build_network.addRow(self.osm_groupbox)
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
-        self.container_build_network.addRow(self.cmd_str)
-
+        self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
-        ####################################################3
+        ######################################################################
 
 
 
@@ -509,10 +489,8 @@ class DlgMain(QDialog):
         self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
 
         """
-
         # Match with main layout
         self.setLayout(self.tab_main_layout)
-
 
 
 if __name__ == "__main__":
