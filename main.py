@@ -19,7 +19,8 @@ class DlgMain(QDialog):
         self.O_district = ''
         self.D_district = ''
         self.processors = multiprocessing.cpu_count()
-        self.SUMO_exec = os.environ['SUMO_HOME']
+        #self.SUMO_exec = os.environ['SUMO_HOME']
+        self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
         self.trips = ''
         self.outputs = ''
@@ -45,12 +46,12 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("STG")
-        self.resize(400, 500)
+        self.resize(600, 500)
 
         ####################### CREATE LABELS ########################
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
-        subtitle_font = QFont("Times New Roman", 13, 13, False)
+        subtitle_font = QFont("Times New Roman", 15, 15, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -206,6 +207,24 @@ class DlgMain(QDialog):
         self.wdg_inputs = QWidget()
         self.wdg_outputs = QWidget()
 
+        #####################    GROUP BOXES  TRAFFIC DEMAND   ##################
+        self.tab_groupbox = QGroupBox()
+
+        self.rt_groupbox = QGroupBox('RandomTrips')
+        self.rt_groupbox.setFont(subtitle_font)
+
+        self.ma_groupbox = QGroupBox('MARouter')
+        self.ma_groupbox.setFont(subtitle_font)
+
+        self.dua_groupbox = QGroupBox('DUARouter')
+        self.dua_groupbox.setFont(subtitle_font)
+
+        self.duai_groupbox = QGroupBox('DUAIterate')
+        self.duai_groupbox.setFont(subtitle_font)
+
+        self.od2_groupbox = QGroupBox('OD2Trips')
+        self.od2_groupbox.setFont(subtitle_font)
+
         # SETUP LAYOUT
         self.setuplayout()
 
@@ -218,6 +237,7 @@ class DlgMain(QDialog):
         else:
             # Update SUMO bin path
             list_sumo_path = os.path.abspath(self.SUMO_exec).split('/')
+
             if 'bin' not in list_sumo_path:
                 self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
 
@@ -303,7 +323,6 @@ class DlgMain(QDialog):
         if self.osm:
             osm_parent_dir = os.path.dirname(self.osm)
             temp_network_loc = os.path.join(osm_parent_dir, 'osm.net.xml')
-
             # TO DO update highway else netconvert options
             if self.netconvert_urban_op.isChecked():
                 cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
@@ -401,9 +420,9 @@ class DlgMain(QDialog):
         self.tab_main_layout.addWidget(self.tab_main_menu)
         #####################  TABS OF THE MAIN MENU #########################3
         self.tab_main_menu.addTab(self.wdg_build_network, "Build Network")
-        self.tab_main_menu.addTab(self.wdg_MA, "Traffic Demand")
-        self.tab_main_menu.addTab(self.wdg_DUA, "Simulation")
-        self.tab_main_menu.addTab(self.wdg_DUA, "Outputs")
+        self.tab_main_menu.addTab(self.tab_groupbox, "Traffic Demand")
+        #self.tab_main_menu.addTab(self.wdg_DUA, "Simulation")
+        #self.tab_main_menu.addTab(self.wdg_DUA, "Outputs")
         ##################   BUILD NETWORK SUB LAYOUTS      #####################3
         self.osm_sublayout = QHBoxLayout()
         self.osm_sublayout.addWidget(self.osm_file_btn)
@@ -451,12 +470,43 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.taz_groupbox)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
-        ######################################################################
+        #################### TAB ROUTING SELECTOR ########################
+        self.tab_routing_selector_layout = QVBoxLayout()
+        self.tab_routing_selector_layout.addWidget(self.tab_selector)
+        self.tab_groupbox.setLayout(self.tab_routing_selector_layout)
 
+        ################### SELECTOR CONTAINERS ##################
+        self.ly_RT = QFormLayout()
+        self.ly_RT.addRow(self.RT_description)
+        self.ly_RT.addRow(self.sumo_groupbox)
+        self.wdg_RT.setLayout(self.ly_RT)
 
+        # setup MA
+        self.ly_MA = QFormLayout()
+        self.ly_MA.addRow(self.MA_description)
+        self.wdg_MA.setLayout(self.ly_MA)
 
+        # setup RT
+        self.ly_DUA = QFormLayout()
+        self.ly_DUA.addRow(self.DUA_description)
+        self.wdg_DUA.setLayout(self.ly_DUA)
 
+        # setup RT
+        self.ly_DUAI = QFormLayout()
+        self.ly_DUAI.addRow(self.DUAI_description)
+        self.wdg_DUAI.setLayout(self.ly_DUAI)
 
+        # setup RT
+        self.ly_OD2 = QFormLayout()
+        self.ly_OD2.addRow(self.OD2_description)
+        self.wdg_OD2.setLayout(self.ly_OD2)
+
+        ##################### Add container widgets to the TAB SELECTOR ###################
+        self.tab_selector.addTab(self.wdg_RT, "RandomTrips")
+        self.tab_selector.addTab(self.wdg_MA, "MARouter")
+        self.tab_selector.addTab(self.wdg_DUA, "DUARouter")
+        self.tab_selector.addTab(self.wdg_DUAI, "DUAIterate")
+        self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
 
 
 
