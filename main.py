@@ -284,8 +284,7 @@ class DlgMain(QDialog):
             else:
                 cmd = f'{self.SUMO_exec}./netconvert -W --no-turnarounds.tls --no-turnarounds --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
 
-            cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
-            # convert to list for subprocess popoen
+           # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
 
             try:
