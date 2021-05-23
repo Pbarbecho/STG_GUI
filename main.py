@@ -111,14 +111,20 @@ class DlgMain(QDialog):
         # Polyconvert
         self.polyconvert_btn = QPushButton('Polyconvert')
         self.polyconvert_btn.clicked.connect(self.evt_polyconvert_btn_clicked)
+        
+        # Netedit 
+        self.run_netedit_btn = QPushButton('Netedit')
+        self.run_netedit_btn.clicked.connect(self.evt_netedit_btn_clicked)
 
         # Check boxes
         self.check_osm_file = QCheckBox()
         self.check_netconvert_file = QCheckBox()
         self.check_polyconvert_file = QCheckBox()
+        self.check_netedit_file = QCheckBox()
         self.check_osm_file.setEnabled(False)
         self.check_netconvert_file.setEnabled(False)
         self.check_polyconvert_file.setEnabled(False)
+        self.check_netedit_file.setEnabled(False)
 
         # check box for netconvert
         self.netconvert_options_groupbox = QGroupBox()
@@ -133,9 +139,11 @@ class DlgMain(QDialog):
         self.osm_groupbox = QGroupBox('1. Select OpenStreetMaps file (.osm)')
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
+        self.taz_groupbox = QGroupBox('Optionally create traffic assigment zone (TAZ) (taz.xml)')
         self.osm_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
         self.polyconvert_groupbox.setFont(subtitle_font)
+        self.taz_groupbox.setFont(subtitle_font)
 
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
@@ -239,6 +247,24 @@ class DlgMain(QDialog):
         return switcher.get(tool_index)
 
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
+    def evt_netedit_btn_clicked(self):
+        self.Update_SUMO_exec_path()
+        if self.network and self.poly:
+            cmd = f'netedit --sumo-shapes-file {self.poly} --sumo-net-file {self.network}'
+            # convert to list for subprocess popoen
+            cmd_list = cmd.split(' ')
+
+            try:
+                subprocess.Popen(cmd_list)
+                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
+                self.check_polyconvert_file.setChecked(True)
+            except Exception as e:
+                self.cmd_str.setPlainText(str(e))
+                QMessageBox.information(self, 'Error', 'SUMO netedit tool cannot executed. See console logs.')
+        else:
+            QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
+
+
     def evt_osm_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
                                                           'OSM File (*.osm)')
@@ -402,6 +428,13 @@ class DlgMain(QDialog):
         self.polyconvert_sublayout.addWidget(self.check_polyconvert_file)
         self.polyconvert_sublayout.setAlignment(Qt.AlignRight)
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
+
+        self.taz_sublayout = QHBoxLayout()
+        self.taz_sublayout.addWidget(self.run_netedit_btn)
+        self.taz_sublayout.addWidget(self.check_netedit_file)
+        self.taz_sublayout.setAlignment(Qt.AlignRight)
+        self.taz_groupbox.setLayout(self.taz_sublayout)
+
         ##################   BUILD TRAFFIC DEMAND SUB LAYOUTS    #####################3
 
 
@@ -412,6 +445,7 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.osm_groupbox)
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
+        self.container_build_network.addRow(self.taz_groupbox)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
         ######################################################################
