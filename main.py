@@ -536,7 +536,6 @@ class DlgMain(QDialog):
         self.tab_selector.addTab(self.wdg_DUA, "DUARouter")
         self.tab_selector.addTab(self.wdg_DUAI, "DUAIterate")
         self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
-
         """
         # Match with main layout
         self.setLayout(self.tab_main_layout)
