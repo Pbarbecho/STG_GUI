@@ -139,12 +139,15 @@ class DlgMain(QDialog):
         self.osm_groupbox = QGroupBox('1. Select OpenStreetMaps file (.osm)')
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
-        self.taz_groupbox = QGroupBox('Optionally create traffic assigment zone (TAZ) (taz.xml)')
+        self.taz_groupbox = QGroupBox('4. Optional:')
         self.osm_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
         self.polyconvert_groupbox.setFont(subtitle_font)
         self.taz_groupbox.setFont(subtitle_font)
 
+
+        self.label_netedit = QLabel('Create traffic assigment zone (TAZ)')
+        self.label_netedit.font(subtitle_font)
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
         self.sumo_groupbox = QGroupBox('SUMO Outputs')
@@ -250,7 +253,7 @@ class DlgMain(QDialog):
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
         if self.network and self.poly:
-            cmd = f'{self.SUMO_exec}/netedit --sumo-shapes-file {self.poly} --sumo-net-file {self.network}'
+            cmd = f'{self.SUMO_exec}/netedit -a {self.poly} --sumo-net-file {self.network}'
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
 
@@ -430,6 +433,7 @@ class DlgMain(QDialog):
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
 
         self.taz_sublayout = QHBoxLayout()
+        self.taz_sublayout.addWidget(self.label_netedit)
         self.taz_sublayout.addWidget(self.run_netedit_btn)
         self.taz_sublayout.addWidget(self.check_netedit_file)
         self.taz_sublayout.setAlignment(Qt.AlignRight)
