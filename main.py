@@ -19,8 +19,8 @@ class DlgMain(QDialog):
         self.O_district = ''
         self.D_district = ''
         self.processors = multiprocessing.cpu_count()
-        #self.SUMO_exec = os.environ['SUMO_HOME']
-        self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
+        self.SUMO_exec = os.environ['SUMO_HOME']
+        #self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
         self.trips = ''
         self.outputs = ''
@@ -454,7 +454,7 @@ class DlgMain(QDialog):
             cmd_list = cmd.split(' ')
 
             try:
-                subprocess.Popen(cmd_list, shell=True)
+                subprocess.Popen(cmd_list)
                 self.network = temp_network_loc
                 self.check_netconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
