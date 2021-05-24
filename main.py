@@ -52,7 +52,7 @@ class DlgMain(QDialog):
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
         subtitle_font = QFont("Times New Roman", 15, 15, False)
-        traffic_setting_label = QFont("Times New Roman", 17, 15, False)
+        traffic_setting_label = QFont("Times New Roman", 15, 15, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -68,12 +68,13 @@ class DlgMain(QDialog):
         ####################### User text inputs districts ##################################
         od_max_width = 200
         od_max_high = 40
-        self.O_distric_label = QLabel('ORIGIN TAZ')
+        self.O_distric_label = QLabel('Origin TAZ')
+
         self.O_distric = QPlainTextEdit()
 
         self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
         self.O_distric.setMaximumSize(od_max_width, od_max_high)
-        self.D_distric_label = QLabel('DESTINATION TAZ')
+        self.D_distric_label = QLabel('Destination TAZ')
         self.D_distric = QPlainTextEdit()
         self.D_distric.setMaximumSize(od_max_width, od_max_high)
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
@@ -130,12 +131,12 @@ class DlgMain(QDialog):
         tool_btn_wsize = 120
         # osm file
         self.osm_file_btn = QPushButton('OSM File')
-        self.osm_file_btn.setMaximumWidth(tool_btn_wsize)
+        self.osm_file_btn.setMinimumWidth(tool_btn_wsize)
         self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
 
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
-        self.netconvert_btn.setMaximumWidth(tool_btn_wsize)
+        self.netconvert_btn.setMinimumWidth(tool_btn_wsize)
         self.netconvert_btn.clicked.connect(self.evt_netconvert_btn_clicked)
 
         # Polyconvert
