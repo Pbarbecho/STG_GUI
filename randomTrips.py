@@ -155,16 +155,11 @@ def rt(config, k, repetitions, gui):
     trips_for_traffic(config, config.simtime, repetitions)
     # via route Travessera
     # custom_routes(config)
-
-
     # update bundle of trips
     update_vehicle_ID(config)
-
     # read trips
     read_trips = os.listdir(config.trips)
     trips = ','.join([f'{os.path.join(config.trips, elem)}' for elem in read_trips])
-
-
     # generate sumo cfg file
     gen_sumo_cfg(config.tool, trips, k, config, config.reroute_probability)
     # execute simulations

@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
-from utils import create_folder
+from utils import create_folder, simulate
 import subprocess
 
 
@@ -308,7 +308,6 @@ class DlgMain(QDialog):
         self.wdg_inputs = QWidget()
         self.wdg_outputs = QWidget()
 
-
         # SETUP LAYOUT
         self.setuplayout()
 
@@ -347,17 +346,12 @@ class DlgMain(QDialog):
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
-    def get_selected_tool_str(self):
-        tool_index = self.tab_selector.currentIndex()
-        switcher = {0: "rt",1: "ma",2: "dua",3: "duai", 3:"od2"}
-        return switcher.get(tool_index)
-
     #########################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
-        self.tool = self.get_selected_tool_str()
+        self.tool = 'rt'
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
@@ -384,9 +378,9 @@ class DlgMain(QDialog):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
-        self.tool = self.get_selected_tool_str()
+        self.tool = 'rt'
         # output default folder
-        self.trips =
+
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
@@ -394,27 +388,8 @@ class DlgMain(QDialog):
             if self.realtraffic:
                 self.update_paths()
                 rt(self, 0, 1, False)
-            else:warn_empty = QMessageBox.information(self, 'Missing File','Please select a valid traffic file.')
-        else:warn_empty = QMessageBox.information(self, 'Missing File','Please enter a valid Origin/Destination TAZ names.')
-
-
-        """        
-        # check for input files and general settings
-        list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
-        inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
-        inputs_type = ['File', 'File', 'NAME', 'NAME']
-
-        empty_inputs = True
-        while empty_inputs:
-            for index, input in enumerate(list_inputs):
-                if input == '':
-                    warn_empty = QMessageBox.information(self, 'Missing File',
-                                                         f'Please select a valid {inputs_index[index]}'
-                                                         f' {inputs_type[index]}')
-                    break
-            empty_inputs = False
-        """
-
+            else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
 
 
@@ -586,7 +561,7 @@ class DlgMain(QDialog):
         #####################  TABS OF THE MAIN MENU #########################3
         self.tab_main_menu.addTab(self.wdg_build_network, "Build Network")
         self.tab_main_menu.addTab(self.wdg_traffic_demand, "Traffic Demand")
-        #self.tab_main_menu.addTab(self.tab_groupbox, "Simulation")
+        self.tab_main_menu.addTab(self.wdg_simulation, "Simulation")
         #self.tab_main_menu.addTab(self.tab_groupbox, "Outputs")
 
         ##################   BUILD NETWORK SUB LAYOUTS      #####################3
