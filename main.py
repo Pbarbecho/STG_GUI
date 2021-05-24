@@ -102,7 +102,7 @@ class DlgMain(QDialog):
         #'Generates random distribuition of vehicles'
 
         ##########################  TRAFFIC DEMAND BUTTONS    ################################
-        tool_btn_wsize = 150
+        tool_btn_wsize = 120
         # osm file
         self.osm_file_btn = QPushButton('OSM File')
         self.osm_file_btn.setMaximumWidth(tool_btn_wsize)
@@ -115,7 +115,7 @@ class DlgMain(QDialog):
 
         # Polyconvert
         self.polyconvert_btn = QPushButton('Polyconvert')
-        self.polyconvert_btn.setMaximumWidth(tool_btn_wsize)
+        self.polyconvert_btn.setMinimumWidth(tool_btn_wsize)
         self.polyconvert_btn.clicked.connect(self.evt_polyconvert_btn_clicked)
         
         # Netedit 
@@ -128,6 +128,7 @@ class DlgMain(QDialog):
         self.check_netconvert_file = QCheckBox()
         self.check_polyconvert_file = QCheckBox()
         self.check_netedit_file = QCheckBox()
+
 
         self.check_osm_file.setEnabled(False)
         self.check_netconvert_file.setEnabled(False)
@@ -147,6 +148,7 @@ class DlgMain(QDialog):
         self.netconvert_highway_op.toggled.connect(self.evt_netconvert_highway_op)
 
         self.label_netedit = QLabel('Create traffic assigment zone (TAZ)')
+        self.label_netedit.setAlignment(Qt.AlignLeft)
         self.label_netedit.setFont(subtitle_font)
 
         #   GROUP BOXES  NETWORK BUILD
@@ -154,8 +156,7 @@ class DlgMain(QDialog):
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
         self.taz_groupbox = QGroupBox('4. Optional:')
-        self.label_netedit = QLabel('Create traffic assigment zone (TAZ)')
-        self.label_netedit.setFont(subtitle_font)
+
 
         self.osm_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
@@ -211,11 +212,11 @@ class DlgMain(QDialog):
         self.taz_file_btn.clicked.connect(self.evt_taz_file_btn_clicked)
 
         # TRQAFFIC SETTINGS
-        self.label_rt_file_btn = QLabel('Traffic file (*.csv)')
+        self.label_rt_file_btn = QLabel('Traffic (*.csv)')
         self.label_rt_file_btn.setAlignment(Qt.AlignRight)
         self.label_rt_file_btn.setFont(traffic_setting_label)
 
-        self.label_simtime_btn = QLabel('Simulation time')
+        self.label_simtime_btn = QLabel('Simulation Time')
         self.label_simtime_btn.setAlignment(Qt.AlignRight)
         self.label_simtime_btn.setFont(traffic_setting_label)
 
@@ -233,29 +234,29 @@ class DlgMain(QDialog):
 
         #################### TRAFFIC DEMAND BUTTONS ##########################
         # RT button
-        wsize = 110
+        wsize = 120
         self.rt_btn = QPushButton('RandomTrips')
-        self.rt_btn.setMaximumWidth(wsize)
+        self.rt_btn.setMinimumWidth(wsize)
         self.rt_btn.clicked.connect(self.evt_rt_btn_clicked)
 
         # MA button
         self.ma_btn = QPushButton('MARouter')
-        self.ma_btn.setMaximumWidth(wsize)
+        self.ma_btn.setMinimumWidth(wsize)
         self.ma_btn.clicked.connect(self.evt_ma_btn_clicked)
 
         # DUA button
         self.dua_btn = QPushButton('DUARouter')
-        self.dua_btn.setMaximumWidth(wsize)
+        self.dua_btn.setMinimumWidth(wsize)
         self.dua_btn.clicked.connect(self.evt_dua_btn_clicked)
 
         # DUAI button
         self.duai_btn = QPushButton('DUAIterate')
-        self.duai_btn.setMaximumWidth(wsize)
+        self.duai_btn.setMinimumWidth(wsize)
         self.duai_btn.clicked.connect(self.evt_duai_btn_clicked)
 
         # OD2 button
-        self.od2_btn = QPushButton(' OD2Trips ')
-        self.od2_btn.setMaximumWidth(wsize)
+        self.od2_btn = QPushButton('OD2Trips')
+        self.od2_btn.setMinimumWidth(wsize)
         self.od2_btn.clicked.connect(self.evt_od2_btn_clicked)
 
         ########################     INSTANCIATE  TAB WIDGET  #############################
@@ -392,7 +393,6 @@ class DlgMain(QDialog):
             cmd = f'{self.SUMO_exec}/netedit -a {self.poly} --sumo-net-file {self.network}'
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
-
             try:
                 subprocess.Popen(cmd_list)
                 self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
@@ -404,13 +404,15 @@ class DlgMain(QDialog):
             QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
 
 
-    def evt_osm_file_btn_clicked(self):
+    def evt_osm_file_btn_clicked(self, pulse_ok):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
                                                           'OSM File (*.osm)')
-        self.osm = fpath
-        self.check_osm_file.setChecked(True)
-        self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
-        QMessageBox.information(self, 'Ok', 'OSM File imported')
+        print(fpath)
+        if fpath:
+            self.osm = fpath
+            self.check_osm_file.setChecked(True)
+            self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
+            QMessageBox.information(self, 'Ok', 'OSM File imported')
 
 
     def evt_polyconvert_btn_clicked(self):
@@ -448,18 +450,20 @@ class DlgMain(QDialog):
             else:
                 cmd = f'{self.SUMO_exec}./netconvert -W --no-turnarounds.tls --no-turnarounds --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
 
-           # convert to list for subprocess popoen
+            # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
 
             try:
-                subprocess.Popen(cmd_list)
+                subprocess.Popen(cmd_list, shell=True)
                 self.network = temp_network_loc
                 self.check_netconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
                 QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
+
             except Exception as e:
                 self.cmd_str.setPlainText(str(e))
                 QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
 
@@ -554,18 +558,19 @@ class DlgMain(QDialog):
         self.osm_sublayout.setAlignment(Qt.AlignRight)
         self.osm_groupbox.setLayout(self.osm_sublayout)
 
-        self.netconvert_sublayout = QHBoxLayout()
-        self.netconvert_sublayout.addWidget(self.netconvert_btn)
-        self.netconvert_sublayout.addWidget(self.check_netconvert_file)
-        self.netconvert_sublayout.setAlignment(Qt.AlignRight)
-
-        self.netconvert_options_sublayout = QVBoxLayout()
+        self.netconvert_options_sublayout = QHBoxLayout()
         self.netconvert_options_sublayout.addWidget(self.netconvert_urban_op)
         self.netconvert_options_sublayout.addWidget(self.netconvert_highway_op)
 
+        self.netconvert_sublayout = QHBoxLayout()
+        self.netconvert_sublayout.addWidget(self.netconvert_btn)
+        self.netconvert_sublayout.addWidget(self.check_netconvert_file)
+
+
         self.netconvert_main_layout = QHBoxLayout()
-        self.netconvert_main_layout.addLayout(self.netconvert_options_sublayout)
+        self.netconvert_main_layout.addLayout(self.netconvert_options_sublayout, Qt.AlignLeft)
         self.netconvert_main_layout.addLayout(self.netconvert_sublayout)
+        self.netconvert_main_layout.setAlignment(Qt.AlignRight)
         self.netconvert_groupbox.setLayout(self.netconvert_main_layout)
 
         self.polyconvert_sublayout = QHBoxLayout()
@@ -575,10 +580,9 @@ class DlgMain(QDialog):
         self.polyconvert_groupbox.setLayout(self.polyconvert_sublayout)
 
         self.taz_sublayout = QHBoxLayout()
-        self.taz_sublayout.addWidget(self.label_netedit)
-        self.taz_sublayout.addWidget(self.run_netedit_btn)
+        self.taz_sublayout.addWidget(self.label_netedit, Qt.AlignLeft)
+        self.taz_sublayout.addWidget(self.run_netedit_btn, Qt.AlignRight)
         self.taz_sublayout.addWidget(self.check_netedit_file)
-        self.taz_sublayout.setAlignment(Qt.AlignRight)
         self.taz_groupbox.setLayout(self.taz_sublayout)
 
         ##################   BUILD TRAFFIC DEMAND SUB LAYOUTS    #####################3
