@@ -52,6 +52,7 @@ class DlgMain(QDialog):
         # TITLES FONTS
         title_font = QFont("Times New Roman", 20, 75, False)
         subtitle_font = QFont("Times New Roman", 15, 15, False)
+        traffic_setting_label = QFont("Times New Roman", 17, 15, False)
         # MAIN LABEL
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
@@ -101,20 +102,25 @@ class DlgMain(QDialog):
         #'Generates random distribuition of vehicles'
 
         ##########################  TRAFFIC DEMAND BUTTONS    ################################
+        tool_btn_wsize = 150
         # osm file
         self.osm_file_btn = QPushButton('OSM File')
+        self.osm_file_btn.setMaximumWidth(tool_btn_wsize)
         self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
 
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
+        self.netconvert_btn.setMaximumWidth(tool_btn_wsize)
         self.netconvert_btn.clicked.connect(self.evt_netconvert_btn_clicked)
 
         # Polyconvert
         self.polyconvert_btn = QPushButton('Polyconvert')
+        self.polyconvert_btn.setMaximumWidth(tool_btn_wsize)
         self.polyconvert_btn.clicked.connect(self.evt_polyconvert_btn_clicked)
         
         # Netedit 
         self.run_netedit_btn = QPushButton('Netedit')
+        self.run_netedit_btn.setMaximumWidth(tool_btn_wsize)
         self.run_netedit_btn.clicked.connect(self.evt_netedit_btn_clicked)
 
         # Check boxes
@@ -122,6 +128,7 @@ class DlgMain(QDialog):
         self.check_netconvert_file = QCheckBox()
         self.check_polyconvert_file = QCheckBox()
         self.check_netedit_file = QCheckBox()
+
         self.check_osm_file.setEnabled(False)
         self.check_netconvert_file.setEnabled(False)
         self.check_polyconvert_file.setEnabled(False)
@@ -129,17 +136,19 @@ class DlgMain(QDialog):
 
         # check box for netconvert
         self.netconvert_options_groupbox = QGroupBox()
+
         self.netconvert_urban_op = QCheckBox('Urban')
         self.netconvert_urban_op.setChecked(True)
+
         self.netconvert_highway_op = QCheckBox('Highway')
         self.netconvert_highway_op.setEnabled(False)
+
         self.netconvert_urban_op.toggled.connect(self.evt_netconvert_urban_op)
         self.netconvert_highway_op.toggled.connect(self.evt_netconvert_highway_op)
+
         self.label_netedit = QLabel('Create traffic assigment zone (TAZ)')
         self.label_netedit.setFont(subtitle_font)
 
-        #   GROUP BOXES  TITLE LABEL
-        self.title_label_groupbox = QGroupBox()
         #   GROUP BOXES  NETWORK BUILD
         self.osm_groupbox = QGroupBox('1. Select OpenStreetMaps file (.osm)')
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
@@ -185,26 +194,36 @@ class DlgMain(QDialog):
         self.sumo_rerouting_prob_spin.setValue(0)
         self.sumo_rerouting_prob_spin.setSingleStep(10)
         self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
+
         # spinbox for number of simulation hours
         self.simtime_int_btn = QSpinBox()
         self.simtime_int_btn.setWrapping(True)
         self.simtime_int_btn.setRange(1, 24)
         self.simtime_int_btn.setValue(1)
         self.simtime_int_btn.setSingleStep(1)
+        self.simtime_int_btn.setAlignment(Qt.AlignRight)
+        self.simtime_int_btn.setFont(traffic_setting_label)
+        self.simtime_int_btn.setMaximumWidth(110)
         self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
+
         # READ ORIGIN TAZ button open File
         self.taz_file_btn = QPushButton('TAZ File')
         self.taz_file_btn.clicked.connect(self.evt_taz_file_btn_clicked)
+
+        # TRQAFFIC SETTINGS
+        self.label_rt_file_btn = QLabel('Traffic file (*.csv)')
+        self.label_rt_file_btn.setAlignment(Qt.AlignRight)
+        self.label_rt_file_btn.setFont(traffic_setting_label)
+
+        self.label_simtime_btn = QLabel('Simulation time')
+        self.label_simtime_btn.setAlignment(Qt.AlignRight)
+        self.label_simtime_btn.setFont(traffic_setting_label)
+
         # READ real traffic button open File
-
-        self.label_rt_file_btn = QLabel('Enter real traffic file')
-        self.label_rt_file_btn.setAlignment(Qt.AlignLeft)
-
-        self.label_simtime_btn = QLabel('Set simulation time')
-        self.label_simtime_btn.setAlignment(Qt.AlignLeft)
-
-        self.rt_file_btn = QPushButton('Real Traffic (*.csv)')
+        self.rt_file_btn = QPushButton('Load file')
+        self.rt_file_btn.setMaximumWidth(110)
         self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
+
         # Output button save File
         self.outputFile_btn = QPushButton('Output')
         self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
@@ -214,23 +233,29 @@ class DlgMain(QDialog):
 
         #################### TRAFFIC DEMAND BUTTONS ##########################
         # RT button
+        wsize = 110
         self.rt_btn = QPushButton('RandomTrips')
+        self.rt_btn.setMaximumWidth(wsize)
         self.rt_btn.clicked.connect(self.evt_rt_btn_clicked)
 
         # MA button
         self.ma_btn = QPushButton('MARouter')
+        self.ma_btn.setMaximumWidth(wsize)
         self.ma_btn.clicked.connect(self.evt_ma_btn_clicked)
 
         # DUA button
         self.dua_btn = QPushButton('DUARouter')
+        self.dua_btn.setMaximumWidth(wsize)
         self.dua_btn.clicked.connect(self.evt_dua_btn_clicked)
 
         # DUAI button
         self.duai_btn = QPushButton('DUAIterate')
+        self.duai_btn.setMaximumWidth(wsize)
         self.duai_btn.clicked.connect(self.evt_duai_btn_clicked)
 
         # OD2 button
-        self.od2_btn = QPushButton('OD2Trips')
+        self.od2_btn = QPushButton(' OD2Trips ')
+        self.od2_btn.setMaximumWidth(wsize)
         self.od2_btn.clicked.connect(self.evt_od2_btn_clicked)
 
         ########################     INSTANCIATE  TAB WIDGET  #############################
