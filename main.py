@@ -45,7 +45,7 @@ class DlgMain(QDialog):
         self.poly = ''
 
         # ventana principal
-        self.setWindowTitle("STG")
+        self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
         self.resize(600, 500)
 
         ####################### CREATE LABELS ########################
@@ -66,9 +66,16 @@ class DlgMain(QDialog):
         self.progress_bar.setTextVisible(True)
 
         ####################### User text inputs districts ##################################
+        od_max_width = 200
+        od_max_high = 40
+        self.O_distric_label = QLabel('ORIGIN TAZ')
         self.O_distric = QPlainTextEdit()
+
         self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
+        self.O_distric.setMaximumSize(od_max_width, od_max_high)
+        self.D_distric_label = QLabel('DESTINATION TAZ')
         self.D_distric = QPlainTextEdit()
+        self.D_distric.setMaximumSize(od_max_width, od_max_high)
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
         #######################  BUILD NETWORK LOG TEXT BOX  ################################
         self.cmd_str = QPlainTextEdit()
@@ -83,17 +90,35 @@ class DlgMain(QDialog):
         #########
         # TO DO FALTA CREAR TEXTO HTML CON  LA DESCRIPCION DE CADA HERRAMIENTA
         html_RT = """
-        < b > This text is bold < / b >
+        < a > This tool allows researchers to quickly generate a set of random trips within a time interval. The RT tool prevents bottlenecks in the network. It uses an incremental traffic assignment method where the vehicle computes its route at the departure considering current conditions along the network. < / a >
+        <p style=”text-align: justify;”>
         """
+
+        html_MA = """
+            < a > The MARouter tool is able to compute a microscopic (flows) or macroscopic user assignment.  The MAR generates a list of vehicle flows (i.e., microscopic), including the route distributions meaning that each route includes the probability to be selected. Here, the traffic assignation method employs resistive functions that approximate the travel time increment when the number of vehicles in the flow increases. < / a >
+            """
+
+        html_DUA = """
+            < a > This tool computes vehicle routes that may be used by sumo using shortest path computation. It uses an empty-network traffic assignment method where each vehicle computes its route under the assumption that it is alone in the network. This behavior generates traffic congestions due to the sheer amount of traffic. < / a >
+            """
+
+        html_DUAI = """
+            < a > This tool uses an assignment method called iterative, which tries to calculate the user equilibrium, meaning that it generate a route for each vehicle where the route cost (e.g., travel time) cannot be reduced by using an alternative route. This is done by iteratively calling the DUAR tool. < / a >
+            """
+
+        html_OD2 = """
+            < a >  To allocate the traffic demand in the network, OD2 uses an incremental assignment method. Vehicles will calculate fastest paths according to their time of departure considering a traffic-loaded network. In this way, the incremental assignment prevents all vehicles from choosing the same route (i.e., prevents congested routes). By default, vehicles are uniformly distributed within the time interval coded in O/D matrices. < / a >
+            """
+
         self.RT_description.setText(html_RT)
         self.RT_description.setReadOnly(True)
-        self.MA_description.setText(html_RT)
+        self.MA_description.setText(html_MA)
         self.MA_description.setReadOnly(True)
-        self.DUA_description.setText(html_RT)
+        self.DUA_description.setText(html_DUA)
         self.DUA_description.setReadOnly(True)
-        self.DUAI_description.setText(html_RT)
+        self.DUAI_description.setText(html_DUAI)
         self.DUAI_description.setReadOnly(True)
-        self.OD2_description.setText(html_RT)
+        self.OD2_description.setText(html_OD2)
         self.OD2_description.setReadOnly(True)
 
         #'The DUAIterate uses an assignment method called iter-ative, see Table 1, which tries to calculate the user equilibrium,meaning that it generate a route for each vehicle where the routecost (e.g., travel time) cannot be reduced by using an alterna-tive route.  This is done by iteratively calling the DUAR tool'
@@ -204,7 +229,7 @@ class DlgMain(QDialog):
         self.simtime_int_btn.setSingleStep(1)
         self.simtime_int_btn.setAlignment(Qt.AlignRight)
         self.simtime_int_btn.setFont(traffic_setting_label)
-        self.simtime_int_btn.setMaximumWidth(110)
+        self.simtime_int_btn.setMaximumWidth(90)
         self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
 
         # READ ORIGIN TAZ button open File
@@ -216,21 +241,22 @@ class DlgMain(QDialog):
         self.label_rt_file_btn.setAlignment(Qt.AlignRight)
         self.label_rt_file_btn.setFont(traffic_setting_label)
 
-        self.label_simtime_btn = QLabel('Simulation Time')
+        self.label_simtime_btn = QLabel('Simulation Time [h]')
         self.label_simtime_btn.setAlignment(Qt.AlignRight)
         self.label_simtime_btn.setFont(traffic_setting_label)
 
         # READ real traffic button open File
         self.rt_file_btn = QPushButton('Load file')
-        self.rt_file_btn.setMaximumWidth(110)
+        self.rt_file_btn.setMaximumWidth(130)
         self.rt_file_btn.clicked.connect(self.evt_rt_file_btn_clicked)
 
         # Output button save File
         self.outputFile_btn = QPushButton('Output')
         self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
+
         # generate simulation button
-        self.gen_btn = QPushButton('Generate', self)
-        self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
+        #self.gen_btn = QPushButton('Generate', self)
+        #self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
 
         #################### TRAFFIC DEMAND BUTTONS ##########################
         # RT button
@@ -586,19 +612,29 @@ class DlgMain(QDialog):
         self.taz_groupbox.setLayout(self.taz_sublayout)
 
         ##################   BUILD TRAFFIC DEMAND SUB LAYOUTS    #####################3
-        self.traffic_demand_settings_subly = QHBoxLayout()
-        self.traffic_demand_settings_subly.addWidget(self.label_rt_file_btn)
-        self.traffic_demand_settings_subly.addWidget(self.rt_file_btn)
+        # Compound traffic demand settings
+        self.traffic_demand_settings_OD_ly = QVBoxLayout()
+        self.traffic_demand_settings_OD_ly.addWidget(self.O_distric_label)
+        self.traffic_demand_settings_OD_ly.addWidget(self.O_distric)
+        self.traffic_demand_settings_OD_ly.addWidget(self.D_distric_label)
+        self.traffic_demand_settings_OD_ly.addWidget(self.D_distric)
 
-        self.traffic_demand_settings = QHBoxLayout()
-        self.traffic_demand_settings.addWidget(self.label_simtime_btn)
-        self.traffic_demand_settings.addWidget(self.simtime_int_btn)
+        self.traffic_demand_settings_GS_1_ly = QHBoxLayout()
+        self.traffic_demand_settings_GS_1_ly.addWidget(self.label_rt_file_btn)
+        self.traffic_demand_settings_GS_1_ly.addWidget(self.rt_file_btn)
 
-        self.traffic_demand_settings_main_ly = QVBoxLayout()
-        self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings)
-        self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_subly)
+        self.traffic_demand_settings_GS_2_ly = QHBoxLayout()
+        self.traffic_demand_settings_GS_2_ly.addWidget(self.label_simtime_btn)
+        self.traffic_demand_settings_GS_2_ly.addWidget(self.simtime_int_btn)
+
+        self.traffic_demand_settings_GS_main_ly = QVBoxLayout()
+        self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_1_ly)
+        self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_2_ly)
+
+        self.traffic_demand_settings_main_ly = QHBoxLayout()
+        self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_OD_ly)
+        self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_GS_main_ly)
         self.traffic_setting_groupbox.setLayout(self.traffic_demand_settings_main_ly)
-
 
 
 
@@ -640,6 +676,7 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.taz_groupbox)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
+
         ##################   CONTAINER TRAFFIC DEMAND    #####################3
         self.container_traffic = QFormLayout()
         self.container_traffic.addRow(self.traffic_setting_groupbox)
