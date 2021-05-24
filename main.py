@@ -385,22 +385,17 @@ class DlgMain(QDialog):
         self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = self.get_selected_tool_str()
-
-
+        # output default folder
+        self.trips =
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
         if self.O_district and self.D_district:
             if self.realtraffic:
-                if self.trips:
-                    self.update_paths()
-                    rt(self, 0, 1, False)
-                else:
-                    warn_empty = QMessageBox.information(self, 'Missing File',
-                                                         f'Please select a valid {inputs_index[index]}'
-                                                         f' {inputs_type[index]}')
-
-            else:
+                self.update_paths()
+                rt(self, 0, 1, False)
+            else:warn_empty = QMessageBox.information(self, 'Missing File','Please select a valid traffic file.')
+        else:warn_empty = QMessageBox.information(self, 'Missing File','Please enter a valid Origin/Destination TAZ names.')
 
 
         """        
