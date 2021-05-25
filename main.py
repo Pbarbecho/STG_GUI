@@ -422,6 +422,7 @@ class DlgMain(QDialog):
                         rt(self, 0, 1, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
                         self.traffic_demand_cmd.setPlainText('Traffic demand files generated.')
+
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
