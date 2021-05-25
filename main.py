@@ -46,7 +46,7 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
-        self.resize(500, 300)
+        self.resize(550, 300)
 
         ####################### CREATE LABELS ########################
         # TITLES FONTS
@@ -412,6 +412,7 @@ class DlgMain(QDialog):
             if self.realtraffic:
                 self.update_paths()
                 rt(self, 0, 1, False)
+                QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
