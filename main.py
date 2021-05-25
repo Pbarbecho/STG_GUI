@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
-from utils import create_folder, simulate
+from utils import create_folder, simulate, exec_sim_cmd
 import subprocess
 
 
@@ -57,8 +57,7 @@ class DlgMain(QDialog):
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
         self.title_label.setAlignment(Qt.AlignCenter)
-        # requirements label
-        self.requirements_label = QLabel('Requirements:')
+
         ###################### PROGRESS BAR ##########################
         self.progress_bar = QProgressBar()
         self.progress_bar.setStyle(QStyleFactory.create('Windows'))
@@ -78,12 +77,15 @@ class DlgMain(QDialog):
         self.D_distric = QPlainTextEdit()
         self.D_distric.setMaximumSize(od_max_width, od_max_high)
         self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
-        #######################  BUILD NETWORK LOG TEXT BOX  ################################
-        self.cmd_str = QPlainTextEdit()
-        self.cmd_str.setPlaceholderText('Console logs')
 
-        self.traffic_demand_cmd = QPlainTextEdit()
+        #######################  BUILD NETWORK LOG TEXT BOX  ################################
+        self.cmd_str = QTextEdit()
+        self.cmd_str.setPlaceholderText('Console logs')
+        self.cmd_str.setReadOnly(True)
+
+        self.traffic_demand_cmd =QTextEdit()
         self.traffic_demand_cmd.setPlaceholderText('Console logs')
+        self.traffic_demand_cmd.setReadOnly(True)
         ######################  Text box  description of sumo tools     #####################
         self.RT_description = QTextEdit()
         self.MA_description = QTextEdit()
@@ -136,8 +138,9 @@ class DlgMain(QDialog):
         self.sumo_simulation_label.setAlignment(Qt.AlignLeft)
         self.sumo_simulation_label.setFont(subtitle_font)
 
-        self.cmd_output_str = QPlainTextEdit()
+        self.cmd_output_str = QTextEdit()
         self.cmd_output_str.setPlaceholderText('Outputs')
+        self.cmd_output_str.setReadOnly(True)
 
         self.run_simulation_btn = QPushButton('Run Simulation')
         self.run_simulation_btn.setMinimumWidth(120)
@@ -374,15 +377,21 @@ class DlgMain(QDialog):
     def evt_run_simulation_btn_clicked(self):
         if self.outputs:
             output_files = os.listdir(self.outputs)
-            if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
-                self.cmd_str.setPlainText(f'Simulating ...............')
-                try:
-                    simulate(self, self.processors, False)
-                    self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
-                    QMessageBox.information(self, 'Ok', 'Simulation compleate')
-                except Exception as e:
-                    self.cmd_output_str.setPlainText(str(e))
-                    QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+            simulations_list = os.listdir(self.cfg)
+            if simulations_list:
+                if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
+                    self.cmd_str.setPlainText(f'Simulating ...............')
+                    try:
+                        for s in simulations_list:
+                            exec_sim_cmd(s, self, True)
+
+                        self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
+                        QMessageBox.information(self, 'Ok', 'Simulation compleate')
+                    except Exception as e:
+                        self.cmd_output_str.setPlainText(str(e))
+                        QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+            else:
+                QMessageBox.information(self, 'Error', 'ty configurations folder.')
         else:
             QMessageBox.information(self, 'Error', 'Please generate Traffic Demand first.')
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
@@ -421,7 +430,9 @@ class DlgMain(QDialog):
             if self.realtraffic:
                 self.update_paths()
                 if QMessageBox.information(self, 'Generating Traffic Demand',
-                                           'Generate traffic demand may take some time. Proceed?'):
+                                           'Traffic demand generation may take some time, please wait. Proceed?'):
+                    self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
+
                     try:
                         rt(self, 0, 1, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')

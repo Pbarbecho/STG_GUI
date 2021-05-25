@@ -76,6 +76,7 @@ def gen_DUArouter(trips, i, folders):
 
 def simulate(folders, processors, gui):
     simulations = os.listdir(folders.cfg)
+
     if simulations:
         batch = parallel_batch_size(simulations)
         # Execute simulations
@@ -176,15 +177,26 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
     if routing == 'rt': curr_name = folders.O_district + '_' + folders.D_district
 
     # outputs
-    outputs = ['emission', 'summary', 'tripinfo']
+    outputs = []
+    if folders.sumo_var_emissions:
+        outputs.append('emission')
+    if folders.sumo_var_summary:
+        outputs.append('summary')
+    if folders.sumo_var_tripinfo:
+        outputs.append('tripinfo')
 
-
+    print(outputs)
 
     for out in outputs:
         ET.SubElement(parent, f'{out}-output').set('value', os.path.join(
             folders.outputs, f'{curr_name}_{out}_{k}.xml'))
 
-    # Write xml
+    # Update rou input
+    parent = tree.find('time')
+    ET.SubElement(parent, 'end').set('value', f'{folders.simtime*3600}')
+
+
+# Write xml
     output_dir = os.path.join(folders.cfg, f'{curr_name}_{routing}_{k}.sumo.cfg')
     tree.write(output_dir)
     return output_dir

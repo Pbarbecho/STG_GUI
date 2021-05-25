@@ -152,6 +152,7 @@ def rt(config, k, repetitions, gui):
 
     """
     # trips per hour
+    print(config.simtime)
     trips_for_traffic(config, config.simtime, repetitions)
     # via route Travessera
     # custom_routes(config)
