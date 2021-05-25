@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from randomTrips import rt
 from utils import create_folder, simulate, exec_sim_cmd
 import subprocess
-
+from xml.dom import minidom
 
 class DlgMain(QDialog):
     def __init__(self):
@@ -47,7 +47,7 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
-        self.resize(550, 300)
+        self.resize(600, 300)
 
         ####################### CREATE LABELS ########################
         # TITLES FONTS
@@ -228,6 +228,9 @@ class DlgMain(QDialog):
         self.duai_groupbox.setFont(subtitle_font)
         self.od2_groupbox = QGroupBox()
         self.od2_groupbox.setFont(subtitle_font)
+
+
+
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
         self.sumo_groupbox = QGroupBox('SUMO Outputs')
@@ -281,9 +284,9 @@ class DlgMain(QDialog):
         self.outputFile_btn = QPushButton('Output')
         self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
 
-        # generate simulation button
-        #self.gen_btn = QPushButton('Generate', self)
-        #self.gen_btn.clicked.connect(self.evt_gen_btn_clicked)
+        # update configuration file
+        self.update_cfg_btn = QPushButton('Upload Configuration File')
+        self.update_cfg_btn.clicked.connect(self.evt_update_cfg_btn_clicked)
 
         #################### TRAFFIC DEMAND BUTTONS ##########################
         # RT button
@@ -377,6 +380,15 @@ class DlgMain(QDialog):
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
+    def evt_update_cfg_btn_clicked(self):
+        if self.cfg:
+            # parse an xml file by name
+            mydoc = minidom.parse(self.cfg)
+            self.cmd_output_str.setPlainText(mydoc)
+        else:
+            QMessageBox.information(self, 'Error', 'SUMO configuration file is not generated yet.')
+
+
     def evt_run_simulation_btn_clicked(self):
         if self.outputs:
             simulations_list = os.listdir(self.cfg)
@@ -387,7 +399,7 @@ class DlgMain(QDialog):
                         for s in simulations_list:
                             exec_sim_cmd(s, self, self.sumo_var_gui)
                         output_files = os.listdir(self.outputs)
-                        self.cmd_output_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
+                        self.cmd_output_str.setPlainText(f'Simulation compleated. Outputs in {self.outputs} \n \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
@@ -794,6 +806,7 @@ class DlgMain(QDialog):
         self.container_simulation = QFormLayout()
         self.container_simulation.addRow(self.sumo_simulation_label)
         self.container_simulation.addRow(self.simulation_groupbox)
+        self.container_simulation.addRow(self.update_cfg_btn)
         self.container_simulation.addRow(self.cmd_output_str)
         self.wdg_simulation.setLayout(self.container_simulation)
 
