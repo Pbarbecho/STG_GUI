@@ -81,6 +81,9 @@ class DlgMain(QDialog):
         #######################  BUILD NETWORK LOG TEXT BOX  ################################
         self.cmd_str = QPlainTextEdit()
         self.cmd_str.setPlaceholderText('Console logs')
+
+        self.traffic_demand_cmd = QPlainTextEdit()
+        self.traffic_demand_cmd.setPlaceholderText('Console logs')
         ######################  Text box  description of sumo tools     #####################
         self.RT_description = QTextEdit()
         self.MA_description = QTextEdit()
@@ -411,8 +414,10 @@ class DlgMain(QDialog):
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
+                self.traffic_demand_cmd.setPlainText(f'Generating traffic demand files ...........')
                 rt(self, 0, 1, False)
                 QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
@@ -750,8 +755,9 @@ class DlgMain(QDialog):
 
         ##################   CONTAINER TRAFFIC DEMAND    #####################3
         self.container_traffic = QFormLayout()
-        self.container_traffic.addWidget(self.tab_routing_op)
+        self.container_traffic.addRow(self.tab_routing_op)
         self.container_traffic.addRow(self.traffic_setting_groupbox)
+        self.container_traffic.addRow(self.traffic_demand_cmd)
         self.wdg_traffic_demand.setLayout(self.container_traffic)
         ##################   CONTAINER SIMULATIONS     #####################3
         self.container_simulation = QFormLayout()
