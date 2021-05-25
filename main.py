@@ -46,7 +46,7 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
-        self.resize(600, 500)
+        self.resize(500, 300)
 
         ####################### CREATE LABELS ########################
         # TITLES FONTS
@@ -127,6 +127,19 @@ class DlgMain(QDialog):
         #('This tool allows researchers to quicklygenerate a set of random trips within a time interval. The RT tool prevents bottlenecksin the network. ')
         #'Generates random distribuition of vehicles'
 
+        ##########################  SIMULATION BUTTONS    ################################
+
+        self.sumo_simulation_label = QLabel('  Outputs:')
+        self.sumo_simulation_label.setAlignment(Qt.AlignLeft)
+        self.sumo_simulation_label.setFont(subtitle_font)
+
+        self.cmd_output_str = QPlainTextEdit()
+        self.cmd_output_str.setPlaceholderText('Outputs')
+
+        self.run_simulation_btn = QPushButton('Run Simulation')
+        self.run_simulation_btn.setMinimumWidth(120)
+        self.run_simulation_btn.clicked.connect(self.evt_run_simulation_btn_clicked)
+
         ##########################  TRAFFIC DEMAND BUTTONS    ################################
         tool_btn_wsize = 120
         # osm file
@@ -190,6 +203,10 @@ class DlgMain(QDialog):
         self.taz_groupbox.setFont(subtitle_font)
 
         #####################    GROUP BOXES  TRAFFIC DEMAND   ##################
+
+        self.simulation_groupbox = QGroupBox()
+        self.simulation_groupbox.setFont(subtitle_font)
+
         self.traffic_setting_groupbox = QGroupBox()
         self.traffic_setting_groupbox.setFont(subtitle_font)
         self.realtraffic_groupbox = QGroupBox()
@@ -286,6 +303,10 @@ class DlgMain(QDialog):
         self.od2_btn.setMinimumWidth(wsize)
         self.od2_btn.clicked.connect(self.evt_od2_btn_clicked)
 
+        ########################     INSTANCIATE  TAB TRAFFIC DEMAND ROUTING  #############################
+        self.tab_routing_op = QTabWidget()
+
+
         ########################     INSTANCIATE  TAB WIDGET  #############################
         self.tab_main_menu = QTabWidget()
         self.tab_main = QTabWidget()
@@ -312,7 +333,7 @@ class DlgMain(QDialog):
         self.setuplayout()
 
 
-    #########################   GENERAL FUNCTIONS ############################################
+    #################################   GENERAL FUNCTIONS ############################################
     def Update_SUMO_exec_path(self):
         if self.SUMO_exec == '':
             warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
@@ -346,33 +367,36 @@ class DlgMain(QDialog):
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
-    #########################  DEFINE TRAFFIC DEMAND EVENTS #############################################
+    ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
+    def evt_run_simulation_btn_clicked(self):
+        output_files = os.listdir(self.outputs)
+        try:
+            simulate(self, self.processors, False)
+            self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
+            QMessageBox.information(self, 'Ok', 'Simulation compleate')
+        except Exception as e:
+            self.cmd_output_str.setPlainText(str(e))
+            QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+
     def evt_od2_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = 'rt'
+        # output default folder
+
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
-        # check for input files and general settings
-        list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
-        inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
-        inputs_type = ['File', 'File', 'NAME', 'NAME']
-
-        empty_inputs = True
-        while empty_inputs:
-            for index, input in enumerate(list_inputs):
-                if input == '':
-                    warn_empty = QMessageBox.information(self, 'Missing File',
-                                                         f'Please select a valid {inputs_index[index]}'
-                                                         f' {inputs_type[index]}')
-                    break
-            empty_inputs = False
-        # Routing selector
-        self.update_paths()
-        rt(self, 0, 1, False)
-
+        if self.O_district and self.D_district:
+            if self.realtraffic:
+                self.update_paths()
+                rt(self, 0, 1, False)
+            else:
+                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:
+            warn_empty = QMessageBox.information(self, 'Missing File',
+                                                 'Please enter a valid Origin/Destination TAZ names.')
 
     def evt_rt_btn_clicked(self):
         # Find sumo installation
@@ -391,14 +415,66 @@ class DlgMain(QDialog):
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
-
-
     def evt_dua_btn_clicked(self):
-        print('event')
+        # Find sumo installation
+        self.Update_SUMO_exec_path()
+        # Update Selected tool
+        self.tool = 'rt'
+        # output default folder
+
+        self.O_district = self.O_distric.toPlainText()
+        self.D_district = self.D_distric.toPlainText()
+
+        if self.O_district and self.D_district:
+            if self.realtraffic:
+                self.update_paths()
+                rt(self, 0, 1, False)
+            else:
+                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:
+            warn_empty = QMessageBox.information(self, 'Missing File',
+                                                 'Please enter a valid Origin/Destination TAZ names.')
+
     def evt_duai_btn_clicked(self):
-        print('event')
+        # Find sumo installation
+        self.Update_SUMO_exec_path()
+        # Update Selected tool
+        self.tool = 'rt'
+        # output default folder
+
+        self.O_district = self.O_distric.toPlainText()
+        self.D_district = self.D_distric.toPlainText()
+
+        if self.O_district and self.D_district:
+            if self.realtraffic:
+                self.update_paths()
+                rt(self, 0, 1, False)
+            else:
+                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:
+            warn_empty = QMessageBox.information(self, 'Missing File',
+                                                 'Please enter a valid Origin/Destination TAZ names.')
+
     def evt_ma_btn_clicked(self):
-        print('event')
+        # Find sumo installation
+        self.Update_SUMO_exec_path()
+        # Update Selected tool
+        self.tool = 'rt'
+        # output default folder
+
+        self.O_district = self.O_distric.toPlainText()
+        self.D_district = self.D_distric.toPlainText()
+
+        if self.O_district and self.D_district:
+            if self.realtraffic:
+                self.update_paths()
+                rt(self, 0, 1, False)
+            else:
+                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:
+            warn_empty = QMessageBox.information(self, 'Missing File',
+                                                 'Please enter a valid Origin/Destination TAZ names.')
+
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
@@ -416,7 +492,6 @@ class DlgMain(QDialog):
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
 
-
     def evt_osm_file_btn_clicked(self, pulse_ok):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
                                                           'OSM File (*.osm)')
@@ -426,7 +501,6 @@ class DlgMain(QDialog):
             self.check_osm_file.setChecked(True)
             self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
             QMessageBox.information(self, 'Ok', 'OSM File imported')
-
 
     def evt_polyconvert_btn_clicked(self):
         if self.network:
@@ -448,7 +522,6 @@ class DlgMain(QDialog):
                 QMessageBox.information(self, 'Error', 'SUMO polyconvert tool cannot executed. See console logs.')
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network file is missing')
-
 
     def evt_netconvert_btn_clicked(self):
         self.Update_SUMO_exec_path()
@@ -479,7 +552,6 @@ class DlgMain(QDialog):
 
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
-
 
     def evt_netconvert_highway_op(self):
         if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
@@ -521,44 +593,14 @@ class DlgMain(QDialog):
         fpath = QFileDialog.getExistingDirectory(self, 'Save File', '/Users/Pablo/')
         self.outputs = fpath
 
-
-
-
-    def evt_gen_btn_clicked(self):
-        # Find sumo installation
-        self.Update_SUMO_exec_path()
-        # Update Selected tool
-        self.tool = self.get_selected_tool_str()
-        self.O_district = self.O_distric.toPlainText()
-        self.D_district = self.D_distric.toPlainText()
-
-        # check for input files and general settings
-        list_inputs = [self.realtraffic, self.trips, self.O_distric.toPlainText(), self.D_distric.toPlainText()]
-        inputs_index = ['Traffic', 'Output', 'O-Distric', 'D-distric']
-        inputs_type = ['File', 'File', 'NAME', 'NAME']
-
-        empty_inputs = True
-        while empty_inputs:
-            for index, input in enumerate(list_inputs):
-                if input == '':
-                    warn_empty = QMessageBox.information(self, 'Missing File', f'Please select a valid {inputs_index[index]}'
-                                                                       f' {inputs_type[index]}')
-                    break
-            empty_inputs = False
-        # Routing selector
-        if self.tab_selector.currentIndex() == 0:
-            self.update_paths()
-            rt(self, 0, 1, False)
-
-
+    ############3#####################  LAYOUT ###################################
     def setuplayout(self):
-        #####################  LAYOUT #########################3
+
         self.tab_main_layout = QVBoxLayout()
-        #self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
+        self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
         self.tab_main_layout.addWidget(self.tab_main_menu)
 
-
-        #####################  TABS OF THE MAIN MENU #########################3
+            #####################  TABS OF THE MAIN MENU #########################3
         self.tab_main_menu.addTab(self.wdg_build_network, "Build Network")
         self.tab_main_menu.addTab(self.wdg_traffic_demand, "Traffic Demand")
         self.tab_main_menu.addTab(self.wdg_simulation, "Simulation")
@@ -624,6 +666,12 @@ class DlgMain(QDialog):
         self.traffic_setting_groupbox.setLayout(self.traffic_demand_settings_main_ly)
 
 
+        self.simulation_main_ly = QHBoxLayout()
+        self.simulation_main_ly.addWidget(self.sumo_output_tripinfo)
+        self.simulation_main_ly.addWidget(self.sumo_output_summary)
+        self.simulation_main_ly.addWidget(self.sumo_output_emissions)
+        self.simulation_main_ly.addWidget(self.run_simulation_btn)
+        self.simulation_groupbox.setLayout(self.simulation_main_ly)
 
         self.ly_RT = QHBoxLayout()
         self.ly_RT.addWidget(self.RT_description)
@@ -664,93 +712,54 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
 
+        #######################  TAB ROTUNGI WIDGETS  ####################
+        self.wdg_tab_rt_routing = QWidget()
+        self.wdg_tab_ma_routing = QWidget()
+        self.wdg_tab_dua_routing = QWidget()
+        self.wdg_tab_duai_routing = QWidget()
+        self.wdg_tab_od2_routing = QWidget()
+        ####################### TAB CONTAINERS TRAFFIC DEMAND ###################
+        self.container_tab_rt_widget = QFormLayout()
+        self.container_tab_rt_widget.addRow(self.rt_groupbox)
+        self.wdg_tab_rt_routing.setLayout(self.container_tab_rt_widget)
+
+        self.container_tab_ma_widget = QFormLayout()
+        self.container_tab_ma_widget.addRow(self.ma_groupbox)
+        self.wdg_tab_ma_routing.setLayout(self.container_tab_ma_widget)
+
+        self.container_tab_dua_widget = QFormLayout()
+        self.container_tab_dua_widget.addRow(self.dua_groupbox)
+        self.wdg_tab_dua_routing.setLayout(self.container_tab_dua_widget)
+
+        self.container_tab_duai_widget = QFormLayout()
+        self.container_tab_duai_widget.addRow(self.duai_groupbox)
+        self.wdg_tab_duai_routing.setLayout(self.container_tab_duai_widget)
+
+        self.container_tab_od2_widget = QFormLayout()
+        self.container_tab_od2_widget.addRow(self.od2_groupbox)
+        self.wdg_tab_od2_routing.setLayout(self.container_tab_od2_widget)
+
+        ########### TAB TRAFFIC DEMAND WIDGETS #############
+        self.tab_routing_op.addTab(self.wdg_tab_rt_routing, "RandomTrips")
+        self.tab_routing_op.addTab(self.wdg_tab_ma_routing, "MARouter")
+        self.tab_routing_op.addTab(self.wdg_tab_dua_routing, "DUARouter")
+        self.tab_routing_op.addTab(self.wdg_tab_duai_routing, "DUAIterate")
+        self.tab_routing_op.addTab(self.wdg_tab_od2_routing, "OD2Trips")
+
+
         ##################   CONTAINER TRAFFIC DEMAND    #####################3
         self.container_traffic = QFormLayout()
+        self.container_traffic.addWidget(self.tab_routing_op)
         self.container_traffic.addRow(self.traffic_setting_groupbox)
-        self.container_traffic.addRow(self.rt_groupbox)
-        self.container_traffic.addRow(self.ma_groupbox)
-        self.container_traffic.addRow(self.dua_groupbox)
-        self.container_traffic.addRow(self.duai_groupbox)
-        self.container_traffic.addRow(self.od2_groupbox)
         self.wdg_traffic_demand.setLayout(self.container_traffic)
-
-        """
-        self.lyvertical = QVBoxLayout()
-        self.ly_settings = QHBoxLayout()
-
-        self.lysumooptions = QHBoxLayout()
-
-        # CREATE LAYOUT - ORDER IMPORTANT
-        self.lyvertical.addWidget(self.title_label)
-        self.lyvertical.addWidget(self.tab_selector)
-        self.lyvertical.addWidget(self.progress_bar)
-        self.lyvertical.addWidget(self.gen_btn)
-
-        self.lymainlayer.addLayout(self.lyvertical)
-        self.lymainlayer.addWidget(self.tab_main)
-
-        self.ly_settings.addWidget(self.simtime_int_btn)
-        self.ly_settings.addWidget(self.rt_file_btn)
-        # add tab
-        self.tab_main.addTab(self.wdg_inputs, 'Inputs')
-        self.tab_main.addTab(self.wdg_outputs, 'Outputs')
-
-        # add  sumo options to layout
-        self.lysumooptions.addWidget(self.sumo_output_tripinfo)
-        self.lysumooptions.addWidget(self.sumo_output_emissions)
-        self.lysumooptions.addWidget(self.sumo_output_summary)
-        self.lysumooptions.addWidget(self.sumo_rerouting_prob_spin)
-        self.sumo_groupbox.setLayout(self.lysumooptions)
-
-        ###################  TAB INPUT / OUTPUT CONTAINERS ##################
-        self.ly_input_TAB = QFormLayout()
-        self.ly_input_TAB.setAlignment(Qt.AlignRight)
-        self.ly_input_TAB.addRow('Time[h]',self.ly_settings)
-        #self.ly_input_TAB.addRow('Time [h]', self.simtime_int_btn)
-        self.ly_input_TAB.addRow('O-District', self.O_distric)
-        self.ly_input_TAB.addRow('D-District', self.D_distric)
-        self.ly_input_TAB.setRowWrapPolicy(QFormLayout.DontWrapRows)
-        self.wdg_inputs.setLayout(self.ly_input_TAB)
+        ##################   CONTAINER SIMULATIONS     #####################3
+        self.container_simulation = QFormLayout()
+        self.container_simulation.addRow(self.sumo_simulation_label)
+        self.container_simulation.addRow(self.simulation_groupbox)
+        self.container_simulation.addRow(self.cmd_output_str)
+        self.wdg_simulation.setLayout(self.container_simulation)
 
 
-        self.ly_output_TAB = QFormLayout()
-        self.ly_output_TAB.addRow('', self.outputFile_btn)
-        self.wdg_outputs.setLayout(self.ly_output_TAB)
-
-        ################### SELECTOR CONTAINERS ##################
-        self.ly_RT = QFormLayout()
-
-        self.ly_RT.addRow(self.RT_description)
-        self.ly_RT.addRow(self.sumo_groupbox)
-        self.wdg_RT.setLayout(self.ly_RT)
-
-        # setup MA
-        self.ly_MA = QFormLayout()
-        self.ly_MA.addRow(self.MA_description)
-        self.wdg_MA.setLayout(self.ly_MA)
-
-        # setup RT
-        self.ly_DUA = QFormLayout()
-        self.ly_DUA.addRow(self.DUA_description)
-        self.wdg_DUA.setLayout(self.ly_DUA)
-
-        # setup RT
-        self.ly_DUAI = QFormLayout()
-        self.ly_DUAI.addRow(self.DUAI_description)
-        self.wdg_DUAI.setLayout(self.ly_DUAI)
-
-        # setup RT
-        self.ly_OD2 = QFormLayout()
-        self.ly_OD2.addRow(self.OD2_description)
-        self.wdg_OD2.setLayout(self.ly_OD2)
-
-        ##################### Add container widgets to the TAB SELECTOR ###################
-        self.tab_selector.addTab(self.wdg_RT, "Random")
-        self.tab_selector.addTab(self.wdg_MA, "MARouter")
-        self.tab_selector.addTab(self.wdg_DUA, "DUARouter")
-        self.tab_selector.addTab(self.wdg_DUAI, "DUAIterate")
-        self.tab_selector.addTab(self.wdg_OD2, "OD2Trips")
-        """
         # Match with main layout
         self.setLayout(self.tab_main_layout)
 

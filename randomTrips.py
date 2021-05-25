@@ -164,7 +164,7 @@ def rt(config, k, repetitions, gui):
     gen_sumo_cfg(config.tool, trips, k, config, config.reroute_probability)
     # execute simulations
 
-    simulate(config, config.processors, gui)
+    #simulate(config, config.processors, gui) # add in utils
     """
     # detectors
     # singlexml2csv('detector.xml')
@@ -172,3 +172,4 @@ def rt(config, k, repetitions, gui):
     # process sumo outputs
     SUMO_outputs_process(config)
     """
+
