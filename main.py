@@ -234,6 +234,8 @@ class DlgMain(QDialog):
         self.sumo_output_tripinfo = QCheckBox('Tripinfo')
         self.sumo_output_emissions = QCheckBox('Emissions')
         self.sumo_output_summary = QCheckBox('Summary')
+        self.sumo_gui = QCheckBox('GUI')
+        self.sumo_gui.setChecked(False)
         self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
         self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
         self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
@@ -376,16 +378,15 @@ class DlgMain(QDialog):
     ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_run_simulation_btn_clicked(self):
         if self.outputs:
-            output_files = os.listdir(self.outputs)
             simulations_list = os.listdir(self.cfg)
             if simulations_list:
                 if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
-                    self.cmd_str.setPlainText(f'Simulating ...............')
+                    self.cmd_output_str.setPlainText(f'Simulating ...............')
                     try:
                         for s in simulations_list:
                             exec_sim_cmd(s, self, True)
-
-                        self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
+                        output_files = os.listdir(self.outputs)
+                        self.cmd_output_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
@@ -700,6 +701,7 @@ class DlgMain(QDialog):
         self.simulation_main_ly.addWidget(self.sumo_output_tripinfo)
         self.simulation_main_ly.addWidget(self.sumo_output_summary)
         self.simulation_main_ly.addWidget(self.sumo_output_emissions)
+        self.simulation_main_ly.addWidget(self.sumo_gui)
         self.simulation_main_ly.addWidget(self.run_simulation_btn)
         self.simulation_groupbox.setLayout(self.simulation_main_ly)
 
