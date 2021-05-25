@@ -402,6 +402,7 @@ class DlgMain(QDialog):
                                                  'Please enter a valid Origin/Destination TAZ names.')
 
     def evt_rt_btn_clicked(self):
+
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
@@ -413,10 +414,17 @@ class DlgMain(QDialog):
 
         if self.O_district and self.D_district:
             if self.realtraffic:
+
                 self.update_paths()
-                self.traffic_demand_cmd.setPlainText(f'Generating traffic demand files ...........')
-                rt(self, 0, 1, False)
-                QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+                if QMessageBox.information(self, 'Generating Traffic Demand',
+                                           'Generate traffic demand may take some time. Proceed?'):
+                    try:
+                        rt(self, 0, 1, False)
+                        QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+                        self.traffic_demand_cmd.setPlainText('Traffic demand files generated.')
+                    except Exception as e:
+                        self.traffic_demand_cmd.setPlainText(str(e))
+                        QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
 
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
