@@ -370,17 +370,22 @@ class DlgMain(QDialog):
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
-    ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
+    ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_run_simulation_btn_clicked(self):
-        output_files = os.listdir(self.outputs)
-        try:
-            simulate(self, self.processors, False)
-            self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
-            QMessageBox.information(self, 'Ok', 'Simulation compleate')
-        except Exception as e:
-            self.cmd_output_str.setPlainText(str(e))
-            QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
-
+        if self.outputs:
+            output_files = os.listdir(self.outputs)
+            if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
+                self.cmd_str.setPlainText(f'Simulating ...............')
+                try:
+                    simulate(self, self.processors, False)
+                    self.cmd_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
+                    QMessageBox.information(self, 'Ok', 'Simulation compleate')
+                except Exception as e:
+                    self.cmd_output_str.setPlainText(str(e))
+                    QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+        else:
+            QMessageBox.information(self, 'Error', 'Please generate Traffic Demand first.')
+    ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
@@ -414,7 +419,6 @@ class DlgMain(QDialog):
 
         if self.O_district and self.D_district:
             if self.realtraffic:
-
                 self.update_paths()
                 if QMessageBox.information(self, 'Generating Traffic Demand',
                                            'Generate traffic demand may take some time. Proceed?'):
