@@ -39,6 +39,7 @@ class DlgMain(QDialog):
         self.sumo_var_tripinfo = False
         self.sumo_var_emissions = False
         self.sumo_var_summary = False
+        self.sumo_var_gui = False
         self.routing = ''
         self.osm = ''
         self.network = ''
@@ -235,7 +236,7 @@ class DlgMain(QDialog):
         self.sumo_output_emissions = QCheckBox('Emissions')
         self.sumo_output_summary = QCheckBox('Summary')
         self.sumo_gui = QCheckBox('GUI')
-        self.sumo_gui.setChecked(False)
+        self.sumo_gui.toggled.connect(self.evt_sumo_gui_clicked)
         self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
         self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
         self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
@@ -384,7 +385,7 @@ class DlgMain(QDialog):
                     self.cmd_output_str.setPlainText(f'Simulating ...............')
                     try:
                         for s in simulations_list:
-                            exec_sim_cmd(s, self, True)
+                            exec_sim_cmd(s, self, self.sumo_var_gui)
                         output_files = os.listdir(self.outputs)
                         self.cmd_output_str.setPlainText(f'Simulation compleated. Output folder: \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')
@@ -593,6 +594,10 @@ class DlgMain(QDialog):
         else:self.netconvert_highway_op.setDisabled(False)
 
     ############################    DEFINE TRAFFIC DEMAND EVENTS    ################################
+    def evt_sumo_gui_clicked(self, value):
+        self.sumo_var_gui = value
+
+
     def evt_tripinfo_clicked(self, value):
         self.sumo_var_tripinfo = value
 
