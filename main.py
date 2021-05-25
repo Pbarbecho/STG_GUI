@@ -231,6 +231,7 @@ class DlgMain(QDialog):
 
 
 
+
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
         self.sumo_groupbox = QGroupBox('SUMO Outputs')
@@ -381,10 +382,17 @@ class DlgMain(QDialog):
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_update_cfg_btn_clicked(self):
-        if self.cfg:
+        cfg_list = os.listdir(self.cfg)
+        if cfg_list:
             # parse an xml file by name
-            mydoc = minidom.parse(self.cfg)
-            self.cmd_output_str.setPlainText(mydoc)
+
+
+            cfg_file_path = os.path.join(self.cfg, cfg_list[0])
+            qfile = QFile(cfg_file_path)
+
+            qtstrem = QTextStream(qfile)
+
+            self.cmd_output_str.setPlainText(qtstrem)
         else:
             QMessageBox.information(self, 'Error', 'SUMO configuration file is not generated yet.')
 
@@ -407,7 +415,7 @@ class DlgMain(QDialog):
             else:
                 QMessageBox.information(self, 'Error', 'ty configurations folder.')
         else:
-            QMessageBox.information(self, 'Error', 'Please generate Traffic Demand first.')
+            QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
         # Find sumo installation
@@ -719,7 +727,7 @@ class DlgMain(QDialog):
         self.simulation_main_ly.addWidget(self.sumo_output_summary)
         self.simulation_main_ly.addWidget(self.sumo_output_emissions)
         self.simulation_main_ly.addWidget(self.sumo_gui)
-        self.simulation_main_ly.addWidget(self.run_simulation_btn)
+        #self.simulation_main_ly.addWidget(self.run_simulation_btn)
         self.simulation_groupbox.setLayout(self.simulation_main_ly)
 
         self.ly_RT = QHBoxLayout()
@@ -806,7 +814,7 @@ class DlgMain(QDialog):
         self.container_simulation = QFormLayout()
         self.container_simulation.addRow(self.sumo_simulation_label)
         self.container_simulation.addRow(self.simulation_groupbox)
-        self.container_simulation.addRow(self.update_cfg_btn)
+        self.container_simulation.addRow(self.run_simulation_btn)
         self.container_simulation.addRow(self.cmd_output_str)
         self.wdg_simulation.setLayout(self.container_simulation)
 
