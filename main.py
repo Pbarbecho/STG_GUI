@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
-from utils import create_folder, simulate, exec_sim_cmd
+from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 import subprocess
 from xml.dom import minidom
 
@@ -146,6 +146,10 @@ class DlgMain(QDialog):
         self.run_simulation_btn = QPushButton('Run Simulation')
         self.run_simulation_btn.setMinimumWidth(120)
         self.run_simulation_btn.clicked.connect(self.evt_run_simulation_btn_clicked)
+
+        self.process_outputs_simulation_btn = QPushButton('Process simulation outputs (.xml to .csv)')
+        self.process_outputs_simulation_btn.setMinimumWidth(120)
+        self.process_outputs_simulation_btn.clicked.connect(self.evt_process_outputs_simulation_btn_clicked)
 
         ##########################  TRAFFIC DEMAND BUTTONS    ################################
         tool_btn_wsize = 120
@@ -381,6 +385,9 @@ class DlgMain(QDialog):
         self.edges = os.path.join(self.SUMO_tool, 'edges')
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
+    def evt_process_outputs_simulation_btn_clicked(self):
+        SUMO_outputs_process(self)
+
     def evt_update_cfg_btn_clicked(self):
         cfg_list = os.listdir(self.cfg)
         if cfg_list:
@@ -815,6 +822,7 @@ class DlgMain(QDialog):
         self.container_simulation.addRow(self.sumo_simulation_label)
         self.container_simulation.addRow(self.simulation_groupbox)
         self.container_simulation.addRow(self.run_simulation_btn)
+        self.container_simulation.addRow(self.process_outputs_simulation_btn)
         self.container_simulation.addRow(self.cmd_output_str)
         self.wdg_simulation.setLayout(self.container_simulation)
 
