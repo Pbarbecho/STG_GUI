@@ -36,7 +36,7 @@ class DlgMain(QDialog):
         self.reroute = ''
         self.edges = ''
         self.reroute_probability = 0
-        self.sumo_var_tripinfo = False
+        self.sumo_var_tripinfo = True
         self.sumo_var_emissions = False
         self.sumo_var_summary = False
         self.sumo_var_gui = False
@@ -241,8 +241,11 @@ class DlgMain(QDialog):
         self.sumo_groupbox = QGroupBox('SUMO Outputs')
         self.sumo_groupbox.setFont(subtitle_font)
         self.sumo_output_tripinfo = QCheckBox('Tripinfo')
+        self.sumo_output_tripinfo.setChecked(True)
         self.sumo_output_emissions = QCheckBox('Emissions')
+        self.sumo_output_emissions.setChecked(True)
         self.sumo_output_summary = QCheckBox('Summary')
+        self.sumo_output_summary.setChecked(True)
         self.sumo_gui = QCheckBox('GUI')
         self.sumo_gui.toggled.connect(self.evt_sumo_gui_clicked)
         self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
@@ -386,7 +389,17 @@ class DlgMain(QDialog):
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_process_outputs_simulation_btn_clicked(self):
-        SUMO_outputs_process(self)
+        cfg_list = os.listdir(self.cfg)
+        if len(cfg_list)>=1:
+            try:
+                SUMO_outputs_process(self)
+                QMessageBox.information(self, 'Ok', f'Tripinfo files successfully converted to .csv files {self.parsed}')
+            except Exception as e:
+                self.cmd_output_str.setPlainText(str(e))
+                QMessageBox.information(self, 'Error', 'Files cannot be parsed. See console logs.')
+        else:
+            QMessageBox.information(self, 'Error', 'No output files has been generated.')
+
 
     def evt_update_cfg_btn_clicked(self):
         cfg_list = os.listdir(self.cfg)
@@ -452,6 +465,12 @@ class DlgMain(QDialog):
         self.tool = 'rt'
         # output default folder
 
+        self.O_distric.setDisabled(True)
+        self.D_distric.setDisabled(True)
+
+        self.O_distric.setPlainText('ro')
+        self.D_distric.setPlainText('rd')
+
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
@@ -465,7 +484,8 @@ class DlgMain(QDialog):
                     try:
                         rt(self, 0, 1, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
-                        self.traffic_demand_cmd.setPlainText('Traffic demand files generated.')
+                        trips_list = os.listdir(self.trips)
+                        self.traffic_demand_cmd.setPlainText(f'Traffic demand files generated in {self.trips}: {trips_list}.')
 
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
@@ -660,7 +680,7 @@ class DlgMain(QDialog):
     def setuplayout(self):
 
         self.tab_main_layout = QVBoxLayout()
-        self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
+        #self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
         self.tab_main_layout.addWidget(self.tab_main_menu)
 
             #####################  TABS OF THE MAIN MENU #########################3
