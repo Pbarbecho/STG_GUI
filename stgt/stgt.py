@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from stgt.randomTrips import rt
-from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
+from stgt.utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 import subprocess
 
 
