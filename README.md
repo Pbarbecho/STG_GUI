@@ -1,5 +1,5 @@
 <p align="left">
-  <img src="doc/logo.png" width="400">
+  <img src="logo.png" width="400">
 </p>
 
 # Automating SUMO traffic demand generation [STG] #
