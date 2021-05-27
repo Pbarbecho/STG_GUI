@@ -8,9 +8,9 @@ from utils import SUMO_outputs_process, simulate, gen_sumo_cfg
 
 def exec_randomTrips(folders, fname, ini_time, veh_number, repetitions):
     # SUMO Tool randomtrips
-    sumo_tool = os.path.join(folders.SUMO_exec, '../..', 'tools', 'randomTrips.py')
-    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
-    add_file = os.path.join(folders.parents_dir, '../templates', 'vtype.xml')
+    sumo_tool = os.path.join(folders.SUMO_exec, '..', 'tools', 'randomTrips.py')
+    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    add_file = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
 
     # output directory
     output = os.path.join(folders.trips, f'{fname}.xml')

@@ -3,7 +3,7 @@ import os, sys
 from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from stgt.randomTrips import rt
+from randomTrips import rt
 from stgt.utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 import subprocess
 
@@ -366,7 +366,7 @@ class DlgMain(QDialog):
                 self.SUMO_exec = os.path.join(self.SUMO_exec, 'bin/')
 
     def update_paths(self):
-        self.SUMO_outputs = os.path.join(self.parents_dir, '../outputs')
+        self.SUMO_outputs = os.path.join(self.parents_dir, 'outputs')
         if not os.path.lexists(self.SUMO_outputs): os.makedirs(self.SUMO_outputs)
         self.SUMO_tool = os.path.join(self.SUMO_outputs, self.tool)
         create_folder(self.SUMO_tool)
@@ -380,7 +380,7 @@ class DlgMain(QDialog):
         self.dua = os.path.join(self.SUMO_tool, 'dua')
         self.ma = os.path.join(self.SUMO_tool, 'ma')
         self.cfg = os.path.join(self.SUMO_tool, 'cfg')
-        self.outputs = os.path.join(self.SUMO_tool, '../outputs')
+        self.outputs = os.path.join(self.SUMO_tool, 'outputs')
         self.detector = os.path.join(self.SUMO_tool, 'detector')
         self.xmltocsv = os.path.join(self.SUMO_tool, 'xmltocsv')
         self.parsed = os.path.join(self.SUMO_tool, 'parsed')
