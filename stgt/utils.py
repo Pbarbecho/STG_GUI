@@ -46,8 +46,8 @@ def print_time(process_name):
 
 
 def gen_DUArouter(trips, i, folders):
-    duarouter_conf = os.path.join(folders.parents_dir, 'templates', 'duarouter.cfg.xml')  # duaroter.cfg file location
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    duarouter_conf = os.path.join(folders.parents_dir, '../templates', 'duarouter.cfg.xml')  # duaroter.cfg file location
+    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
     # Open original file
     tree = ET.parse(duarouter_conf)
 
@@ -126,14 +126,14 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
         DESCRIPTION.
 
     """
-    sumo_cfg = os.path.join(folders.parents_dir, 'templates', 'osm.sumo.cfg')
-    vtype = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
+    sumo_cfg = os.path.join(folders.parents_dir, '../templates', 'osm.sumo.cfg')
+    vtype = os.path.join(folders.parents_dir, '../templates', 'vtype.xml')
     # new_emissions = os.path.join(folders.parents_dir,'templates', 'emissions.add.xml')
-    TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    TAZ = os.path.join(folders.parents_dir, '../templates', 'TAZ.xml')
+    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
 
     # Create detector file
-    detector_dir = os.path.join(folders.parents_dir, 'templates', 'detector.add.xml')
+    detector_dir = os.path.join(folders.parents_dir, '../templates', 'detector.add.xml')
     detector_output = os.path.join(folders.SUMO_tool, 'detector.xml')
     detector_cfg(detector_dir, detector_output, folders)
 
@@ -205,7 +205,7 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
 
 def edges_path(folders):
     # Open original edges additiona file
-    tree = ET.parse(os.path.join(folders.parents_dir, 'templates', 'edges.add.xml'))
+    tree = ET.parse(os.path.join(folders.parents_dir, '../templates', 'edges.add.xml'))
 
     edge_file = os.path.join(folders.edges, "%s_edges.xml")
 
@@ -266,8 +266,8 @@ def gen_od2trips(O, k, folders):
     # read O files
     O_files_list = os.listdir(folders.O)
     O_listToStr = ','.join([f'{os.path.join(folders.O, elem)}' for elem in O_files_list])
-    TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
-    od2trips_conf = os.path.join(folders.parents_dir, 'templates', 'od2trips.cfg.xml')
+    TAZ = os.path.join(folders.parents_dir, '../templates', 'TAZ.xml')
+    od2trips_conf = os.path.join(folders.parents_dir, '../templates', 'od2trips.cfg.xml')
     # Open original file
     tree = ET.parse(od2trips_conf)
 

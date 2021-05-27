@@ -100,9 +100,9 @@ def exec_DUAIterate(folders, via_trips, processors,end_hour, k):
     # duaiterate for iterative assigment
     
     # update paths
-    sumo_tool = os.path.join(folders.SUMO_exec, '..', 'tools/assign/duaIterate.py')
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
-    vtype = os.path.join(folders.parents_dir,'templates', 'vtype.xml')
+    sumo_tool = os.path.join(folders.SUMO_exec, '../..', 'tools/assign/duaIterate.py')
+    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
+    vtype = os.path.join(folders.parents_dir, '../templates', 'vtype.xml')
     
     # Path to detector file
     detector_file = os.path.join(folders.SUMO_tool, 'detector.xml')

@@ -62,11 +62,11 @@ def gen_route_files(folders, k, repetitions, end_hour, routing):
     
 
 def gen_MArouter(O, i, O_files, trips, folders):
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
     # read O files
     O_listToStr = ','.join([f'{os.path.join(folders.O, elem)}' for elem in O_files]) 
  
-    marouter_conf = os.path.join(folders.parents_dir,'templates','marouter.cfg.xml') # duaroter.cfg file location
+    marouter_conf = os.path.join(folders.parents_dir, '../templates', 'marouter.cfg.xml') # duaroter.cfg file location
     
     # Open original file
     tree = ET.parse(marouter_conf)
@@ -78,7 +78,7 @@ def gen_MArouter(O, i, O_files, trips, folders):
     ET.SubElement(parent, 'od-matrix-files').set('value', f'{O_listToStr}')    
   
     # update additionals 
-    TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
+    TAZ = os.path.join(folders.parents_dir, '../templates', 'TAZ.xml')
     add_list = [TAZ]
     additionals = ','.join([elem for elem in add_list]) 
     
