@@ -255,10 +255,10 @@ class DlgMain(QDialog):
         self.sumo_rerouting_prob_spin = QSpinBox()
         self.sumo_rerouting_prob_spin.setWrapping(True)
         self.sumo_rerouting_prob_spin.setRange(0, 100)
-        self.sumo_rerouting_prob_spin.setValue(0)
+        self.sumo_rerouting_prob_spin.setValue(50)
         self.sumo_rerouting_prob_spin.setSingleStep(10)
-        self.sumo_rerouting_prob_spin.setMaximumSize(100, 30)
-        self.simtime_int_btn.setAlignment(Qt.AlignRight)
+        self.sumo_rerouting_prob_spin.setMaximumSize(95, 30)
+        self.sumo_rerouting_prob_spin.setAlignment(Qt.AlignRight)
         self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
 
         self.sumo_rerouting_prob_label = QLabel('Reroute Probability')
@@ -273,7 +273,7 @@ class DlgMain(QDialog):
         self.simtime_int_btn.setSingleStep(1)
         self.simtime_int_btn.setAlignment(Qt.AlignRight)
         self.simtime_int_btn.setFont(traffic_setting_label)
-        self.simtime_int_btn.setMaximumSize(100, 30)
+        self.simtime_int_btn.setMaximumSize(95, 30)
         self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
 
         # READ ORIGIN TAZ button open File
