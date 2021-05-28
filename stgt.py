@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
-from stgt.utils import create_folder, SUMO_outputs_process, exec_sim_cmd
+from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 import subprocess
 
 
@@ -257,7 +257,13 @@ class DlgMain(QDialog):
         self.sumo_rerouting_prob_spin.setRange(0, 100)
         self.sumo_rerouting_prob_spin.setValue(0)
         self.sumo_rerouting_prob_spin.setSingleStep(10)
+        self.sumo_rerouting_prob_spin.setMaximumSize(100, 30)
+        self.simtime_int_btn.setAlignment(Qt.AlignRight)
         self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
+
+        self.sumo_rerouting_prob_label = QLabel('Reroute Probability')
+        self.sumo_rerouting_prob_label.setAlignment(Qt.AlignRight)
+        self.sumo_rerouting_prob_label.setFont(traffic_setting_label)
 
         # spinbox for number of simulation hours
         self.simtime_int_btn = QSpinBox()
@@ -267,7 +273,7 @@ class DlgMain(QDialog):
         self.simtime_int_btn.setSingleStep(1)
         self.simtime_int_btn.setAlignment(Qt.AlignRight)
         self.simtime_int_btn.setFont(traffic_setting_label)
-        self.simtime_int_btn.setMaximumWidth(90)
+        self.simtime_int_btn.setMaximumSize(100, 30)
         self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
 
         # READ ORIGIN TAZ button open File
@@ -739,9 +745,14 @@ class DlgMain(QDialog):
         self.traffic_demand_settings_GS_2_ly.addWidget(self.label_simtime_btn)
         self.traffic_demand_settings_GS_2_ly.addWidget(self.simtime_int_btn)
 
+        self.traffic_demand_settings_GS_3_ly = QHBoxLayout()
+        self.traffic_demand_settings_GS_3_ly.addWidget(self.sumo_rerouting_prob_label)
+        self.traffic_demand_settings_GS_3_ly.addWidget(self.sumo_rerouting_prob_spin)
+
         self.traffic_demand_settings_GS_main_ly = QVBoxLayout()
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_1_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_2_ly)
+        self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_3_ly)
 
         self.traffic_demand_settings_main_ly = QHBoxLayout()
         self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_OD_ly)
@@ -795,7 +806,6 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.taz_groupbox)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
-
         #######################  TAB ROTUNGI WIDGETS  ####################
         self.wdg_tab_rt_routing = QWidget()
         self.wdg_tab_ma_routing = QWidget()
@@ -822,15 +832,12 @@ class DlgMain(QDialog):
         self.container_tab_od2_widget = QFormLayout()
         self.container_tab_od2_widget.addRow(self.od2_groupbox)
         self.wdg_tab_od2_routing.setLayout(self.container_tab_od2_widget)
-
         ########### TAB TRAFFIC DEMAND WIDGETS #############
         self.tab_routing_op.addTab(self.wdg_tab_rt_routing, "RandomTrips")
         self.tab_routing_op.addTab(self.wdg_tab_ma_routing, "MARouter")
         self.tab_routing_op.addTab(self.wdg_tab_dua_routing, "DUARouter")
         self.tab_routing_op.addTab(self.wdg_tab_duai_routing, "DUAIterate")
         self.tab_routing_op.addTab(self.wdg_tab_od2_routing, "OD2Trips")
-
-
         ##################   CONTAINER TRAFFIC DEMAND    #####################3
         self.container_traffic = QFormLayout()
         self.container_traffic.addRow(self.tab_routing_op)
@@ -845,11 +852,8 @@ class DlgMain(QDialog):
         self.container_simulation.addRow(self.process_outputs_simulation_btn)
         self.container_simulation.addRow(self.cmd_output_str)
         self.wdg_simulation.setLayout(self.container_simulation)
-
-
         # Match with main layout
         self.setLayout(self.tab_main_layout)
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # create applications
