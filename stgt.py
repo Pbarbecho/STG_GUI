@@ -15,6 +15,7 @@ class DlgMain(QDialog):
         # initial configurations
         self.realtraffic = ''
         self.simtime = 1
+        self.repetitions = 1
         self.taz_file = ''
         self.O_district = ''
         self.D_district = ''
@@ -553,7 +554,7 @@ class DlgMain(QDialog):
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
-                rt(self, 0, 1, False)
+                rt(self, 0, False) # config, k , gui
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:
@@ -858,5 +859,24 @@ class DlgMain(QDialog):
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # create applications
     dlgMain = DlgMain()  # create main GUI canvas
+
     dlgMain.show()  # Show gui console
     sys.exit(app.exec_())
+
+        main = QtGui.QMainWindow()
+
+
+        main.setCentralWidget(text)
+
+        # create the updating thread and connect
+        # it's received signal to append
+        # every received chunk of data/text will be appended to the text
+        t = UpdateThread()
+        t.received.connect(text.append)
+        t.start()
+
+        main.show()
+        app.exec_()
+
+
+

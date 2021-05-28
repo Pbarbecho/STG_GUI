@@ -11,9 +11,6 @@ import shutil
 import numpy as np
 from datetime import datetime
 
-# from joblib import Parallel, delayed, parallel_backend
-
-
 # import sumo tool xmltocsv
 os.environ['SUMO_HOME'] = '/opt/sumo-1.8.0'
 

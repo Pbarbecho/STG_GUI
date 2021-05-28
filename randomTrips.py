@@ -62,9 +62,11 @@ def custom_routes(folders):
         tree.write(cfg_name)
 
 
-def trips_for_traffic(folders, end_hour, repetitions):
+def trips_for_traffic(folders):
+    # general configurations
+    end_hour = folders.simtime
+    repetitions = folders.repetitions
     # read real traffic file
-
     traffic_df = pd.read_csv(folders.realtraffic)
     # generate randomtrips file each 15 min
     col = list(traffic_df)
@@ -127,33 +129,9 @@ def singlexml2csv(f):
     # os.system(cmd)
 
 
-def rt(config, k, repetitions, gui):
-    """
-    Parameters
-    ----------
-    config : TYPE
-        DESCRIPTION.
-    k : TYPE
-        DESCRIPTION.
-    repetitions : TYPE
-        DESCRIPTION.
-    end_hour : TYPE
-        DESCRIPTION.
-    processors : TYPE
-        DESCRIPTION.
-    routing : TYPE
-        DESCRIPTION.
-    gui : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
-    """
-    # trips per hour
-    print(config.simtime)
-    trips_for_traffic(config, config.simtime, repetitions)
+def rt(config, k, gui):
+    # GENERATE TRIPS  per hour
+    trips_for_traffic(config)
     # via route Travessera
     # custom_routes(config)
     # update bundle of trips
