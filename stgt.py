@@ -598,8 +598,8 @@ class DlgMain(QDialog):
         # output default folder
 
         #DUARouter requires TAZ O/D names
-        #self.O_distric.setDisabled(True)
-        #self.D_distric.setDisabled(True)
+        self.O_distric.setDisabled(False)
+        self.D_distric.setDisabled(False)
         #self.O_distric.setPlainText('ro')
         #self.D_distric.setPlainText('rd')
 
