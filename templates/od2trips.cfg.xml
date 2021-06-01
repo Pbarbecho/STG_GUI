@@ -37,7 +37,7 @@
         <print-options value="false"/>
         <help value=""/>
         <version value="false"/>
-        <xml-validation value="auto"/>
+        <!--<xml-validation value="auto"/>-->
         <xml-validation.net value="never"/>
         <no-warnings value="true"/>
         <!--<aggregate-warnings value="-1"/>-->

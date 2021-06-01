@@ -10,16 +10,19 @@ def clean_folder(folder):
     #print(f'Cleanned: {folder}')
     
 
-def gen_routes(O, k, O_files, folders, routing):
+def gen_routes(O, k, O_files, folders):
      """
      Generate configuration files for dua / ma router
      """
+     routing = folders.routing
+
      # Generate od2trips cfg
-     cfg_name, output_name = gen_od2trips(O,k, folders)
-    
+     cfg_name, output_name = gen_od2trips(O,k,folders)
+
      # Execute od2trips
      output_name = exec_od2trips(cfg_name, output_name, folders)
-    
+
+     """
      if routing == 'dua':
         # Generate DUArouter cfg
         cfg_name, output_name = gen_DUArouter(output_name, k, folders)
@@ -33,7 +36,7 @@ def gen_routes(O, k, O_files, folders, routing):
 
      # Generate sumo cfg
      return gen_sumo_cfg(routing, output_name, k, folders, folders.reroute_probability) # last element reroute probability
-     
+     """
      
 def gen_route_files(folders, k):
     """
@@ -59,9 +62,11 @@ def gen_route_files(folders, k):
             for k in range(repetitions):
                 # backup O files
                 O_files = os.listdir(folders.O)
+
                 # Gen DUArouter/MArouter
-                cfg_file_loc = gen_routes(O_name, k, O_files, folders, routing)
-    return cfg_file_loc                    
+                cfg_file_loc = gen_routes(O_name, k, O_files, folders)
+    #return cfg_file_loc
+    return 'A'
     
 
 

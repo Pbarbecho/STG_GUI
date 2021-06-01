@@ -233,8 +233,10 @@ def exec_od2trips(fname, tripfile, folders):
     os.system(cmd)
     # remove fromtotaz
     output_file = f'{tripfile}.xml'
+    print(output_file)
     rm_taz = f"sed 's/fromTaz=\"{folders.O_district}\" toTaz=\"{folders.D_district}\"//' {tripfile} > {output_file}"
     os.system(rm_taz)
+
     return output_file
 
 
@@ -263,8 +265,13 @@ def gen_od2trips(O, k, folders):
     # read O files
     O_files_list = os.listdir(folders.O)
     O_listToStr = ','.join([f'{os.path.join(folders.O, elem)}' for elem in O_files_list])
-    TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
+
+    # update TAZ dir
+    #TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
+    TAZ = folders.taz_file
+
     od2trips_conf = os.path.join(folders.parents_dir, 'templates', 'od2trips.cfg.xml')
+
     # Open original file
     tree = ET.parse(od2trips_conf)
 

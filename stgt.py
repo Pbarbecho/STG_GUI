@@ -597,11 +597,11 @@ class DlgMain(QDialog):
         self.tool = 'dua'
         # output default folder
 
-        self.O_distric.setDisabled(True)
-        self.D_distric.setDisabled(True)
-
-        self.O_distric.setPlainText('ro')
-        self.D_distric.setPlainText('rd')
+        #DUARouter requires TAZ O/D names
+        #self.O_distric.setDisabled(True)
+        #self.D_distric.setDisabled(True)
+        #self.O_distric.setPlainText('ro')
+        #self.D_distric.setPlainText('rd')
 
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
