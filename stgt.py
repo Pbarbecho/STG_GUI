@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import *  # import sections
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
+from duarouter import dua_ma
 from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 from statistics import statistics_route_file
 import subprocess
-import time
 
 
 class MyThread(QThread):
@@ -576,7 +576,7 @@ class DlgMain(QDialog):
                     self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
 
                     try:
-                        rt(self, 0, 1, False)
+                        rt(self, 0, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
                         trips_list = os.listdir(self.trips)
                         self.traffic_demand_cmd.setPlainText(f'Traffic demand files generated in {self.trips}: {trips_list}.')
@@ -588,12 +588,19 @@ class DlgMain(QDialog):
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
+
     def evt_dua_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
-        self.tool = 'rt'
+        self.tool = 'dua'
         # output default folder
+
+        self.O_distric.setDisabled(True)
+        self.D_distric.setDisabled(True)
+
+        self.O_distric.setPlainText('ro')
+        self.D_distric.setPlainText('rd')
 
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
@@ -601,7 +608,21 @@ class DlgMain(QDialog):
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
-                rt(self, 0, 1, False)
+                if QMessageBox.information(self, 'Generating Traffic Demand',
+                                           'Traffic demand generation may take some time, please wait. Proceed?'):
+                    self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
+
+                    try:
+                        dua_ma(self, 0, False)
+                        QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+                        #trips_list = os.listdir(self.trips)
+                        #self.traffic_demand_cmd.setPlainText(
+                        #    f'Traffic demand files generated in {self.trips}: {trips_list}.')
+
+                    except Exception as e:
+                        self.traffic_demand_cmd.setPlainText(str(e))
+                        QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
+
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:
@@ -736,10 +757,9 @@ class DlgMain(QDialog):
         if self.netconvert_urban_op.checkState(): self.netconvert_highway_op.setDisabled(True)
         else:self.netconvert_highway_op.setDisabled(False)
 
-    ############################    DEFINE TRAFFIC DEMAND EVENTS    ################################
+    ############################    DEFINE TRAFFIC DEMAND BUTTON EVENTS    ################################
     def evt_sumo_gui_clicked(self, value):
         self.sumo_var_gui = value
-
 
     def evt_tripinfo_clicked(self, value):
         self.sumo_var_tripinfo = value
@@ -973,8 +993,6 @@ class DlgMain(QDialog):
         self.container_statistics = QFormLayout()
         self.container_statistics.addRow(self.statistics_groupbox)
         self.wdg_statistics.setLayout(self.container_statistics)
-
-
 
 
         # Match with main layout

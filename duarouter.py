@@ -150,7 +150,9 @@ def exec_MArouter(folders,processors):
        sys.exit('No ma.cfg files}')
                                    
 
-def dua_ma(config,k,repetitions, end_hour, processors, routing, gui):
+def dua_ma(config,k,gui):
+    print('hello')
+    """
     # Generate cfg files
     gen_route_files(config, k, repetitions, end_hour, routing)
 
@@ -164,7 +166,7 @@ def dua_ma(config,k,repetitions, end_hour, processors, routing, gui):
     simulate(config, processors, gui)
     # Outputs preprocess
     SUMO_outputs_process(config)
-    
+    """
  
 
 
