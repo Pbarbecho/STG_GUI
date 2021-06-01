@@ -1,7 +1,7 @@
 import os, sys, glob
 import xml.etree.ElementTree as ET
 from joblib import Parallel, delayed, parallel_backend
-from stg.utils import SUMO_outputs_process, simulate, gen_sumo_cfg, exec_od2trips, gen_od2trips, create_O_file, parallel_batch_size, gen_DUArouter
+from utils import SUMO_outputs_process, simulate, gen_sumo_cfg, exec_od2trips, gen_od2trips, create_O_file, parallel_batch_size, gen_DUArouter
 
 
 def clean_folder(folder):
@@ -151,25 +151,6 @@ def exec_MArouter(folders,processors):
                                    
 
 def dua_ma(config,k,repetitions, end_hour, processors, routing, gui):
-    """
-    DUARouter / MARouter  funcions
-
-    Parameters
-    ----------
-    config : TYPE
-        DESCRIPTION.
-    sim_time : TYPE
-        DESCRIPTION.
-    repetitions : TYPE
-        DESCRIPTION.
-    end_hour : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
-
-    """
     # Generate cfg files
     gen_route_files(config, k, repetitions, end_hour, routing)
 
