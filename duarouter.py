@@ -34,7 +34,7 @@ def gen_routes(O, k, O_files, folders):
         SystemExit('Routing name not found')
 
      # Generate sumo cfg
-     return gen_sumo_cfg(routing, output_name, k, folders, folders.reroute_probability) # last element reroute probability
+     return gen_sumo_cfg(output_name, k, folders) # last element reroute probability
 
      
 def gen_route_files(folders, k):

@@ -105,7 +105,7 @@ def exec_sim_cmd(cfg_file, folders, gui):
     os.system(cmd)
 
 
-def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
+def gen_sumo_cfg(routing_file, k, folders):
     """
     Generate the sumo cfg file to execute the simulation
 
@@ -124,6 +124,9 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
         DESCRIPTION.
 
     """
+    routing = folders.tool
+    rr_prob = folders.reroute_probability
+
     sumo_cfg = os.path.join(folders.parents_dir, 'templates', 'osm.sumo.cfg')
     vtype = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
     # new_emissions = os.path.join(folders.parents_dir,'templates', 'emissions.add.xml')
@@ -147,7 +150,7 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
 
     edges_add = edges_path(folders)
 
-    add_list = []
+
     """
     if routing == 'dua':
         add_list = [detector_output, vtype, edges_add]
@@ -160,18 +163,18 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
     elif routing == 'rt':
         add_list = [detector_output, vtype, edges_add]
     """
-    if routing == 'dua':
-        add_list = [vtype, edges_add]
-    elif routing == 'ma':
-        add_list = [TAZ, vtype, edges_add]
-    elif routing == 'od2':
-        add_list = [TAZ, vtype, edges_add]
-    elif routing == 'duai':
-        add_list = [edges_add]
-    elif routing == 'rt':
-        add_list = [vtype, edges_add]
-    additionals = ','.join([elem for elem in add_list])
 
+    add_list = []
+
+    if routing == 'dua':add_list = [vtype, edges_add]
+    elif routing == 'ma':add_list = [TAZ, vtype, edges_add]
+    elif routing == 'od2':add_list = [TAZ, vtype, edges_add]
+    elif routing == 'duai':add_list = [edges_add]
+    elif routing == 'rt':add_list = [vtype, edges_add]
+    else:sys.exit('Routing Tool does not exist')
+
+    additionals = ','.join([elem for elem in add_list])
+    print(additionals)
     # Update detector
     ET.SubElement(parent, 'additional-files').set('value', f'{additionals}')
 
