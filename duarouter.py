@@ -117,26 +117,27 @@ def exec_marouter_cmd(fname):
     os.system(cmd) 
 
 
-def exec_DUArouter(folders,processors):
+def exec_DUArouter(folders):
     cfg_files = os.listdir(folders.O)
   
     # Get dua.cfg files list
     dua_cfg_list = []
     [dua_cfg_list.append(cf) for cf in cfg_files if 'duarouter' in cf.split('_')]
- 
+
+    print(dua_cfg_list)
     if dua_cfg_list:
         batch = parallel_batch_size(dua_cfg_list)
         
         # Generate dua routes
         print(f'\nGenerating duaroutes ({len(dua_cfg_list)} files) ...........\n')
         with parallel_backend("loky"):
-            Parallel(n_jobs=processors, verbose=0, batch_size=batch)(delayed(exec_duarouter_cmd)(
+            Parallel(n_jobs=folders.processors, verbose=0, batch_size=batch)(delayed(exec_duarouter_cmd)(
                      os.path.join(folders.O, cfg)) for cfg in dua_cfg_list)
     else:
        sys.exit('No dua.cfg files}')
     
  
-def exec_MArouter(folders,processors):
+def exec_MArouter(folders):
     cfg_files = os.listdir(folders.O)
   
     # Get ma.cfg files list
@@ -149,7 +150,7 @@ def exec_MArouter(folders,processors):
         # Generate dua routes
         print(f'\nGenerating MAroutes ({len(ma_cfg_list)} files) ...........\n')
         with parallel_backend("loky"):
-            Parallel(n_jobs=processors, verbose=0, batch_size=batch)(delayed(exec_marouter_cmd)(
+            Parallel(n_jobs=folders.processors, verbose=0, batch_size=batch)(delayed(exec_marouter_cmd)(
                      os.path.join(folders.O, cfg)) for cfg in ma_cfg_list)
     else:
        sys.exit('No ma.cfg files}')
@@ -158,14 +159,15 @@ def exec_MArouter(folders,processors):
 def dua_ma(config, k, gui):
     # Generate cfg files
     gen_route_files(config, k)
-    """
-    if routing  == 'dua':
+
+    if config.routing  == 'dua':
         # Execute DUArouter 
-        exec_DUArouter(config,processors)
-    elif routing  == 'ma':          
+        exec_DUArouter(config)
+    elif config.routing  == 'ma':
         # Execute MArouter 
-        exec_MArouter(config,processors)
-    
+        exec_MArouter(config)
+
+    """
     simulate(config, processors, gui)
     # Outputs preprocess
     SUMO_outputs_process(config)

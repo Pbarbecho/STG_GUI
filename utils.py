@@ -174,7 +174,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     else:sys.exit('Routing Tool does not exist')
 
     additionals = ','.join([elem for elem in add_list])
-    print(additionals)
+
     # Update detector
     ET.SubElement(parent, 'additional-files').set('value', f'{additionals}')
 
@@ -211,7 +211,9 @@ def gen_sumo_cfg(routing_file, k, folders):
     # Write xml
     output_dir = os.path.join(folders.cfg, f'{curr_name}_{routing}_{k}.sumo.cfg')
     tree.write(output_dir)
-    return output_dir
+    # update cfg directory
+    folders.cfg = output_dir
+
 
 
 
