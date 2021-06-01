@@ -127,13 +127,15 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
     sumo_cfg = os.path.join(folders.parents_dir, 'templates', 'osm.sumo.cfg')
     vtype = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
     # new_emissions = os.path.join(folders.parents_dir,'templates', 'emissions.add.xml')
-    TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    #TAZ = os.path.join(folders.parents_dir, 'templates', 'TAZ.xml')
+    TAZ = folders.taz_file
+    #net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    net_file = folders.network
 
-    # Create detector file
-    detector_dir = os.path.join(folders.parents_dir, 'templates', 'detector.add.xml')
-    detector_output = os.path.join(folders.SUMO_tool, 'detector.xml')
-    detector_cfg(detector_dir, detector_output, folders)
+    # Create detector file NOT USED
+    #detector_dir = os.path.join(folders.parents_dir, 'templates', 'detector.add.xml')
+    #detector_output = os.path.join(folders.SUMO_tool, 'detector.xml')
+    #detector_cfg(detector_dir, detector_output, folders)
 
     # Open original file
     tree = ET.parse(sumo_cfg)
@@ -195,8 +197,6 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
     if folders.sumo_var_tripinfo:
         outputs.append('tripinfo')
 
-    print(outputs)
-
     for out in outputs:
         ET.SubElement(parent, f'{out}-output').set('value', os.path.join(
             folders.outputs, f'{curr_name}_{out}_{k}.xml'))
@@ -205,8 +205,7 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
     parent = tree.find('time')
     ET.SubElement(parent, 'end').set('value', f'{folders.simtime*3600}')
 
-
-# Write xml
+    # Write xml
     output_dir = os.path.join(folders.cfg, f'{curr_name}_{routing}_{k}.sumo.cfg')
     tree.write(output_dir)
     return output_dir
