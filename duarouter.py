@@ -22,7 +22,6 @@ def gen_routes(O, k, O_files, folders):
      # Execute od2trips
      output_name = exec_od2trips(cfg_name, output_name, folders)
 
-     """
      if routing == 'dua':
         # Generate DUArouter cfg
         cfg_name, output_name = gen_DUArouter(output_name, k, folders)
@@ -36,7 +35,7 @@ def gen_routes(O, k, O_files, folders):
 
      # Generate sumo cfg
      return gen_sumo_cfg(routing, output_name, k, folders, folders.reroute_probability) # last element reroute probability
-     """
+
      
 def gen_route_files(folders, k):
     """
@@ -62,12 +61,9 @@ def gen_route_files(folders, k):
             for k in range(repetitions):
                 # backup O files
                 O_files = os.listdir(folders.O)
-
                 # Gen DUArouter/MArouter
                 cfg_file_loc = gen_routes(O_name, k, O_files, folders)
-    #return cfg_file_loc
-    return 'A'
-    
+    return cfg_file_loc
 
 
 def gen_MArouter(O, i, O_files, trips, folders):
@@ -160,8 +156,6 @@ def exec_MArouter(folders,processors):
                                    
 
 def dua_ma(config, k, gui):
-
-
     # Generate cfg files
     gen_route_files(config, k)
     """

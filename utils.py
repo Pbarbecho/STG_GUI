@@ -44,7 +44,8 @@ def print_time(process_name):
 
 def gen_DUArouter(trips, i, folders):
     duarouter_conf = os.path.join(folders.parents_dir, 'templates', 'duarouter.cfg.xml')  # duaroter.cfg file location
-    net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    #net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
+    net_file = folders.network
     # Open original file
     tree = ET.parse(duarouter_conf)
 
@@ -144,6 +145,8 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
 
     edges_add = edges_path(folders)
 
+    add_list = []
+    """
     if routing == 'dua':
         add_list = [detector_output, vtype, edges_add]
     elif routing == 'ma':
@@ -154,7 +157,17 @@ def gen_sumo_cfg(routing, routing_file, k, folders, rr_prob):
         add_list = [detector_output, edges_add]
     elif routing == 'rt':
         add_list = [detector_output, vtype, edges_add]
-
+    """
+    if routing == 'dua':
+        add_list = [vtype, edges_add]
+    elif routing == 'ma':
+        add_list = [TAZ, vtype, edges_add]
+    elif routing == 'od2':
+        add_list = [TAZ, vtype, edges_add]
+    elif routing == 'duai':
+        add_list = [edges_add]
+    elif routing == 'rt':
+        add_list = [vtype, edges_add]
     additionals = ','.join([elem for elem in add_list])
 
     # Update detector
