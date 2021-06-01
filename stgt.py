@@ -612,7 +612,6 @@ class DlgMain(QDialog):
                 if QMessageBox.information(self, 'Generating Traffic Demand',
                                            'Traffic demand generation may take some time, please wait. Proceed?'):
                     self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
-
                     try:
                         dua_ma(self, 0, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
@@ -683,7 +682,8 @@ class DlgMain(QDialog):
 
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
-        if self.network and self.poly:
+        #if self.network and self.poly:
+        if self.network:
             tool_path = os.path.join(self.SUMO_exec,'netedit')
             map_dir = os.path.dirname(self.network)
             self.taz_file = os.path.join(map_dir, 'TAZ.xml')
@@ -700,8 +700,9 @@ class DlgMain(QDialog):
                 output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, universal_newlines=True)
                 # Print out command's standard output (elegant)
                 self.isCommandExecutionSuccessful = True
-                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {output}')
+                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
                 self.check_polyconvert_file.setChecked(True)
+
             except subprocess.CalledProcessError as error:
                 self.isCommandExecutionSuccessful = False
                 errorMessage = ">>> Error while executing:\n" \
