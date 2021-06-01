@@ -21,6 +21,7 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
+        self.isCommandExecutionSuccessful = False
         self.realtraffic = ''
         self.simtime = 1
         self.repetitions = 1
@@ -684,18 +685,35 @@ class DlgMain(QDialog):
         self.Update_SUMO_exec_path()
         if self.network and self.poly:
             tool_path = os.path.join(self.SUMO_exec,'netedit')
-            cmd = f'{tool_path} -a {self.poly} --sumo-net-file {self.network}'
+            map_dir = os.path.dirname(self.network)
+            self.taz_file = os.path.join(map_dir, 'TAZ.xml')
+
+            self.cmd_str.setPlainText(f'Network file : {self.network}\n')
+            self.cmd_str.setPlainText(f'TAZ file : {self.taz_file}\n')
+
+            #os.system(f'touch {self.taz_file}')
+            cmd = f'netedit -a {self.poly} -s {self.network} --additionals-output {self.taz_file}'
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
+
             try:
-                subprocess.Popen(cmd_list)
-                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
+                output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, universal_newlines=True)
+                # Print out command's standard output (elegant)
+                self.isCommandExecutionSuccessful = True
+                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {output}')
                 self.check_polyconvert_file.setChecked(True)
-            except Exception as e:
-                self.cmd_str.setPlainText(str(e))
-                QMessageBox.information(self, 'Error', 'SUMO netedit tool cannot executed. See console logs.')
+            except subprocess.CalledProcessError as error:
+                self.isCommandExecutionSuccessful = False
+                errorMessage = ">>> Error while executing:\n" \
+                               + cmd \
+                               + "\n>>> Returned with error:\n" \
+                               + str(error.output)
+                self.cmd_str.setPlainText(errorMessage)
+                QMessageBox.critical(None,"ERROR",errorMessage)
+                print("Error: " + errorMessage)
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
+
 
     def evt_polyconvert_btn_clicked(self):
         if self.network:
@@ -939,7 +957,7 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
         self.container_build_network.addRow(self.taz_groupbox)
-        self.container_build_network.addRow(self.progress_bar)
+        #self.container_build_network.addRow(self.progress_bar)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
         #######################  TAB ROTUNGI WIDGETS  ####################

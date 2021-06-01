@@ -35,7 +35,7 @@ def gen_routes(O, k, O_files, folders, routing):
      return gen_sumo_cfg(routing, output_name, k, folders, folders.reroute_probability) # last element reroute probability
      
      
-def gen_route_files(folders, k, repetitions, end_hour, routing):
+def gen_route_files(folders, k):
     """
     Generate O files given the real traffic in csv format. 
     Args:
@@ -44,6 +44,9 @@ def gen_route_files(folders, k, repetitions, end_hour, routing):
     repetitios: number of repetitions
     end hour: The simulation time is the end time of the simulations 
     """
+    repetitions = folders.repetitions
+    end_hour = folders.simtime
+    routing = folders.tool
     # generate cfg files
     for h in [folders.O_district]:
         for sd in [folders.D_district]:
@@ -60,6 +63,7 @@ def gen_route_files(folders, k, repetitions, end_hour, routing):
                 cfg_file_loc = gen_routes(O_name, k, O_files, folders, routing)
     return cfg_file_loc                    
     
+
 
 def gen_MArouter(O, i, O_files, trips, folders):
     net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
@@ -150,12 +154,12 @@ def exec_MArouter(folders,processors):
        sys.exit('No ma.cfg files}')
                                    
 
-def dua_ma(config,k,gui):
-    print('hello')
-    """
-    # Generate cfg files
-    gen_route_files(config, k, repetitions, end_hour, routing)
+def dua_ma(config, k, gui):
 
+
+    # Generate cfg files
+    gen_route_files(config, k)
+    """
     if routing  == 'dua':
         # Execute DUArouter 
         exec_DUArouter(config,processors)
