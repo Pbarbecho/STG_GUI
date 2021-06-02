@@ -760,7 +760,7 @@ class DlgMain(QDialog):
 
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
-        self.cmd_str.setPlainText(f'{val}')
+        #self.cmd_str.setPlainText(f'{val}') # works with threads
 
     def evt_netconvert_highway_op(self):
         if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
