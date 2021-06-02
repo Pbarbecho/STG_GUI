@@ -693,8 +693,9 @@ class DlgMain(QDialog):
                 output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, universal_newlines=True)
                 # Print out command's standard output (elegant)
                 self.isCommandExecutionSuccessful = True
+                QMessageBox.information(f'TAZ file generated {self.taz_file}')
                 self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
-                self.check_polyconvert_file.setChecked(True)
+                self.check_netedit_file.setChecked(True)
 
             except subprocess.CalledProcessError as error:
                 self.isCommandExecutionSuccessful = False
