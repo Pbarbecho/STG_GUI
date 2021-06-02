@@ -127,7 +127,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     """
     routing = folders.tool
     rr_prob = folders.reroute_probability
-    print(rr_prob)
+
     sumo_cfg = os.path.join(folders.parents_dir, 'templates', 'osm.sumo.cfg')
     vtype = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
     # new_emissions = os.path.join(folders.parents_dir,'templates', 'emissions.add.xml')
@@ -149,8 +149,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     ET.SubElement(parent, 'net-file').set('value', f'{net_file}')
     ET.SubElement(parent, 'route-files').set('value', f'{routing_file}')
 
-    edges_add = edges_path(folders)
-
+    #edges_add = edges_path(folders) not used
 
     """
     if routing == 'dua':
@@ -167,11 +166,11 @@ def gen_sumo_cfg(routing_file, k, folders):
 
     add_list = []
 
-    if routing == 'dua':add_list = [vtype, edges_add]
-    elif routing == 'ma':add_list = [TAZ, vtype, edges_add]
-    elif routing == 'od2':add_list = [TAZ, vtype, edges_add]
-    elif routing == 'duai':add_list = [edges_add]
-    elif routing == 'rt':add_list = [vtype, edges_add]
+    if routing == 'dua':add_list = [vtype]
+    elif routing == 'ma':add_list = [TAZ, vtype]
+    elif routing == 'od2':add_list = [TAZ, vtype]
+    elif routing == 'duai':add_list = []
+    elif routing == 'rt':add_list = [vtype]
     else:sys.exit('Routing Tool does not exist')
 
     additionals = ','.join([elem for elem in add_list])

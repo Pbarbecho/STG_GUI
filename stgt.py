@@ -8,18 +8,19 @@ from duarouter import dua_ma
 from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
 from statistics import statistics_route_file
 import subprocess
-
+import time
 
 class simulation_worker(QObject):
     finished = pyqtSignal()
-    def run(self, cmd):
-        """Long-running task."""
-        os.system(cmd)
+    def run(self):
+        print(self.cmd)
+        os.system(self.cmd)
         self.finished.emit()
-        
-        
+
+
 class MyThread(QThread):
     change_value = pyqtSignal(str)
+
     def run(self):
         self.change_value.emit('Done')
 
@@ -29,8 +30,8 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
-
-        self.rou_dir =''
+        self.run_command = ''
+        self.rou_dir = ''
         self.sumo_cfg_dir = ''
         self.isCommandExecutionSuccessful = False
         self.realtraffic = ''
@@ -41,7 +42,7 @@ class DlgMain(QDialog):
         self.D_district = ''
         self.processors = multiprocessing.cpu_count()
         self.SUMO_exec = os.environ['SUMO_HOME']
-        #self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
+        # self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
         self.net_folder_var = self.parents_dir
         self.trips = ''
@@ -72,7 +73,6 @@ class DlgMain(QDialog):
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
         self.resize(600, 300)
 
-
         ###################  TEST PROGRESS BAR  ####################3
 
         self.progress_bar = QProgressBar()
@@ -89,7 +89,6 @@ class DlgMain(QDialog):
         self.title_label = QLabel('SUMO Traffic Generation')
         self.title_label.setFont(title_font)
         self.title_label.setAlignment(Qt.AlignCenter)
-
 
         ####################### User text inputs districts ##################################
         od_max_width = 200
@@ -110,7 +109,7 @@ class DlgMain(QDialog):
         self.cmd_str.setPlaceholderText('Console logs')
         self.cmd_str.setReadOnly(True)
 
-        self.traffic_demand_cmd =QTextEdit()
+        self.traffic_demand_cmd = QTextEdit()
         self.traffic_demand_cmd.setPlaceholderText('Console logs')
         self.traffic_demand_cmd.setReadOnly(True)
         ######################  Text box  description of sumo tools     #####################
@@ -154,10 +153,10 @@ class DlgMain(QDialog):
         self.OD2_description.setText(html_OD2)
         self.OD2_description.setReadOnly(True)
 
-        #'The DUAIterate uses an assignment method called iter-ative, see Table 1, which tries to calculate the user equilibrium,meaning that it generate a route for each vehicle where the routecost (e.g., travel time) cannot be reduced by using an alterna-tive route.  This is done by iteratively calling the DUAR tool'
-        #'The DUAR tool imports differ-ent demand definitions (trips or flows).'
-        #('This tool allows researchers to quicklygenerate a set of random trips within a time interval. The RT tool prevents bottlenecksin the network. ')
-        #'Generates random distribuition of vehicles'
+        # 'The DUAIterate uses an assignment method called iter-ative, see Table 1, which tries to calculate the user equilibrium,meaning that it generate a route for each vehicle where the routecost (e.g., travel time) cannot be reduced by using an alterna-tive route.  This is done by iteratively calling the DUAR tool'
+        # 'The DUAR tool imports differ-ent demand definitions (trips or flows).'
+        # ('This tool allows researchers to quicklygenerate a set of random trips within a time interval. The RT tool prevents bottlenecksin the network. ')
+        # 'Generates random distribuition of vehicles'
 
         ##########################  SIMULATION BUTTONS    ################################
 
@@ -184,32 +183,27 @@ class DlgMain(QDialog):
         self.osm_file_btn.setMinimumWidth(tool_btn_wsize)
         self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
 
-
-
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
         self.netconvert_btn.setMinimumWidth(tool_btn_wsize)
-        #self.netconvert_btn.clicked.connect(self.evt_netconvert_btn_clicked)
+        # self.netconvert_btn.clicked.connect(self.evt_netconvert_btn_clicked)
         self.netconvert_btn.clicked.connect(self.start_progress_bar)
-
 
         # Polyconvert
         self.polyconvert_btn = QPushButton('Polyconvert')
         self.polyconvert_btn.setMinimumWidth(tool_btn_wsize)
         self.polyconvert_btn.clicked.connect(self.evt_polyconvert_btn_clicked)
-        
+
         # Netedit 
         self.run_netedit_btn = QPushButton('Netedit')
         self.run_netedit_btn.setMaximumWidth(tool_btn_wsize)
         self.run_netedit_btn.clicked.connect(self.evt_netedit_btn_clicked)
-
 
         # Check boxes
         self.check_osm_file = QCheckBox()
         self.check_netconvert_file = QCheckBox()
         self.check_polyconvert_file = QCheckBox()
         self.check_netedit_file = QCheckBox()
-
 
         self.check_osm_file.setEnabled(False)
         self.check_netconvert_file.setEnabled(False)
@@ -427,13 +421,12 @@ class DlgMain(QDialog):
         # SETUP LAYOUT
         self.setuplayout()
 
-
     #################################   GENERAL FUNCTIONS ############################################
     def evt_tab_clicked(self, idx):
-        if idx == 0:    # RANDOMTRIPS
+        if idx == 0:  # RANDOMTRIPS
             self.O_distric.setDisabled(True)
             self.D_distric.setDisabled(True)
-        else: # DUA, DUAI, OD2, MA
+        else:  # DUA, DUAI, OD2, MA
             self.O_distric.setPlaceholderText('Origin District NAME as in the TAZ file')
             self.D_distric.setPlaceholderText('Destination District NAME as in the TAZ file')
             self.O_distric.setDisabled(False)
@@ -458,7 +451,7 @@ class DlgMain(QDialog):
         subfolders = ['trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
                       'edges', 'duaiterate']
         # create subfolders
-        for sf in subfolders : create_folder(os.path.join(self.SUMO_tool, sf))
+        for sf in subfolders: create_folder(os.path.join(self.SUMO_tool, sf))
         # update subfolders paths
         self.trips = os.path.join(self.SUMO_tool, 'trips')
         self.O = os.path.join(self.SUMO_tool, 'O')
@@ -512,17 +505,17 @@ class DlgMain(QDialog):
         self.thread.change_value.connect(self.evt_netconvert_btn_clicked)
         self.thread.start()
 
-    def progress_bar_update(self,val):
+    def progress_bar_update(self, val):
         self.progress_bar.setValue(val)
-
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_process_outputs_simulation_btn_clicked(self):
         cfg_list = os.listdir(self.cfg)
-        if len(cfg_list)>=1:
+        if len(cfg_list) >= 1:
             try:
                 SUMO_outputs_process(self)
-                QMessageBox.information(self, 'Ok', f'Tripinfo files successfully converted to .csv files {self.parsed}')
+                QMessageBox.information(self, 'Ok',
+                                        f'Tripinfo files successfully converted to .csv files {self.parsed}')
             except Exception as e:
                 self.cmd_output_str.setPlainText(str(e))
                 QMessageBox.information(self, 'Error', 'Files cannot be parsed. See console logs.')
@@ -546,7 +539,7 @@ class DlgMain(QDialog):
     def evt_run_simulation_btn_clicked(self):
 
         if self.outputs:
-            simulations_list = os.listdir(self.cfg) # replace simulation method
+            simulations_list = os.listdir(self.cfg)  # replace simulation method
             if simulations_list:
                 if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
                     self.cmd_output_str.setPlainText(f'Simulating {simulations_list}')
@@ -555,25 +548,28 @@ class DlgMain(QDialog):
                             full_path = os.path.join(self.cfg, s)
                             if self.sumo_var_gui:cmd = f'sumo-gui -c {full_path}'
                             else:cmd = f'sumo -c {full_path}'
-                            self.exec_simulation_thread(cmd)
-                        output_files = os.listdir(self.outputs)
-                        self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
-                        QMessageBox.information(self, 'Ok', 'Simulation completed')
+                            self.run_command = cmd
+                            self.exec_simulation_thread()
+                            for i in range(1000):
+                                self.cmd_output_str.setPlainText(f'Simulating .*{i}')
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
-                        QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
-            else:
-                QMessageBox.information(self, 'Error', 'ty configurations folder.')
-        else:
-            QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
+                        QMessageBox.information(self, 'Error','SUMO simulation failed. See console logs.')
 
+                output_files = os.listdir(self.outputs)
+                self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
+                QMessageBox.information(self, 'Ok', 'Simulation completed')
 
-    def exec_simulation_thread(self, cmd):
+            else:QMessageBox.information(self, 'Error', 'Empty configurations folder.')
+        else:QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
+
+    def exec_simulation_thread(self):
         self.thread = QThread()
         self.worker = simulation_worker()
         self.worker.moveToThread(self.thread)
         # ini
-        self.thread.started.connect(self.worker.run(cmd))
+        self.worker.cmd = self.run_command
+        self.thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
@@ -581,8 +577,7 @@ class DlgMain(QDialog):
         # Final resets
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-        self.thread.finished.connect(lambda: self.cmd_output_str.setText("Long-Running Step: 0"))
-
+        self.thread.finished.connect(lambda: self.cmd_output_str.setText("Simulation finished"))
 
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
@@ -606,7 +601,6 @@ class DlgMain(QDialog):
                                                  'Please enter a valid Origin/Destination TAZ names.')
 
     def evt_rt_btn_clicked(self):
-
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
@@ -623,24 +617,28 @@ class DlgMain(QDialog):
                     self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
 
                     try:
-                        rt(self, 0, False)
+                        rt(self, 0)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
                         trips_list = os.listdir(self.trips)
-                        self.traffic_demand_cmd.setPlainText(f'Traffic demand files generated in {self.trips}: {trips_list}.')
+                        self.traffic_demand_cmd.setPlainText(
+                            f'Traffic demand files generated in {self.trips}: {trips_list}.')
 
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
 
-            else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
-        else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
+            else:
+                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+        else:
+            warn_empty = QMessageBox.information(self, 'Missing File',
+                                                 'Please enter a valid Origin/Destination TAZ names.')
 
     def evt_dua_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = 'dua'
-        #DUARouter requires TAZ O/D names
+        # DUARouter requires TAZ O/D names
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
@@ -652,7 +650,8 @@ class DlgMain(QDialog):
                     try:
                         dua_ma(self, 0, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
-                        self.traffic_demand_cmd.setPlainText(f'DUARouter traffic demand file generated:\n{self.rou_dir}')
+                        self.traffic_demand_cmd.setPlainText(
+                            f'DUARouter traffic demand file generated:\n{self.rou_dir}')
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
@@ -695,7 +694,7 @@ class DlgMain(QDialog):
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
-                rt(self, 0, False) # config, k , gui
+                rt(self, 0, False)  # config, k , gui
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:
@@ -705,7 +704,7 @@ class DlgMain(QDialog):
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
     def evt_net_folder_btn_clicked(self):
         # input one file
-        fpath = QFileDialog.getExistingDirectory(self,'Select directory', '/Users/Pablo/')
+        fpath = QFileDialog.getExistingDirectory(self, 'Select directory', '/Users/Pablo/')
         self.net_folder_var = fpath
         self.net_folder_textbar.setPlainText(self.net_folder_var)
         # look for existing files
@@ -715,24 +714,25 @@ class DlgMain(QDialog):
         poly_file = [nf for nf in network_files if ".poly.xml" in nf]
         taz_file = [nf for nf in network_files if "TAZ.xml" in nf]
         # send found files to log console
-        self.cmd_str.setPlainText(f'Network files found in {fpath}:\nOSM:{osm_file},\nNET:{net_file},\nPOLY:{poly_file},\nTAZ:{taz_file}')
+        self.cmd_str.setPlainText(
+            f'Network files found in {fpath}:\nOSM:{osm_file},\nNET:{net_file},\nPOLY:{poly_file},\nTAZ:{taz_file}')
         # Update check boxes and self paths
         if osm_file:
             self.check_osm_file.setChecked(True)
-            self.osm = os.path.join(fpath,osm_file[0])
+            self.osm = os.path.join(fpath, osm_file[0])
         if net_file:
             self.check_netconvert_file.setChecked(True)
-            self.network = os.path.join(fpath,net_file[0])
+            self.network = os.path.join(fpath, net_file[0])
         if poly_file:
             self.check_polyconvert_file.setChecked(True)
-            self.poly = os.path.join(fpath,poly_file[0])
+            self.poly = os.path.join(fpath, poly_file[0])
         if taz_file:
             self.check_netedit_file.setChecked(True)
-            self.taz_file = os.path.join(fpath,taz_file[0])
+            self.taz_file = os.path.join(fpath, taz_file[0])
 
     def evt_osm_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                          'OSM File (*.osm)')
+                                                       'OSM File (*.osm)')
         if fpath:
             self.osm = fpath
             self.check_osm_file.setChecked(True)
@@ -741,16 +741,16 @@ class DlgMain(QDialog):
 
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
-        #if self.network and self.poly:
+        # if self.network and self.poly:
         if self.network:
-            tool_path = os.path.join(self.SUMO_exec,'netedit')
+            tool_path = os.path.join(self.SUMO_exec, 'netedit')
             map_dir = os.path.dirname(self.network)
             self.taz_file = os.path.join(map_dir, 'TAZ.xml')
 
             self.cmd_str.setPlainText(f'Network file : {self.network}\n')
             self.cmd_str.setPlainText(f'TAZ file : {self.taz_file}\n')
 
-            #os.system(f'touch {self.taz_file}')
+            # os.system(f'touch {self.taz_file}')
             cmd = f'netedit -a {self.poly} -s {self.network} --additionals-output {self.taz_file}'
             # convert to list for subprocess popoen
             cmd_list = cmd.split(' ')
@@ -759,7 +759,7 @@ class DlgMain(QDialog):
                 output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, universal_newlines=True)
                 # Print out command's standard output (elegant)
                 self.isCommandExecutionSuccessful = True
-                QMessageBox.information(self, 'Ok' ,f'TAZ file generated: {self.taz_file}')
+                QMessageBox.information(self, 'Ok', f'TAZ file generated: {self.taz_file}')
                 self.cmd_str.setPlainText(f'Execute SUMO netedit tool: {cmd}')
                 self.check_netedit_file.setChecked(True)
 
@@ -770,7 +770,7 @@ class DlgMain(QDialog):
                                + "\n>>> Returned with error:\n" \
                                + str(error.output)
                 self.cmd_str.setPlainText(errorMessage)
-                QMessageBox.critical(None,"ERROR",errorMessage)
+                QMessageBox.critical(None, "ERROR", errorMessage)
                 print("Error: " + errorMessage)
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
@@ -778,7 +778,7 @@ class DlgMain(QDialog):
     def evt_polyconvert_btn_clicked(self):
         if self.network:
             osm_parent_dir = os.path.dirname(self.osm)
-            temp_poly_loc = os.path.join(osm_parent_dir,'osm.poly.xml')
+            temp_poly_loc = os.path.join(osm_parent_dir, 'osm.poly.xml')
             cmd = f'polyconvert -n {self.network} --osm-files {self.osm} -o {temp_poly_loc} --ignore-errors true'
 
             # convert to list for subprocess popoen
@@ -825,15 +825,19 @@ class DlgMain(QDialog):
 
         else:
             QMessageBox.information(self, 'Missing File', 'OSM file is missing')
-        #self.cmd_str.setPlainText(f'{val}') # works with threads
+        # self.cmd_str.setPlainText(f'{val}') # works with threads
 
     def evt_netconvert_highway_op(self):
-        if self.netconvert_highway_op.checkState():self.netconvert_urban_op.setDisabled(True)
-        else:self.netconvert_urban_op.setDisabled(False)
+        if self.netconvert_highway_op.checkState():
+            self.netconvert_urban_op.setDisabled(True)
+        else:
+            self.netconvert_urban_op.setDisabled(False)
 
     def evt_netconvert_urban_op(self):
-        if self.netconvert_urban_op.checkState(): self.netconvert_highway_op.setDisabled(True)
-        else:self.netconvert_highway_op.setDisabled(False)
+        if self.netconvert_urban_op.checkState():
+            self.netconvert_highway_op.setDisabled(True)
+        else:
+            self.netconvert_highway_op.setDisabled(False)
 
     ############################    DEFINE TRAFFIC DEMAND BUTTON EVENTS    ################################
     def evt_sumo_gui_clicked(self, value):
@@ -862,7 +866,8 @@ class DlgMain(QDialog):
 
     def evt_taz_file_btn_clicked(self):
         # input one file
-        fpath, extension = QFileDialog.getOpenFileName(self,'Open File', '/Users/Pablo/','JPG Files (*.jpg);; PNG Files (*.png)')
+        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
+                                                       'JPG Files (*.jpg);; PNG Files (*.png)')
         self.taz_file = fpath
 
     def evt_output_file_clicked(self):
@@ -874,7 +879,7 @@ class DlgMain(QDialog):
     def setuplayout(self):
 
         self.tab_main_layout = QVBoxLayout()
-        #self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
+        # self.tab_main_layout.addWidget(self.title_label) # title SUMO TRaafi generator
         self.tab_main_layout.addWidget(self.tab_main_menu)
 
         #####################  TABS OF THE MAIN MENU #########################3
@@ -882,7 +887,7 @@ class DlgMain(QDialog):
         self.tab_main_menu.addTab(self.wdg_traffic_demand, "Traffic Demand")
         self.tab_main_menu.addTab(self.wdg_simulation, "Simulation")
         self.tab_main_menu.addTab(self.wdg_statistics, "Statistics")
-        #self.tab_main_menu.addTab(self.tab_groupbox, "Outputs")
+        # self.tab_main_menu.addTab(self.tab_groupbox, "Outputs")
 
         ##################   BUILD NETWORK SUB LAYOUTS      #####################3
         self.osm_sublayout = QHBoxLayout()
@@ -904,7 +909,6 @@ class DlgMain(QDialog):
         self.netconvert_sublayout = QHBoxLayout()
         self.netconvert_sublayout.addWidget(self.netconvert_btn)
         self.netconvert_sublayout.addWidget(self.check_netconvert_file)
-
 
         self.netconvert_main_layout = QHBoxLayout()
         self.netconvert_main_layout.addLayout(self.netconvert_options_sublayout, Qt.AlignLeft)
@@ -954,13 +958,12 @@ class DlgMain(QDialog):
         self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_GS_main_ly)
         self.traffic_setting_groupbox.setLayout(self.traffic_demand_settings_main_ly)
 
-
         self.simulation_main_ly = QHBoxLayout()
         self.simulation_main_ly.addWidget(self.sumo_output_tripinfo)
         self.simulation_main_ly.addWidget(self.sumo_output_summary)
         self.simulation_main_ly.addWidget(self.sumo_output_emissions)
         self.simulation_main_ly.addWidget(self.sumo_gui)
-        #self.simulation_main_ly.addWidget(self.run_simulation_btn)
+        # self.simulation_main_ly.addWidget(self.run_simulation_btn)
         self.simulation_groupbox.setLayout(self.simulation_main_ly)
 
         self.ly_RT = QHBoxLayout()
@@ -1024,8 +1027,8 @@ class DlgMain(QDialog):
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
         self.container_build_network.addRow(self.taz_groupbox)
-        #self.container_build_network.addRow(self.progress_bar)
-        self.container_build_network.addRow(self.cmd_str) # log text
+        # self.container_build_network.addRow(self.progress_bar)
+        self.container_build_network.addRow(self.cmd_str)  # log text
         self.wdg_build_network.setLayout(self.container_build_network)
         #######################  TAB ROUTING WIDGETS  ####################
         self.wdg_tab_rt_routing = QWidget()
@@ -1082,15 +1085,9 @@ class DlgMain(QDialog):
         # Match with main layout
         self.setLayout(self.tab_main_layout)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)  # create applications
     dlgMain = DlgMain()  # create main GUI canvas
     dlgMain.show()  # Show gui console
     sys.exit(app.exec_())
-
-
-
-
-
-
-

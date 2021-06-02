@@ -129,7 +129,7 @@ def singlexml2csv(f):
     # os.system(cmd)
 
 
-def rt(config, k, gui):
+def rt(config, k):
     # GENERATE TRIPS  per hour
     trips_for_traffic(config)
     # via route Travessera
@@ -140,7 +140,7 @@ def rt(config, k, gui):
     read_trips = os.listdir(config.trips)
     trips = ','.join([f'{os.path.join(config.trips, elem)}' for elem in read_trips])
     # generate sumo cfg file
-    gen_sumo_cfg(config.tool, trips, k, config, config.reroute_probability)
+    gen_sumo_cfg(trips, k, config)
     # execute simulations
 
     #simulate(config, config.processors, gui) # add in utils
