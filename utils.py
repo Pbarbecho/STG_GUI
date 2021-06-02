@@ -127,7 +127,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     """
     routing = folders.tool
     rr_prob = folders.reroute_probability
-
+    print(rr_prob)
     sumo_cfg = os.path.join(folders.parents_dir, 'templates', 'osm.sumo.cfg')
     vtype = os.path.join(folders.parents_dir, 'templates', 'vtype.xml')
     # new_emissions = os.path.join(folders.parents_dir,'templates', 'emissions.add.xml')
