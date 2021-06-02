@@ -13,13 +13,9 @@ import time
 class simulation_worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(str)
-
     def run(self):
-        i=5
-        while self.run:
-            i += 1
-            progress_str = '-' * (i)
-            self.progress.emit(f'Simulating: {progress_str}')
+        time.sleep(1)
+        self.progress.emit('Simulating ..........')
         os.system(self.cmd)
         self.finished.emit()
 
@@ -560,10 +556,9 @@ class DlgMain(QDialog):
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
                         QMessageBox.information(self, 'Error','SUMO simulation failed. See console logs.')
-
-                output_files = os.listdir(self.outputs)
-                self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
-                QMessageBox.information(self, 'Ok', 'Simulation completed')
+                #output_files = os.listdir(self.outputs)
+                #self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
+                #QMessageBox.information(self, 'Ok', 'Simulation completed')
 
             else:QMessageBox.information(self, 'Error', 'Empty configurations folder.')
         else:QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
@@ -587,8 +582,8 @@ class DlgMain(QDialog):
         # Final resets
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText("Simulation finished"))
-
+        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText("Simulation finished."))
+        self.thread.finished.connect(lambda: QMessageBox.information(self, 'Ok', 'Simulation completed'))
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
         # Find sumo installation
