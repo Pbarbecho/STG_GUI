@@ -212,7 +212,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     output_dir = os.path.join(folders.cfg, f'{curr_name}_{routing}_{k}.sumo.cfg')
     tree.write(output_dir)
     # update cfg directory
-    folders.cfg = output_dir
+    folders.sumo_cfg_dir = output_dir
 
 
 
@@ -250,7 +250,7 @@ def exec_od2trips(fname, tripfile, folders):
     os.system(cmd)
     # remove fromtotaz
     output_file = f'{tripfile}.xml'
-    print(output_file)
+
     rm_taz = f"sed 's/fromTaz=\"{folders.O_district}\" toTaz=\"{folders.D_district}\"//' {tripfile} > {output_file}"
     os.system(rm_taz)
 

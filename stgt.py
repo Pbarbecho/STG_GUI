@@ -21,6 +21,8 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
+        self.rou_dir =''
+        self.sumo_cfg_dir = ''
         self.isCommandExecutionSuccessful = False
         self.realtraffic = ''
         self.simtime = 1

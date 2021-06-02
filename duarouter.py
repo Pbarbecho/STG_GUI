@@ -14,7 +14,7 @@ def gen_routes(O, k, O_files, folders):
      """
      Generate configuration files for dua / ma router
      """
-     routing = folders.routing
+     routing = folders.tool
 
      # Generate od2trips cfg
      cfg_name, output_name = gen_od2trips(O,k,folders)
@@ -24,6 +24,7 @@ def gen_routes(O, k, O_files, folders):
 
      if routing == 'dua':
         # Generate DUArouter cfg
+
         cfg_name, output_name = gen_DUArouter(output_name, k, folders)
                           
      elif routing == 'ma':
@@ -33,8 +34,9 @@ def gen_routes(O, k, O_files, folders):
      else:
         SystemExit('Routing name not found')
 
+     folders.rou_dir = output_name
      # Generate sumo cfg
-     return gen_sumo_cfg(output_name, k, folders) # last element reroute probability
+     gen_sumo_cfg(output_name, k, folders) # last element reroute probability
 
      
 def gen_route_files(folders, k):
@@ -62,8 +64,8 @@ def gen_route_files(folders, k):
                 # backup O files
                 O_files = os.listdir(folders.O)
                 # Gen DUArouter/MArouter
-                cfg_file_loc = gen_routes(O_name, k, O_files, folders)
-    return cfg_file_loc
+                gen_routes(O_name, k, O_files, folders)
+
 
 
 def gen_MArouter(O, i, O_files, trips, folders):
@@ -119,15 +121,13 @@ def exec_marouter_cmd(fname):
 
 def exec_DUArouter(folders):
     cfg_files = os.listdir(folders.O)
-  
     # Get dua.cfg files list
     dua_cfg_list = []
     [dua_cfg_list.append(cf) for cf in cfg_files if 'duarouter' in cf.split('_')]
-
-    print(dua_cfg_list)
+    print('pablo ', dua_cfg_list)
     if dua_cfg_list:
         batch = parallel_batch_size(dua_cfg_list)
-        
+
         # Generate dua routes
         print(f'\nGenerating duaroutes ({len(dua_cfg_list)} files) ...........\n')
         with parallel_backend("loky"):
@@ -160,10 +160,11 @@ def dua_ma(config, k, gui):
     # Generate cfg files
     gen_route_files(config, k)
 
-    if config.routing  == 'dua':
+    if config.tool == 'dua':
         # Execute DUArouter 
         exec_DUArouter(config)
-    elif config.routing  == 'ma':
+        print('entro dua')
+    elif config.tool == 'ma':
         # Execute MArouter 
         exec_MArouter(config)
 
