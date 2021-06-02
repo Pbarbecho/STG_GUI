@@ -12,8 +12,14 @@ import time
 
 class simulation_worker(QObject):
     finished = pyqtSignal()
+    progress = pyqtSignal(str)
+
     def run(self):
-        print(self.cmd)
+        i=5
+        i += 1
+        progress_str = '-'*(i)
+
+        self.progress.emit(f'Simulating', progress_str)
         os.system(self.cmd)
         self.finished.emit()
 
@@ -550,8 +556,7 @@ class DlgMain(QDialog):
                             else:cmd = f'sumo -c {full_path}'
                             self.run_command = cmd
                             self.exec_simulation_thread()
-                            for i in range(1000):
-                                self.cmd_output_str.setPlainText(f'Simulating .*{i}')
+
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
                         QMessageBox.information(self, 'Error','SUMO simulation failed. See console logs.')
@@ -563,6 +568,10 @@ class DlgMain(QDialog):
             else:QMessageBox.information(self, 'Error', 'Empty configurations folder.')
         else:QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
 
+    def reportProgress(self, str):
+        self.cmd_output_str.setText(str)
+
+
     def exec_simulation_thread(self):
         self.thread = QThread()
         self.worker = simulation_worker()
@@ -573,11 +582,12 @@ class DlgMain(QDialog):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.progress.connect(self.reportProgress)
         self.thread.start()
         # Final resets
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-        self.thread.finished.connect(lambda: self.cmd_output_str.setText("Simulation finished"))
+        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText("Simulation finished"))
 
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
