@@ -513,7 +513,6 @@ class DlgMain(QDialog):
         if cfg_list:
             # parse an xml file by name
 
-
             cfg_file_path = os.path.join(self.cfg, cfg_list[0])
             qfile = QFile(cfg_file_path)
 
@@ -525,13 +524,13 @@ class DlgMain(QDialog):
 
     def evt_run_simulation_btn_clicked(self):
         if self.outputs:
-            simulations_list = os.listdir(self.cfg)
+            simulations_list = os.listdir(self.cfg) # replace simulation method
             if simulations_list:
                 if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
-                    self.cmd_output_str.setPlainText(f'Simulating ...............')
+                    self.cmd_output_str.setPlainText(f'Simulating {simulations_list}')
                     try:
                         for s in simulations_list:
-                            exec_sim_cmd(s, self.sumo_var_gui)
+                            exec_sim_cmd(s)
                         output_files = os.listdir(self.outputs)
                         self.cmd_output_str.setPlainText(f'Simulation compleated. Outputs in {self.outputs} \n \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')

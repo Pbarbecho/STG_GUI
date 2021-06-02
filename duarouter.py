@@ -162,7 +162,6 @@ def dua_ma(config, k, gui):
     if config.tool == 'dua':
         # Execute DUArouter 
         exec_DUArouter(config)
-        print('entro dua')
     elif config.tool == 'ma':
         # Execute MArouter 
         exec_MArouter(config)

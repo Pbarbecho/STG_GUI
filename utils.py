@@ -72,7 +72,7 @@ def gen_DUArouter(trips, i, folders):
     return cfg_name, output_name
 
 
-def simulate(folders, processors, gui):
+def simulate(folders):
     simulations = os.listdir(folders.cfg)
 
     if simulations:
@@ -80,7 +80,7 @@ def simulate(folders, processors, gui):
         # Execute simulations
         print('\nExecuting simulations ....')
         for s in simulations:
-            exec_sim_cmd(s, folders, gui)
+            exec_sim_cmd(s, folders)
             print(f'Simulating .... {s}')
         """ 
         with parallel_backend("loky"):
@@ -95,11 +95,11 @@ def simulate(folders, processors, gui):
     print_time('End simulations ')
 
 
-def exec_sim_cmd(scenario, folders, gui):
+def exec_sim_cmd(scenario, folders):
     print('\n Simulating ............\n')
     full_path = os.path.join(folders.cfg, scenario)
     print(full_path)
-    if gui:
+    if folders.sumo_var_gui:
         cmd = f'sumo-gui -c {full_path}'
     else:
         cmd = f'sumo -c {full_path}'
