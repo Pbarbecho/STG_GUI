@@ -543,7 +543,7 @@ class DlgMain(QDialog):
                     self.cmd_output_str.setPlainText(f'Simulating {simulations_list}')
                     try:
                         for s in simulations_list:
-                            exec_sim_cmd(s)
+                            exec_sim_cmd(s, self)
                         output_files = os.listdir(self.outputs)
                         self.cmd_output_str.setPlainText(f'Simulation compleated. Outputs in {self.outputs} \n \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')
@@ -606,7 +606,6 @@ class DlgMain(QDialog):
             else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:warn_empty = QMessageBox.information(self, 'Missing File', 'Please enter a valid Origin/Destination TAZ names.')
 
-
     def evt_dua_btn_clicked(self):
         # Find sumo installation
         self.Update_SUMO_exec_path()
@@ -624,7 +623,7 @@ class DlgMain(QDialog):
                     try:
                         dua_ma(self, 0, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
-                        self.traffic_demand_cmd.setPlainText(f'Traffic demand files generated {self.rou_dir}.')
+                        self.traffic_demand_cmd.setPlainText(f'DUARouter traffic demand file generated:\n{self.rou_dir}')
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
@@ -746,7 +745,6 @@ class DlgMain(QDialog):
                 print("Error: " + errorMessage)
         else:
             QMessageBox.information(self, 'Missing File', 'SUMO Network and Polygons files are required')
-
 
     def evt_polyconvert_btn_clicked(self):
         if self.network:
