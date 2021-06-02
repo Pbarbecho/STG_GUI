@@ -10,6 +10,35 @@ from statistics import statistics_route_file
 import subprocess
 
 
+class simulation_worker(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+
+    def run(self):
+        """Long-running task."""
+        if self.outputs:
+            simulations_list = os.listdir(self.cfg) # replace simulation method
+            if simulations_list:
+                if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
+                    self.cmd_output_str.setPlainText(f'Simulating {simulations_list}')
+                    try:
+                        for s in simulations_list:
+                            exec_sim_cmd(s, self)
+                        output_files = os.listdir(self.outputs)
+                        self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
+                        QMessageBox.information(self, 'Ok', 'Simulation completed')
+                    except Exception as e:
+                        self.cmd_output_str.setPlainText(str(e))
+                        QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
+            else:
+                QMessageBox.information(self, 'Error', 'ty configurations folder.')
+        else:
+            QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
+
+
+        self.finished.emit()
+        
+        
 class MyThread(QThread):
     change_value = pyqtSignal(str)
     def run(self):
@@ -536,6 +565,8 @@ class DlgMain(QDialog):
             QMessageBox.information(self, 'Error', 'SUMO configuration file is not generated yet.')
 
     def evt_run_simulation_btn_clicked(self):
+        self.exec_simulation_thread()
+        """
         if self.outputs:
             simulations_list = os.listdir(self.cfg) # replace simulation method
             if simulations_list:
@@ -545,8 +576,8 @@ class DlgMain(QDialog):
                         for s in simulations_list:
                             exec_sim_cmd(s, self)
                         output_files = os.listdir(self.outputs)
-                        self.cmd_output_str.setPlainText(f'Simulation compleated. Outputs in {self.outputs} \n \n {output_files}')
-                        QMessageBox.information(self, 'Ok', 'Simulation compleate')
+                        self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
+                        QMessageBox.information(self, 'Ok', 'Simulation completed')
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'SUMO netconvert tool cannot be executed. See console logs.')
@@ -554,6 +585,30 @@ class DlgMain(QDialog):
                 QMessageBox.information(self, 'Error', 'ty configurations folder.')
         else:
             QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
+        """
+
+    def exec_simulation_thread(self):
+        self.thread = QThread()
+        self.worker = simulation_worker()
+        self.worker.moveToThread(self.thread)
+
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.progress.connect(self.reportProgress)
+
+        self.thread.start()
+
+        # Final resets
+        self.longRunningBtn.setEnabled(False)
+        self.thread.finished.connect(
+            lambda: self.longRunningBtn.setEnabled(True)
+        )
+        self.thread.finished.connect(
+            lambda: self.stepLabel.setText("Long-Running Step: 0")
+        )
+
 
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
