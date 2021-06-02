@@ -155,7 +155,7 @@ def exec_MArouter(folders):
        sys.exit('No ma.cfg files}')
                                    
 
-def dua_ma(config, k, gui):
+def dua_ma(config, k):
     # Generate cfg files
     gen_route_files(config, k)
 

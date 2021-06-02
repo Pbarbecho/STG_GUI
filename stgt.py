@@ -648,7 +648,7 @@ class DlgMain(QDialog):
                 if QMessageBox.information(self, 'Generating Traffic Demand',
                                            'Traffic demand generation may take some time, please wait. Proceed?'):
                     try:
-                        dua_ma(self, 0, False)
+                        dua_ma(self, 0)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
                         self.traffic_demand_cmd.setPlainText(
                             f'DUARouter traffic demand file generated:\n{self.rou_dir}')
