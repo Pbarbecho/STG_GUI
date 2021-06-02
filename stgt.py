@@ -19,7 +19,7 @@ class simulation_worker(QObject):
         i += 1
         progress_str = '-'*(i)
 
-        self.progress.emit(f'Simulating', progress_str)
+        self.progress.emit(f'Simulating: {progress_str}')
         os.system(self.cmd)
         self.finished.emit()
 
