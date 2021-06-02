@@ -12,7 +12,7 @@ import subprocess
 
 class simulation_worker(QObject):
     finished = pyqtSignal()
-    progress = pyqtSignal(int)
+    #progress = pyqtSignal(int)
 
     def run(self):
         """Long-running task."""
@@ -596,7 +596,7 @@ class DlgMain(QDialog):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect(self.reportProgress)
+        #self.worker.progress.connect(self.reportProgress)
 
         self.thread.start()
 
