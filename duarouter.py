@@ -124,10 +124,9 @@ def exec_DUArouter(folders):
     # Get dua.cfg files list
     dua_cfg_list = []
     [dua_cfg_list.append(cf) for cf in cfg_files if 'duarouter' in cf.split('_')]
-    print('pablo ', dua_cfg_list)
+
     if dua_cfg_list:
         batch = parallel_batch_size(dua_cfg_list)
-
         # Generate dua routes
         print(f'\nGenerating duaroutes ({len(dua_cfg_list)} files) ...........\n')
         with parallel_backend("loky"):

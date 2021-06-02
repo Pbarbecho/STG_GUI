@@ -95,9 +95,10 @@ def simulate(folders, processors, gui):
     print_time('End simulations ')
 
 
-def exec_sim_cmd(cfg_file, folders, gui):
-    # print('\n Simulating ............\n')
-    full_path = os.path.join(folders.cfg, cfg_file)
+def exec_sim_cmd(scenario, folders, gui):
+    print('\n Simulating ............\n')
+    full_path = os.path.join(folders.cfg, scenario)
+    print(full_path)
     if gui:
         cmd = f'sumo-gui -c {full_path}'
     else:

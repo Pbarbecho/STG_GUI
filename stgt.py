@@ -85,16 +85,16 @@ class DlgMain(QDialog):
         od_max_width = 200
         od_max_high = 40
         self.O_distric_label = QLabel('Origin TAZ')
-
         self.O_distric = QPlainTextEdit()
-
-        self.O_distric.setPlaceholderText('Enter the Origin District NAME as in the TAZ file')
         self.O_distric.setMaximumSize(od_max_width, od_max_high)
+        self.O_distric.setDisabled(True)
+        self.O_distric.setPlaceholderText('Origin District NAME as in the TAZ file')
+
         self.D_distric_label = QLabel('Destination TAZ')
         self.D_distric = QPlainTextEdit()
         self.D_distric.setMaximumSize(od_max_width, od_max_high)
-        self.D_distric.setPlaceholderText('Enter the Destination District NAME as in the TAZ file')
-
+        self.D_distric.setDisabled(True)
+        self.D_distric.setPlaceholderText('Destination District NAME as in the TAZ file')
         #######################  BUILD NETWORK LOG TEXT BOX  ################################
         self.cmd_str = QTextEdit()
         self.cmd_str.setPlaceholderText('Console logs')
@@ -377,7 +377,7 @@ class DlgMain(QDialog):
 
         ########################     INSTANCIATE  TAB TRAFFIC DEMAND ROUTING  #############################
         self.tab_routing_op = QTabWidget()
-
+        self.tab_routing_op.tabBarClicked.connect(self.evt_tab_clicked)
 
         ########################     INSTANCIATE  TAB WIDGET  #############################
         self.tab_main_menu = QTabWidget()
@@ -407,6 +407,16 @@ class DlgMain(QDialog):
 
 
     #################################   GENERAL FUNCTIONS ############################################
+    def evt_tab_clicked(self, idx):
+        if idx == 0:    # RANDOMTRIPS
+            self.O_distric.setDisabled(True)
+            self.D_distric.setDisabled(True)
+        else: # DUA, DUAI, OD2, MA
+            self.O_distric.setPlaceholderText('Origin District NAME as in the TAZ file')
+            self.D_distric.setPlaceholderText('Destination District NAME as in the TAZ file')
+            self.O_distric.setDisabled(False)
+            self.D_distric.setDisabled(False)
+
     def Update_SUMO_exec_path(self):
         if self.SUMO_exec == '':
             warn_empty = QMessageBox.information(self, 'Missing File', 'Please set SUMO_HOME variable in your system.')
@@ -521,7 +531,7 @@ class DlgMain(QDialog):
                     self.cmd_output_str.setPlainText(f'Simulating ...............')
                     try:
                         for s in simulations_list:
-                            exec_sim_cmd(s, self, self.sumo_var_gui)
+                            exec_sim_cmd(s, self.sumo_var_gui)
                         output_files = os.listdir(self.outputs)
                         self.cmd_output_str.setPlainText(f'Simulation compleated. Outputs in {self.outputs} \n \n {output_files}')
                         QMessageBox.information(self, 'Ok', 'Simulation compleate')
@@ -560,16 +570,9 @@ class DlgMain(QDialog):
         self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = 'rt'
-        # output default folder
-
-        self.O_distric.setDisabled(True)
-        self.D_distric.setDisabled(True)
-
-        self.O_distric.setPlainText('ro')
-        self.D_distric.setPlainText('rd')
-
-        self.O_district = self.O_distric.toPlainText()
-        self.D_district = self.D_distric.toPlainText()
+        # file names
+        self.O_district = 'origin'
+        self.D_district = 'destination'
 
         if self.O_district and self.D_district:
             if self.realtraffic:
@@ -597,14 +600,7 @@ class DlgMain(QDialog):
         self.Update_SUMO_exec_path()
         # Update Selected tool
         self.tool = 'dua'
-        # output default folder
-
         #DUARouter requires TAZ O/D names
-        self.O_distric.setDisabled(False)
-        self.D_distric.setDisabled(False)
-        #self.O_distric.setPlainText('ro')
-        #self.D_distric.setPlainText('rd')
-
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
@@ -613,18 +609,13 @@ class DlgMain(QDialog):
                 self.update_paths()
                 if QMessageBox.information(self, 'Generating Traffic Demand',
                                            'Traffic demand generation may take some time, please wait. Proceed?'):
-                    self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
                     try:
                         dua_ma(self, 0, False)
                         QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
-                        #trips_list = os.listdir(self.trips)
-                        #self.traffic_demand_cmd.setPlainText(
-                        #    f'Traffic demand files generated in {self.trips}: {trips_list}.')
-
+                        self.traffic_demand_cmd.setPlainText(f'Traffic demand files generated {self.rou_dir}.')
                     except Exception as e:
                         self.traffic_demand_cmd.setPlainText(str(e))
                         QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
-
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:
