@@ -671,7 +671,7 @@ class DlgMain(QDialog):
             self.osm = fpath
             self.check_osm_file.setChecked(True)
             self.cmd_str.setPlainText(f'OSM file successfully imported from: {fpath}')
-            QMessageBox.information(self, 'Ok', 'OSM File imported')
+            QMessageBox.information(self, 'Ok', f'OSM File imported: {self.osm}')
 
     def evt_netedit_btn_clicked(self):
         self.Update_SUMO_exec_path()
@@ -693,8 +693,8 @@ class DlgMain(QDialog):
                 output = subprocess.check_output(cmd_list, stderr=subprocess.STDOUT, universal_newlines=True)
                 # Print out command's standard output (elegant)
                 self.isCommandExecutionSuccessful = True
-                QMessageBox.information(f'TAZ file generated {self.taz_file}')
-                self.cmd_str.setPlainText(f'Execute SUMO netedit tool : {cmd}')
+                QMessageBox.information(self, 'Ok' ,f'TAZ file generated: {self.taz_file}')
+                self.cmd_str.setPlainText(f'Execute SUMO netedit tool: {cmd}')
                 self.check_netedit_file.setChecked(True)
 
             except subprocess.CalledProcessError as error:
@@ -724,7 +724,7 @@ class DlgMain(QDialog):
                 self.poly = temp_poly_loc
                 self.check_polyconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'Polygons file successfully generated: {cmd}')
-                QMessageBox.information(self, 'Ok', 'Polygons file successfully generated')
+                QMessageBox.information(self, 'Ok', f'Polygons file generated: {self.poly}')
             except Exception as e:
                 self.cmd_str.setPlainText(str(e))
                 QMessageBox.information(self, 'Error', 'SUMO polyconvert tool cannot executed. See console logs.')
@@ -752,7 +752,7 @@ class DlgMain(QDialog):
                 self.network = temp_network_loc
                 self.check_netconvert_file.setChecked(True)
                 self.cmd_str.setPlainText(f'SUMO Network file successfully generated: {cmd}')
-                QMessageBox.information(self, 'Ok', 'SUMO Network file successfully generated')
+                QMessageBox.information(self, 'Ok', f'SUMO Network generated: {self.network}')
 
             except Exception as e:
                 self.cmd_str.setPlainText(str(e))
