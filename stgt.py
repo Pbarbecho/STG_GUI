@@ -16,10 +16,10 @@ class simulation_worker(QObject):
 
     def run(self):
         i=5
-        i += 1
-        progress_str = '-'*(i)
-
-        self.progress.emit(f'Simulating: {progress_str}')
+        while self.run:
+            i += 1
+            progress_str = '-' * (i)
+            self.progress.emit(f'Simulating: {progress_str}')
         os.system(self.cmd)
         self.finished.emit()
 
