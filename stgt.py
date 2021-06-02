@@ -601,13 +601,9 @@ class DlgMain(QDialog):
         self.thread.start()
 
         # Final resets
-        self.longRunningBtn.setEnabled(False)
-        self.thread.finished.connect(
-            lambda: self.longRunningBtn.setEnabled(True)
-        )
-        self.thread.finished.connect(
-            lambda: self.stepLabel.setText("Long-Running Step: 0")
-        )
+        self.run_simulation_btn.setEnabled(False)
+        self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
+        self.thread.finished.connect(lambda: self.cmd_output_str.setText("Long-Running Step: 0"))
 
 
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
