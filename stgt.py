@@ -21,6 +21,7 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
+
         self.rou_dir =''
         self.sumo_cfg_dir = ''
         self.isCommandExecutionSuccessful = False
@@ -34,6 +35,7 @@ class DlgMain(QDialog):
         self.SUMO_exec = os.environ['SUMO_HOME']
         #self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
+        self.net_folder_var = self.parents_dir
         self.trips = ''
         self.outputs = ''
         self.SUMO_tool = ''
@@ -174,6 +176,8 @@ class DlgMain(QDialog):
         self.osm_file_btn.setMinimumWidth(tool_btn_wsize)
         self.osm_file_btn.clicked.connect(self.evt_osm_file_btn_clicked)
 
+
+
         # Netconvert button
         self.netconvert_btn = QPushButton('Netconvert')
         self.netconvert_btn.setMinimumWidth(tool_btn_wsize)
@@ -235,9 +239,10 @@ class DlgMain(QDialog):
         self.netconvert_groupbox = QGroupBox('2. Generate SUMO network file (.net.xml)')
         self.polyconvert_groupbox = QGroupBox('3. Generate polygons of the map (.poly.xml)')
         self.taz_groupbox = QGroupBox('4. Optional:')
-
+        self.net_folder_groupbox = QGroupBox()
 
         self.osm_groupbox.setFont(subtitle_font)
+        self.net_folder_groupbox.setFont(subtitle_font)
         self.netconvert_groupbox.setFont(subtitle_font)
         self.polyconvert_groupbox.setFont(subtitle_font)
         self.taz_groupbox.setFont(subtitle_font)
@@ -321,6 +326,15 @@ class DlgMain(QDialog):
         self.simtime_int_btn.setFont(traffic_setting_label)
         self.simtime_int_btn.setMaximumSize(95, 30)
         self.simtime_int_btn.valueChanged.connect(self.evt_simtime_int_btn_clicked)
+
+        # READ NET FOLDER
+        self.net_folder_btn = QPushButton('MAP Folder')
+        self.net_folder_btn.clicked.connect(self.evt_net_folder_btn_clicked)
+
+        self.net_folder_textbar = QTextEdit()
+        self.net_folder_textbar.setPlaceholderText('Enter network files directory')
+        self.net_folder_textbar.setMaximumHeight(30)
+        self.net_folder_textbar.setReadOnly(True)
 
         # READ ORIGIN TAZ button open File
         self.taz_file_btn = QPushButton('TAZ File')
@@ -484,7 +498,6 @@ class DlgMain(QDialog):
             QMessageBox.information(self, 'Ok', 'Routes File imported')
 
     ##############################  PROGRESS BAR #############################################
-
 
     def start_progress_bar(self):
         self.thread = MyThread()
@@ -662,6 +675,32 @@ class DlgMain(QDialog):
                                                  'Please enter a valid Origin/Destination TAZ names.')
 
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
+    def evt_net_folder_btn_clicked(self):
+        # input one file
+        fpath = QFileDialog.getExistingDirectory(self,'Select directory', '/Users/Pablo/')
+        self.net_folder_var = fpath
+        self.net_folder_textbar.setPlainText(self.net_folder_var)
+        # look for existing files
+        network_files = os.listdir(fpath)
+        osm_file = [nf for nf in network_files if ".osm" in nf]
+        net_file = [nf for nf in network_files if ".net.xml" in nf]
+        poly_file = [nf for nf in network_files if ".poly.xml" in nf]
+        taz_file = [nf for nf in network_files if "TAZ.xml" in nf]
+        # send found files to log console
+        self.cmd_str.setPlainText(f'Network files found in {fpath}:\nOSM:{osm_file},\nNET:{net_file},\nPOLY:{poly_file},\nTAZ:{taz_file}')
+        # Update check boxes and self paths
+        if osm_file:
+            self.check_osm_file.setChecked(True)
+            self.osm = os.path.join(fpath,osm_file[0])
+        if net_file:
+            self.check_netconvert_file.setChecked(True)
+            self.network = os.path.join(fpath,net_file[0])
+        if poly_file:
+            self.check_polyconvert_file.setChecked(True)
+            self.poly = os.path.join(fpath,poly_file[0])
+        if taz_file:
+            self.check_netedit_file.setChecked(True)
+            self.taz_file = os.path.join(fpath,taz_file[0])
 
     def evt_osm_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
@@ -825,6 +864,12 @@ class DlgMain(QDialog):
         self.osm_sublayout.setAlignment(Qt.AlignRight)
         self.osm_groupbox.setLayout(self.osm_sublayout)
 
+        self.net_folder_ly = QHBoxLayout()
+        self.net_folder_ly.addWidget(self.net_folder_btn)
+        self.net_folder_ly.addWidget(self.net_folder_textbar)
+        self.net_folder_ly.setAlignment(Qt.AlignRight)
+        self.net_folder_groupbox.setLayout(self.net_folder_ly)
+
         self.netconvert_options_sublayout = QHBoxLayout()
         self.netconvert_options_sublayout.addWidget(self.netconvert_urban_op)
         self.netconvert_options_sublayout.addWidget(self.netconvert_highway_op)
@@ -947,6 +992,7 @@ class DlgMain(QDialog):
 
         ##################   CONTAINER BUILD NETWORK    #####################3
         self.container_build_network = QFormLayout()
+        self.container_build_network.addRow(self.net_folder_groupbox)
         self.container_build_network.addRow(self.osm_groupbox)
         self.container_build_network.addRow(self.netconvert_groupbox)
         self.container_build_network.addRow(self.polyconvert_groupbox)
@@ -954,7 +1000,7 @@ class DlgMain(QDialog):
         #self.container_build_network.addRow(self.progress_bar)
         self.container_build_network.addRow(self.cmd_str) # log text
         self.wdg_build_network.setLayout(self.container_build_network)
-        #######################  TAB ROTUNGI WIDGETS  ####################
+        #######################  TAB ROUTING WIDGETS  ####################
         self.wdg_tab_rt_routing = QWidget()
         self.wdg_tab_ma_routing = QWidget()
         self.wdg_tab_dua_routing = QWidget()
@@ -1005,7 +1051,6 @@ class DlgMain(QDialog):
         self.container_statistics = QFormLayout()
         self.container_statistics.addRow(self.statistics_groupbox)
         self.wdg_statistics.setLayout(self.container_statistics)
-
 
         # Match with main layout
         self.setLayout(self.tab_main_layout)
