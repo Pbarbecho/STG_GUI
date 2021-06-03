@@ -32,6 +32,7 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
+        self.factor = 1
         self.run_command = ''
         self.rou_dir = ''
         self.sumo_cfg_dir = ''
@@ -306,6 +307,22 @@ class DlgMain(QDialog):
         self.sumo_output_tripinfo.toggled.connect(self.evt_tripinfo_clicked)
         self.sumo_output_emissions.toggled.connect(self.evt_emissions_clicked)
         self.sumo_output_summary.toggled.connect(self.evt_summary_clicked)
+
+        # spinbox for multipli factor
+        self.factor_spin = QSpinBox()
+        self.factor_spin.setWrapping(True)
+        self.factor_spin.setRange(0, 100)
+        self.factor_spin.setValue(0)
+        self.factor_spin.setSingleStep(10)
+        self.factor_spin.setMaximumSize(95, 30)
+        self.factor_spin.setAlignment(Qt.AlignRight)
+        self.factor_spin.valueChanged.connect(self.evt_factor_spin_clicked)
+
+        self.factor_spin_label = QLabel('Scaling Factor')
+        self.factor_spin_label.setAlignment(Qt.AlignRight)
+        self.factor_spin_label.setFont(traffic_setting_label)
+
+
         # spinbox for reroute probability
         self.sumo_rerouting_prob_spin = QSpinBox()
         self.sumo_rerouting_prob_spin.setWrapping(True)
@@ -863,6 +880,9 @@ class DlgMain(QDialog):
     def evt_sumo_rerouting_prob_spin_clicked(self, value):
         self.reroute_probability = value
 
+    def evt_factor_spin_clicked(self, value):
+        self.factor = value
+
     def evt_rt_file_btn_clicked(self):
         # input of the path to the traffic file .csv
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/',
@@ -953,10 +973,15 @@ class DlgMain(QDialog):
         self.traffic_demand_settings_GS_3_ly.addWidget(self.sumo_rerouting_prob_label)
         self.traffic_demand_settings_GS_3_ly.addWidget(self.sumo_rerouting_prob_spin)
 
+        self.traffic_demand_settings_GS_4_ly = QHBoxLayout()
+        self.traffic_demand_settings_GS_4_ly.addWidget(self.factor_spin_label)
+        self.traffic_demand_settings_GS_4_ly.addWidget(self.factor_spin)
+
         self.traffic_demand_settings_GS_main_ly = QVBoxLayout()
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_1_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_2_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_3_ly)
+        self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_4_ly)
 
         self.traffic_demand_settings_main_ly = QHBoxLayout()
         self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_OD_ly)

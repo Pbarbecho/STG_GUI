@@ -57,7 +57,7 @@ def gen_route_files(folders, k):
             print(f'\n Generating cfg files for TAZ  From:{h} -> To:{sd}')
             # build O file    
             O_name = os.path.join(folders.O, f'{h}_{sd}')
-            create_O_file(folders, O_name, h, sd, end_hour, 1) # factor = 1
+            create_O_file(folders, O_name, h, sd, end_hour, folders.factor) # factor = 1
                  
             # Generate cfg files 
             for k in range(repetitions):
