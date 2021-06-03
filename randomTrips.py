@@ -79,7 +79,9 @@ def trips_for_traffic(folders):
         for minute in col:  # minute
             vehicles = traffic_df[minute][hour]
             print(vehicles)
-            vehicles = vehicles * folders.factor
+            if folders.factor !=0:scaling_factor = folders.factor
+            else: scaling_factor = 1
+            vehicles = vehicles * scaling_factor
             print(vehicles)
             name = f'{hour}_{minute}_randomTrips'
             # convert to sec
