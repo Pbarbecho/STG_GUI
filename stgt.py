@@ -311,9 +311,9 @@ class DlgMain(QDialog):
         # spinbox for multipli factor
         self.factor_spin = QSpinBox()
         self.factor_spin.setWrapping(True)
-        self.factor_spin.setRange(0, 100)
-        self.factor_spin.setValue(0)
-        self.factor_spin.setSingleStep(10)
+        self.factor_spin.setRange(1, 10)
+        self.factor_spin.setValue(1)
+        self.factor_spin.setSingleStep(1)
         self.factor_spin.setMaximumSize(95, 30)
         self.factor_spin.setAlignment(Qt.AlignRight)
         self.factor_spin.valueChanged.connect(self.evt_factor_spin_clicked)
