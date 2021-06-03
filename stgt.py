@@ -597,10 +597,13 @@ class DlgMain(QDialog):
         self.worker.progress.connect(self.reportProgress)
         self.thread.start()
         # Final resets
+
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText("Simulation finished."))
+        output_files = os.listdir(self.outputs)
+        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText(f"Simulation finished. \nSUMO outputs:\n{output_files}"))
         self.thread.finished.connect(lambda: QMessageBox.information(self, 'Ok', 'Simulation completed'))
+
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################
     def evt_od2_btn_clicked(self):
         # Find sumo installation
