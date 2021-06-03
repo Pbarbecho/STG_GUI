@@ -63,8 +63,8 @@ class DlgMain(QDialog):
         self.edges = ''
         self.reroute_probability = 50
         self.sumo_var_tripinfo = True
-        self.sumo_var_emissions = False
-        self.sumo_var_summary = False
+        self.sumo_var_emissions = True
+        self.sumo_var_summary = True
         self.sumo_var_gui = False
         self.routing = ''
         self.osm = ''
