@@ -78,7 +78,9 @@ def trips_for_traffic(folders):
     for hour in tqdm(range(end_hour)):  # hora
         for minute in col:  # minute
             vehicles = traffic_df[minute][hour]
-            print(vehicles, minute,hour)
+            print(vehicles)
+            vehicles = vehicles * folders.factor
+            print(vehicles)
             name = f'{hour}_{minute}_randomTrips'
             # convert to sec
             ini_time = hour * 3600 + (int(minute)) * 60
