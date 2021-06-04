@@ -380,10 +380,6 @@ class DlgMain(QDialog):
         self.outputFile_btn = QPushButton('Output')
         self.outputFile_btn.clicked.connect(self.evt_output_file_clicked)
 
-        # update configuration file
-        self.update_cfg_btn = QPushButton('Upload Configuration File')
-        self.update_cfg_btn.clicked.connect(self.evt_update_cfg_btn_clicked)
-
         #################### TRAFFIC DEMAND BUTTONS ##########################
         # RT button
         wsize = 120
@@ -542,20 +538,6 @@ class DlgMain(QDialog):
         else:
             QMessageBox.information(self, 'Error', 'No output files has been generated.')
 
-    def evt_update_cfg_btn_clicked(self):
-        cfg_list = os.listdir(self.cfg)
-        if cfg_list:
-            # parse an xml file by name
-
-            cfg_file_path = os.path.join(self.cfg, cfg_list[0])
-            qfile = QFile(cfg_file_path)
-
-            qtstrem = QTextStream(qfile)
-
-            self.cmd_output_str.setPlainText(qtstrem)
-        else:
-            QMessageBox.information(self, 'Error', 'SUMO configuration file is not generated yet.')
-
     def evt_run_simulation_btn_clicked(self):
 
         if self.outputs:
@@ -574,16 +556,8 @@ class DlgMain(QDialog):
                     except Exception as e:
                         self.cmd_output_str.setPlainText(str(e))
                         QMessageBox.information(self, 'Error','SUMO simulation failed. See console logs.')
-                #output_files = os.listdir(self.outputs)
-                #self.cmd_output_str.setPlainText(f'Simulation completed.\nSUMO outputs {self.outputs}:\n{output_files}')
-                #QMessageBox.information(self, 'Ok', 'Simulation completed')
-
-            else:QMessageBox.information(self, 'Error', 'Empty configurations folder.')
+                else:QMessageBox.information(self, 'Error', 'Empty configurations folder.')
         else:QMessageBox.information(self, 'Error', 'Please generate Traffic Demand files.')
-
-    def reportProgress(self, str):
-        self.cmd_output_str.setText(str)
-
 
     def exec_simulation_thread(self):
         self.thread = QThread()
@@ -595,14 +569,11 @@ class DlgMain(QDialog):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect(self.reportProgress)
+        #self.worker.progress.connect(self.reportProgress)
         self.thread.start()
         # Final resets
-
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-
-
         self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText(f"Simulation finished. \nSUMO outputs:\n{os.listdir(self.outputs)}"))
         self.thread.finished.connect(lambda: QMessageBox.information(self, 'Ok', 'Simulation completed'))
 
