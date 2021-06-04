@@ -74,7 +74,7 @@ class DlgMain(QDialog):
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
-        self.resize(600, 300)
+        self.resize(600, 500)
 
         ###################  TEST PROGRESS BAR  ####################3
 
@@ -169,6 +169,7 @@ class DlgMain(QDialog):
 
         self.cmd_output_str = QTextEdit()
         self.cmd_output_str.setPlaceholderText('Outputs')
+        #self.cmd_output_str.setMaximumHeight(50)
         self.cmd_output_str.setReadOnly(True)
 
         self.run_simulation_btn = QPushButton('Run Simulation')
@@ -636,28 +637,30 @@ class DlgMain(QDialog):
         self.D_district = 'destination'
 
         if self.O_district and self.D_district:
-            if self.realtraffic:
-                self.update_paths()
-                if QMessageBox.information(self, 'Generating Traffic Demand',
-                                           'Traffic demand generation may take some time, please wait. Proceed?'):
-                    self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
+            if self.network:
+                if self.realtraffic:
+                    self.update_paths()
+                    if QMessageBox.information(self, 'Generating Traffic Demand',
+                                               'Traffic demand generation may take some time, please wait. Proceed?'):
+                        self.traffic_demand_cmd.setPlainText('Generating Traffic demand files .........')
 
-                    try:
-                        rt(self, 0)
-                        QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
-                        trips_list = os.listdir(self.trips)
-                        self.traffic_demand_cmd.setPlainText(
-                            f'Traffic demand files generated in {self.trips}: {trips_list}.')
+                        try:
+                            rt(self, 0)
+                            QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+                            trips_list = os.listdir(self.trips)
+                            self.traffic_demand_cmd.setPlainText(
+                                f'Traffic demand files generated in {self.trips}: {trips_list}.')
 
-                    except Exception as e:
-                        self.traffic_demand_cmd.setPlainText(str(e))
-                        QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
+                        except Exception as e:
+                            self.traffic_demand_cmd.setPlainText(str(e))
+                            QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
 
+                else:
+                    QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
             else:
-                warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
+                QMessageBox.information(self, 'Missing File', 'Please generate SUMO network.')
         else:
-            warn_empty = QMessageBox.information(self, 'Missing File',
-                                                 'Please enter a valid Origin/Destination TAZ names.')
+            QMessageBox.information(self, 'Missing File','Please enter a valid Origin/Destination TAZ names.')
 
     def evt_dua_btn_clicked(self):
         # Find sumo installation
@@ -1110,6 +1113,7 @@ class DlgMain(QDialog):
         self.container_simulation.addRow(self.run_simulation_btn)
         self.container_simulation.addRow(self.process_outputs_simulation_btn)
         self.container_simulation.addRow(self.cmd_output_str)
+
         self.wdg_simulation.setLayout(self.container_simulation)
         ##################   CONTAINER STATISTICS     #####################3
         self.container_statistics = QFormLayout()
