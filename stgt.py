@@ -32,6 +32,7 @@ class DlgMain(QDialog):
         super().__init__()
 
         # initial configurations
+        self.run_logs_list = []
         self.factor = 1
         self.run_command = ''
         self.rou_dir = ''
@@ -526,31 +527,37 @@ class DlgMain(QDialog):
 
     ##############################  DEFINE SIMULATION  EVENTS #############################################
     def evt_process_outputs_simulation_btn_clicked(self):
-        cfg_list = os.listdir(self.cfg)
-        if len(cfg_list) >= 1:
+        outputs_list = os.listdir(self.outputs)
+        print(outputs_list)
+        if len(outputs_list) >= 1:
             try:
                 SUMO_outputs_process(self)
-                QMessageBox.information(self, 'Ok',
-                                        f'Tripinfo files successfully converted to .csv files {self.parsed}')
+                QMessageBox.information(self, 'Ok',f'Parsed files complete.')
+                self.cmd_output_str.setPlainText(f"Simulating: \n{self.run_command}"
+                                                 "\n==============================================="
+                                                 f"\nSimulation finished !!!!!!!! "
+                                                 f"\nSUMO outputs in {self.outputs}:\n{os.listdir(self.outputs)}"
+                                                 "\n==============================================="
+                                                 f"\nSUMO outputs .xml to .cvs in {self.xmltocsv}:\n{os.listdir(self.xmltocsv)}"
+                                                 "\n==============================================="
+                                                 f"\nParsed files in {self.parsed}:\n{os.listdir(self.parsed)}")
             except Exception as e:
                 self.cmd_output_str.setPlainText(str(e))
                 QMessageBox.information(self, 'Error', 'Files cannot be parsed. See console logs.')
-        else:
-            QMessageBox.information(self, 'Error', 'No output files has been generated.')
+        else:QMessageBox.information(self, 'Error', 'No output files has been generated.')
 
     def evt_run_simulation_btn_clicked(self):
-
         if self.outputs:
             simulations_list = os.listdir(self.cfg)  # replace simulation method
             if simulations_list:
                 if QMessageBox.information(self, 'Ok', 'Simulation may take a few minutes. Proceed?'):
-                    self.cmd_output_str.setPlainText(f'Simulating {simulations_list}')
                     try:
                         for s in simulations_list:
                             full_path = os.path.join(self.cfg, s)
                             if self.sumo_var_gui:cmd = f'sumo-gui -c {full_path}'
                             else:cmd = f'sumo -c {full_path}'
                             self.run_command = cmd
+                            self.cmd_output_str.setPlainText(f'Simulating {simulations_list}:\n{cmd}')
                             self.exec_simulation_thread()
 
                     except Exception as e:
@@ -574,7 +581,10 @@ class DlgMain(QDialog):
         # Final resets
         self.run_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
-        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText(f"Simulation finished. \nSUMO outputs:\n{os.listdir(self.outputs)}"))
+        self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText(f"Simulating: \n{self.run_command}"
+                                                 "\n==============================================="
+                                                 f"\nSimulation finished !!!!!!!! "
+                                                 f"\nSUMO outputs in {self.outputs}:\n{os.listdir(self.outputs)}"))
         self.thread.finished.connect(lambda: QMessageBox.information(self, 'Ok', 'Simulation completed'))
 
     ##############################  DEFINE TRAFFIC DEMAND EVENTS #############################################

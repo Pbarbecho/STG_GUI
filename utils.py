@@ -31,8 +31,8 @@ def SUMO_outputs_process(folders):
         sumofiles = folders.outputs
         xmltocsv = folders.xmltocsv
         parsed = folders.parsed
-        detector = folders.detector
 
+        #detector = folders.detector NOT USED
     SUMO_preprocess(options)
 
 
@@ -504,7 +504,7 @@ def cpu_mem_folders(new_dir):
 def SUMO_preprocess(options):
     # Process SUMO output files to build the dataset
     def save_file(df, name, parsed_dir):
-        # print(f'Parsed --> {name}')
+        print(f'Parsed --> {name}')
         if 'ID' in df.keys():
             df.sort_values(by=['ID'], inplace=True)
         df.to_csv(os.path.join(parsed_dir, f'{name}.csv'), index=False, header=True)
@@ -516,8 +516,8 @@ def SUMO_preprocess(options):
         sumo_tool = os.path.join(tools, 'xml', 'xml2csv.py')
         # Run sumo tool with sumo output file as input
         cmd = 'python {} {} -s , -o {}'.format(sumo_tool, os.path.join(options.sumofiles, f), output)
+        print(cmd)
         os.system(cmd)
-
         """
         # get emissions from tripinfo file
         if 'emission' in f.split('_'):
@@ -543,11 +543,10 @@ def SUMO_preprocess(options):
         dname.append(data)
         return dname
 
-    def convert_xml2csv(files_list):
+    def convert_xml2csv(files_list, options):
         if files_list:
             print(f'\nGenerating {len(files_list)} csv files. This may take a while .........')
             batch = parallel_batch_size(files_list)
-
             # Parallelize files generation
             with parallel_backend("loky"):
                 Parallel(n_jobs=processors, verbose=0, batch_size=batch)(delayed(parallelxml2csv)(
@@ -555,28 +554,26 @@ def SUMO_preprocess(options):
         else:
             sys.exit(f"Empty or missing output data files: {options.sumofiles}")
 
+
     def xml2csv(options):
         # convert xml to csv
         files_list = os.listdir(options.sumofiles)
-
         # convert xmls to csvs
-        convert_xml2csv(files_list)
-
+        convert_xml2csv(files_list, options)
         # Read generated csvs
         csvs_list = os.listdir(options.xmltocsv)
 
         if len(csvs_list) == len(files_list):
             data_list = []
             print(f'\nBuilding {len(csvs_list)} dataframes from sumo outputs ......\n')
-
             # build list of dataframes
             [data_list.append(bulid_list_of_df(csv)) for csv in tqdm(csvs_list)]
-
             # convert to a single dataframe
             result_df = pd.DataFrame(data_list, columns=['Origin', 'Destination', 'Output', 'Repetition', 'Dataframe'])
             return result_df
         else:
             sys.exit(f'Missing csv files: {options.xmltocsv}')
+
 
     def merge_files(options):
         # combine all files in the parsed dir
@@ -636,6 +633,7 @@ def SUMO_preprocess(options):
 
         save_file(tripinfo_df, f'{df_name}', options.parsed)
 
+
     def lanes_counter_taz_locations(df):
         # contador de edges en ruta
         df['lane_count'] = df['route_edges'].apply(lambda x: len(str(x).split()))
@@ -681,13 +679,15 @@ def SUMO_preprocess(options):
         # parse dataframe
         [parallel_parse_output_files(key, group_df) for key, group_df in tqdm(grouped_df)]
 
-    # converte dector to csv
-    singlexml2csv(os.listdir(options.detector)[0], options)
+    # converte dector to csv NOT USED
+    #singlexml2csv(os.listdir(options.detector)[0], options)
 
-    # Execute functions
+
+    # Execute methods
     df = xml2csv(options)  # Convert outputs to csv
     parse_df(df)  # Convert csv to dataframes and filter files fileds
-    merge_files(options)  # Merge dataframes into a single file 'data.csv'
+
+    #merge_files(options)  # Merge dataframes into a single file 'data.csv'
 
 
 
