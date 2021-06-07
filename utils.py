@@ -10,6 +10,8 @@ import psutil
 import shutil
 import numpy as np
 from datetime import datetime
+import matplotlib.pyplot as plt, mpld3
+
 
 # import sumo tool xmltocsv
 os.environ['SUMO_HOME'] = '/opt/sumo-1.8.0'
@@ -476,6 +478,14 @@ def merge_detector_lanes(dtor_df, tool, routing):
         return new_df
     else:
         sys.exit('L0 and L1 are different size')
+
+##################################  PLOTS #################################
+def tripinfo_plot(folders, df):
+    fig, ax = plt.subplots(figsize=(6, 3))
+    df.boxplot(showfliers=False)
+    plt.ylabel(f'test')
+    #html_fig = mpld3.fig_to_html(fig)
+    mpld3.save_html(fig, '/Users/Pablo/Documents/STG_GUI/outputs/rt/html/plot.html', template_type='simple')
 
 
 # CPU

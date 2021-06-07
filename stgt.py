@@ -5,10 +5,34 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
 from duarouter import dua_ma
-from utils import create_folder, SUMO_outputs_process, exec_sim_cmd
-from statistics import statistics_route_file
+from utils import create_folder, SUMO_outputs_process, tripinfo_plot
 import subprocess
 import time
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5.QtWebEngineWidgets import *
+import pandas as pd
+
+
+class Canvas(FigureCanvas):
+    def __init__(self, parent, file_path):
+        self.file_path = file_path
+
+        fig, self.ax = plt.subplots(figsize=(0.5, 2), dpi=100)
+        super().__init__(fig)
+        self.setParent(parent)
+
+        """ 
+        Matplotlib Script
+        """
+        t = np.arange(0.0, 2.0, 0.01)
+        s = 1 + np.sin(2 * np.pi * t)
+        self.ax.plot(t, s)
+        self.ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+                    title='About as simple as it gets, folks')
+        self.ax.grid()
+
 
 class simulation_worker(QObject):
     finished = pyqtSignal()
@@ -31,8 +55,9 @@ class DlgMain(QDialog):
     def __init__(self):
         super().__init__()
 
+        #self.chart = Canvas()
         # initial configurations
-        self.run_logs_list = []
+        self.html = ''
         self.factor = 1
         self.run_command = ''
         self.rou_dir = ''
@@ -78,7 +103,6 @@ class DlgMain(QDialog):
         self.resize(600, 500)
 
         ###################  TEST PROGRESS BAR  ####################3
-
         self.progress_bar = QProgressBar()
         self.progress_bar.setStyle(QStyleFactory.create('Windows'))
         self.progress_bar.setValue(0)
@@ -126,7 +150,7 @@ class DlgMain(QDialog):
         #########
         # TO DO FALTA CREAR TEXTO HTML CON  LA DESCRIPCION DE CADA HERRAMIENTA
         html_RT = """
-        < a > This tool allows researchers to quickly generate a set of random trips within a time interval. The RT tool prevents bottlenecks in the network. It uses an incremental traffic assignment method where the vehicle computes its route at the departure considering current conditions along the network. < / a >
+        <p> This tool allows researchers to quickly generate a set of random trips within a time interval. The RT tool prevents bottlenecks in the network. It uses an incremental traffic assignment method where the vehicle computes its route at the departure considering current conditions along the network. </p>
         <p style=”text-align: justify;”>
         """
 
@@ -161,6 +185,14 @@ class DlgMain(QDialog):
         # 'The DUAR tool imports differ-ent demand definitions (trips or flows).'
         # ('This tool allows researchers to quicklygenerate a set of random trips within a time interval. The RT tool prevents bottlenecksin the network. ')
         # 'Generates random distribuition of vehicles'
+
+        ###################  WEB VIEW  ####################3
+        html = "<h> Generate Plots </h>"
+
+        self.wev = QWebEngineView()
+        self.wev.setHtml(html)
+        self.wev.repaint()
+
 
         ##########################  SIMULATION BUTTONS    ################################
 
@@ -224,6 +256,10 @@ class DlgMain(QDialog):
         self.check_summary_file.setEnabled(False)
         self.check_tripinfo_file.setEnabled(False)
         self.check_emissions_file.setEnabled(False)
+        self.check_rou_file.setChecked(False)
+        self.check_summary_file.setChecked(False)
+        self.check_tripinfo_file.setChecked(False)
+        self.check_emissions_file.setChecked(False)
 
         # check box for netconvert
         self.netconvert_options_groupbox = QGroupBox()
@@ -412,9 +448,11 @@ class DlgMain(QDialog):
         self.tab_routing_op = QTabWidget()
         self.tab_routing_op.tabBarClicked.connect(self.evt_tab_clicked)
 
+
         ########################     INSTANCIATE  TAB WIDGET  #############################
         self.tab_main_menu = QTabWidget()
-        self.tab_main = QTabWidget()
+        #self.tab_main_menu.tabBarClicked.connect(self.evt_tab_main_menu_clicked)
+
         self.tab_selector = QTabWidget()
 
         # INSTANCIATE widgets for each TAB option
@@ -435,10 +473,15 @@ class DlgMain(QDialog):
         self.wdg_inputs = QWidget()
         self.wdg_outputs = QWidget()
 
+        #################################   PLOTS  ############################################
+
+
         # SETUP LAYOUT
         self.setuplayout()
 
+
     #################################   GENERAL FUNCTIONS ############################################
+
     def evt_tab_clicked(self, idx):
         if idx == 0:  # RANDOMTRIPS
             self.O_distric.setDisabled(True)
@@ -465,11 +508,11 @@ class DlgMain(QDialog):
         if not os.path.lexists(self.SUMO_outputs): os.makedirs(self.SUMO_outputs)
         self.SUMO_tool = os.path.join(self.SUMO_outputs, self.tool)
         create_folder(self.SUMO_tool)
-        subfolders = ['trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
+        subfolders = ['html', 'trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
                       'edges', 'duaiterate']
         # create subfolders
         for sf in subfolders: create_folder(os.path.join(self.SUMO_tool, sf))
-        # update subfolders paths
+            # update subfolders paths
         self.trips = os.path.join(self.SUMO_tool, 'trips')
         self.O = os.path.join(self.SUMO_tool, 'O')
         self.dua = os.path.join(self.SUMO_tool, 'dua')
@@ -481,6 +524,7 @@ class DlgMain(QDialog):
         self.parsed = os.path.join(self.SUMO_tool, 'parsed')
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
+        self.html = os.path.join(self.SUMO_tool, 'html')
 
     ##############################  STRATISTICS  #############################################
     def evt_read_route_file_btn_clicked(self):
@@ -493,27 +537,37 @@ class DlgMain(QDialog):
 
     def evt_read_summary_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'Routes File (*.rou.*)')
+                                                       'Summary File (*.rou.*)')
         if fpath:
             self.rou_file = fpath
             self.check_rou_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Routes File imported')
+            QMessageBox.information(self, 'Ok', 'Summary File imported')
 
     def evt_read_tripinfo_file_btn_clicked(self):
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'Routes File (*.rou.*)')
-        if fpath:
-            self.rou_file = fpath
-            self.check_rou_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Routes File imported')
+        self.check_tripinfo_file.setChecked(True)
+        # function to generate tripinfo plots and convert to html (interactive plot)
+        if os.path.isdir(self.parsed):
+            parsed_files = os.listdir(self.parsed)
+            if parsed_files:
+                df = pd.read_csv(os.path.join(self.parsed,parsed_files[0]))
+                tripinfo_plot(self, df)
+                # ADD TO html
+                # local_url = os.path.join(self.html,'tripinfo_plot.html')
+                # self.wev.setUrl(QUrl.fromUserInput(url))
+                # self.wev.repaint()
+            else:
+                QMessageBox.information(self, 'Error', f'Parsed directory is empty: {self.parsed}')
+        else:
+            QMessageBox.information(self, 'Error', f'Please generate simulations. The results folder is empty.')
+
 
     def evt_read_emissions_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'Routes File (*.rou.*)')
+                                                       'Emissions File (*.rou.*)')
         if fpath:
             self.rou_file = fpath
             self.check_rou_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Routes File imported')
+            QMessageBox.information(self, 'Ok', 'Emissions File imported')
 
     ##############################  PROGRESS BAR #############################################
 
@@ -713,32 +767,34 @@ class DlgMain(QDialog):
 
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
     def evt_net_folder_btn_clicked(self):
-        # input one file
+        # input folder network files
         fpath = QFileDialog.getExistingDirectory(self, 'Select directory', '/Users/Pablo/')
-        self.net_folder_var = fpath
-        self.net_folder_textbar.setPlainText(self.net_folder_var)
-        # look for existing files
-        network_files = os.listdir(fpath)
-        osm_file = [nf for nf in network_files if ".osm" in nf]
-        net_file = [nf for nf in network_files if ".net.xml" in nf]
-        poly_file = [nf for nf in network_files if ".poly.xml" in nf]
-        taz_file = [nf for nf in network_files if "TAZ.xml" in nf]
-        # send found files to log console
-        self.cmd_str.setPlainText(
-            f'Network files found in {fpath}:\nOSM:{osm_file},\nNET:{net_file},\nPOLY:{poly_file},\nTAZ:{taz_file}')
-        # Update check boxes and self paths
-        if osm_file:
-            self.check_osm_file.setChecked(True)
-            self.osm = os.path.join(fpath, osm_file[0])
-        if net_file:
-            self.check_netconvert_file.setChecked(True)
-            self.network = os.path.join(fpath, net_file[0])
-        if poly_file:
-            self.check_polyconvert_file.setChecked(True)
-            self.poly = os.path.join(fpath, poly_file[0])
-        if taz_file:
-            self.check_netedit_file.setChecked(True)
-            self.taz_file = os.path.join(fpath, taz_file[0])
+        if fpath:
+            self.net_folder_var = fpath
+            self.net_folder_textbar.setPlainText(self.net_folder_var)
+            # look for existing files
+            network_files = os.listdir(fpath)
+            osm_file = [nf for nf in network_files if ".osm" in nf]
+            net_file = [nf for nf in network_files if ".net.xml" in nf]
+            poly_file = [nf for nf in network_files if ".poly.xml" in nf]
+            taz_file = [nf for nf in network_files if "TAZ.xml" in nf]
+            # send found files to log console
+            self.cmd_str.setPlainText(
+                f'Network files found in {fpath}:\nOSM:{osm_file},\nNET:{net_file},\nPOLY:{poly_file},\nTAZ:{taz_file}')
+            # Update check boxes and self paths
+            if osm_file:
+                self.check_osm_file.setChecked(True)
+                self.osm = os.path.join(fpath, osm_file[0])
+            if net_file:
+                self.check_netconvert_file.setChecked(True)
+                self.network = os.path.join(fpath, net_file[0])
+            if poly_file:
+                self.check_polyconvert_file.setChecked(True)
+                self.poly = os.path.join(fpath, poly_file[0])
+            if taz_file:
+                self.check_netedit_file.setChecked(True)
+                self.taz_file = os.path.join(fpath, taz_file[0])
+
 
     def evt_osm_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
@@ -1036,6 +1092,7 @@ class DlgMain(QDialog):
         self.statistics_main_ly.addLayout(self.statistics_ly_sum)
         self.statistics_main_ly.addLayout(self.statistics_ly_trip)
         self.statistics_main_ly.addLayout(self.statistics_ly_emi)
+        self.statistics_main_ly.addWidget(self.wev)
         self.statistics_groupbox.setLayout(self.statistics_main_ly)
 
         ##################   CONTAINER BUILD NETWORK    #####################3
