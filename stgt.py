@@ -57,6 +57,7 @@ class DlgMain(QDialog):
 
         #self.chart = Canvas()
         # initial configurations
+        self.plots = ''
         self.html = ''
         self.factor = 1
         self.run_command = ''
@@ -318,11 +319,11 @@ class DlgMain(QDialog):
         self.label_rou_file.setAlignment(Qt.AlignLeft)
         self.label_rou_file.setFont(subtitle_font)
 
-        self.read_route_file_btn = QPushButton('Vehicles')
-        self.read_route_file_btn.clicked.connect(self.trip_plot_btn_clicked)
+        self.read_route_file_btn = QPushButton('Outputs')
+        self.read_route_file_btn.clicked.connect(self.evt_read_route_file_btn_clicked)
 
-        self.read_summary_file_btn = QPushButton('Routes')
-        self.read_summary_file_btn.clicked.connect(self.trip_plot_btn_clicked)
+        self.read_summary_file_btn = QPushButton('Export')
+        self.read_summary_file_btn.clicked.connect(self.evt_read_summary_file_btn_clicked)
 
         self.read_tripinfo_file_btn = QPushButton('Generate')
         self.read_tripinfo_file_btn.clicked.connect(self.trip_plot_btn_clicked)
@@ -522,23 +523,25 @@ class DlgMain(QDialog):
         self.reroute = os.path.join(self.SUMO_tool, 'reroute')
         self.edges = os.path.join(self.SUMO_tool, 'edges')
         self.html = os.path.join(self.SUMO_tool, 'html')
+        self.plots = os.path.join(self.SUMO_tool, 'plots')
 
     ##############################  STATISTICS  #############################################
     def evt_read_route_file_btn_clicked(self):
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'Routes File (*.rou.*)')
+        fpath = QFileDialog.getExistingDirectory(self, 'Select directory', '/Users/Pablo/')
         if fpath:
-            self.rou_file = fpath
-            self.check_rou_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Routes File imported')
+            self.xmltocsv = fpath
+            QMessageBox.information(self, 'Ok', 'Output files imported')
 
     def evt_read_summary_file_btn_clicked(self):
-        fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
-                                                       'Summary File (*.rou.*)')
-        if fpath:
-            self.rou_file = fpath
-            self.check_rou_file.setChecked(True)
-            QMessageBox.information(self, 'Ok', 'Summary File imported')
+        if os.path.isdir(self.plots):
+            plots = os.listdir(self.plots)
+            if plots:
+                QMessageBox.information(self, 'Ok', f'Plot file saved in {self.plots}')
+            else:
+                QMessageBox.information(self, 'Info', f'Generate plots first.')
+        else:
+            QMessageBox.information(self, 'Info', f'Generate or enter output files.')
+
 
     def get_statistics_name(self):
         xmltocsv_files = os.listdir(self.xmltocsv)
@@ -1089,26 +1092,28 @@ class DlgMain(QDialog):
         ################### STATISTICS LAYOUT  ###############################
         self.statistics_ly_rou = QHBoxLayout()
         self.statistics_ly_rou.addWidget(self.read_route_file_btn)
-        self.statistics_ly_rou.addWidget(self.check_rou_file)
+        self.statistics_ly_rou.addWidget(self.read_tripinfo_file_btn)
+        self.statistics_ly_rou.addWidget(self.read_summary_file_btn)
+        #self.statistics_ly_rou.addWidget(self.check_rou_file)
 
         self.statistics_ly_sum = QHBoxLayout()
         self.statistics_ly_sum.addWidget(self.read_summary_file_btn)
-        self.statistics_ly_sum.addWidget(self.check_summary_file)
+        #self.statistics_ly_sum.addWidget(self.check_summary_file)
 
         self.statistics_ly_trip = QHBoxLayout()
         self.statistics_ly_trip.addWidget(self.read_tripinfo_file_btn)
-        self.statistics_ly_trip.addWidget(self.check_tripinfo_file)
+        #self.statistics_ly_trip.addWidget(self.check_tripinfo_file)
 
         self.statistics_ly_emi = QHBoxLayout()
         self.statistics_ly_emi.addWidget(self.read_emissions_file_btn)
-        self.statistics_ly_emi.addWidget(self.check_emissions_file)
+        #self.statistics_ly_emi.addWidget(self.check_emissions_file)
 
         self.statistics_main_ly = QVBoxLayout()
         #self.statistics_main_ly.addLayout(self.statistics_ly_rou)
         #self.statistics_main_ly.addLayout(self.statistics_ly_sum)
         #self.statistics_main_ly.addLayout(self.statistics_ly_trip)
         #self.statistics_main_ly.addLayout(self.statistics_ly_emi)
-        self.statistics_main_ly.addWidget(self.read_tripinfo_file_btn)
+        self.statistics_main_ly.addLayout(self.statistics_ly_rou)
         self.statistics_main_ly.addWidget(self.wev)
         self.statistics_groupbox.setLayout(self.statistics_main_ly)
 
