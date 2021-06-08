@@ -488,6 +488,8 @@ def prepare_data_to_plot(df):
     df = df.rename(columns={'tripinfo_arrival': 'Arrived', 'tripinfo_duration':'Trip Time', 'tripinfo_routeLength':'Trip Length', 'emissions_CO2_abs':'Emissions'})
     metrics = ['Arrived', 'Trip Time', 'Trip Length', 'Emissions']
     df = df.filter(items=metrics)
+    df['Trip Length'] = df['Trip Length']/1000
+    df['Emissions'] = df['Emissions'] / 1000
     temp_dic = {}
     for m in metrics:
         if m == 'Arrived':
@@ -521,8 +523,8 @@ def single_plot(folders, df):
 
     axes[0].set_title('# of arrived cars ')
     axes[1].set_title('Trip Time [s]')
-    axes[2].set_title('Trip Length [m]')
-    axes[3].set_title('CO2 [mg]')
+    axes[2].set_title('Trip Length [Km]')
+    axes[3].set_title('CO2 [g]')
     fig.tight_layout()
     # convert to html and save in html folder
     mpld3.save_html(fig, os.path.join(folders.html, 'plot.html'), template_type='simple')

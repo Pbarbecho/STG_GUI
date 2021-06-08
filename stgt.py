@@ -319,12 +319,12 @@ class DlgMain(QDialog):
         self.label_rou_file.setFont(subtitle_font)
 
         self.read_route_file_btn = QPushButton('Vehicles')
-        self.read_route_file_btn.clicked.connect(self.evt_map_btn_clicked)
+        self.read_route_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
         self.read_summary_file_btn = QPushButton('Routes')
         self.read_summary_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
-        self.read_tripinfo_file_btn = QPushButton('TripInfo (.trip.xml)')
+        self.read_tripinfo_file_btn = QPushButton('Generate')
         self.read_tripinfo_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
         self.read_emissions_file_btn = QPushButton('Emissions (.emi.xml)')
@@ -542,6 +542,9 @@ class DlgMain(QDialog):
 
     def get_statistics_name(self):
         xmltocsv_files = os.listdir(self.xmltocsv)
+        tripinfo_filename = ''
+        emissions_filename = ''
+        summary_filename = ''
         for f in xmltocsv_files:
             if 'tripinfo' in f.split('_'):
                 tripinfo_filename = f
@@ -571,17 +574,6 @@ class DlgMain(QDialog):
                 QMessageBox.information(self, 'Error', f'Parsed directory is empty: {self.parsed}')
         else:
             QMessageBox.information(self, 'Error', f'Please generate simulations. The results folder is empty.')
-
-    def evt_map_btn_clicked(self):
-        edges = '/Users/Pablo/Documents/STG_GUI/outputs/rt/edges/%s_edges.xml'
-        plot_tool_path = os.path.join(self.SUMO_exec,'tools','visualization')
-        cmd=f'python {plot_tool_path}/plot_net_dump.py -v -n {self.network} --measures density,density --xlabel [m] --ylabel [m] -i {edges},{edges} --xlim 500,3900 --ylim 1200,3100 --default-width 2 --min-color-value 0 --max-color-value 1 -s 6,4 --colormap "#0:#00c000,.25:#408040,.5:#808080,.75:#804040,1:#c00000"'
-        print(cmd)
-        os.system(cmd)
-
-
-
-
 
     def evt_read_emissions_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
@@ -1112,10 +1104,11 @@ class DlgMain(QDialog):
         self.statistics_ly_emi.addWidget(self.check_emissions_file)
 
         self.statistics_main_ly = QVBoxLayout()
-        self.statistics_main_ly.addLayout(self.statistics_ly_rou)
-        self.statistics_main_ly.addLayout(self.statistics_ly_sum)
-        self.statistics_main_ly.addLayout(self.statistics_ly_trip)
-        self.statistics_main_ly.addLayout(self.statistics_ly_emi)
+        #self.statistics_main_ly.addLayout(self.statistics_ly_rou)
+        #self.statistics_main_ly.addLayout(self.statistics_ly_sum)
+        #self.statistics_main_ly.addLayout(self.statistics_ly_trip)
+        #self.statistics_main_ly.addLayout(self.statistics_ly_emi)
+        self.statistics_main_ly.addWidget(self.read_tripinfo_file_btn)
         self.statistics_main_ly.addWidget(self.wev)
         self.statistics_groupbox.setLayout(self.statistics_main_ly)
 
