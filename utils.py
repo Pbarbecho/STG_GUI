@@ -11,7 +11,10 @@ import shutil
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt, mpld3
-
+from matplotlib import rc
+plt.rcParams.update({'font.size': 10})
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=False)
 
 # import sumo tool xmltocsv
 os.environ['SUMO_HOME'] = '/opt/sumo-1.8.0'
@@ -480,12 +483,65 @@ def merge_detector_lanes(dtor_df, tool, routing):
         sys.exit('L0 and L1 are different size')
 
 ##################################  PLOTS #################################
-def tripinfo_plot(folders, df):
-    fig, ax = plt.subplots(figsize=(6, 3))
-    df.boxplot(showfliers=False)
-    plt.ylabel(f'test')
-    #html_fig = mpld3.fig_to_html(fig)
-    mpld3.save_html(fig, '/Users/Pablo/Documents/STG_GUI/outputs/rt/html/plot.html', template_type='simple')
+def prepare_data_to_plot(df):
+    # prepare data
+    df = df.rename(columns={'tripinfo_arrival': 'Arrived', 'tripinfo_duration':'Trip Time', 'tripinfo_routeLength':'Trip Length', 'emissions_CO2_abs':'Emissions'})
+    metrics = ['Arrived', 'Trip Time', 'Trip Length', 'Emissions']
+    df = df.filter(items=metrics)
+    temp_dic = {}
+    for m in metrics:
+        if m == 'Arrived':
+            temp_dic[m] = [df[m].count(), 0]
+        elif m == 'Emissions':
+            temp_dic[m] = [df[m].mean(), df[m].std()]
+        else:
+            temp_dic[m] = [df[m].mean(), df[m].std()]
+    df = pd.DataFrame.from_dict(temp_dic).T.reset_index()
+    df = df.rename(columns={'index':'Metric',0:'Mean', 1:'Std'})
+    print(df)
+    return df
+
+def single_plot(folders, df):
+    df = prepare_data_to_plot(df).T
+    df = df.rename(columns=df.iloc[0])
+    df = df.iloc[1:]
+    plot_df = df.iloc[0:1]
+
+    fig, axes = plt.subplots(4, figsize=(4,4))
+    plot_df.plot(kind='barh',subplots=True, grid=False, sharex=False, ax=axes, legend=False)
+
+    axes[0].errorbar(df.loc['Mean', 'Arrived'],0,xerr=df.loc['Std', 'Arrived'], fmt='o', color='Black', elinewidth=1, capthick=1,
+                 errorevery=1, alpha=1, ms=4, capsize=5)
+    axes[1].errorbar(df.loc['Mean', 'Trip Time'], 0, xerr=df.loc['Std', 'Trip Time'], fmt='o', color='Black', elinewidth=1, capthick=1,
+                 errorevery=1, alpha=1, ms=4, capsize=5)
+    axes[2].errorbar(df.loc['Mean', 'Trip Length'], 0, xerr=df.loc['Std', 'Trip Length'], fmt='o', color='Black', elinewidth=1, capthick=1,
+                 errorevery=1, alpha=1, ms=4, capsize=5)
+    axes[3].errorbar(df.loc['Mean', 'Emissions'], 0, xerr=df.loc['Std', 'Emissions'], fmt='o', color='Black', elinewidth=1, capthick=1,
+                 errorevery=1, alpha=1, ms=4, capsize=5)
+
+    axes[0].set_title('# of arrived cars ')
+    axes[1].set_title('Trip Time [s]')
+    axes[2].set_title('Trip Length [m]')
+    axes[3].set_title('CO2 [mg]')
+    fig.tight_layout()
+    # convert to html and save in html folder
+    mpld3.save_html(fig, os.path.join(folders.html, 'plot.html'), template_type='simple')
+
+
+def OD_plots(df, tittle):
+    # Plot origin destination (longitud latitude)
+    # receives df and title
+    mpl.style.use('default')
+    df = df.filter(['ini_x_pos', 'ini_y_pos', 'end_x_pos', 'end_y_pos'])
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    df.plot.scatter(x='ini_x_pos', y='ini_y_pos', c='tab:orange', label='Origen', ax=ax)
+    df.plot.scatter(x='end_x_pos', y='end_y_pos', c='tab:blue', label='Destination', ax=ax)
+    plt.ylabel('Logitud')
+    plt.xlabel('Latitud')
+    plt.title(f'{tittle}')
+    plt.grid(True, linewidth=1, linestyle='--')
+    ax.legend()
 
 
 # CPU

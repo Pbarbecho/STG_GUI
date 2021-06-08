@@ -5,7 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
 from duarouter import dua_ma
-from utils import create_folder, SUMO_outputs_process, tripinfo_plot
+from utils import create_folder, SUMO_outputs_process, single_plot
 import subprocess
 import time
 import numpy as np
@@ -318,17 +318,17 @@ class DlgMain(QDialog):
         self.label_rou_file.setAlignment(Qt.AlignLeft)
         self.label_rou_file.setFont(subtitle_font)
 
-        self.read_route_file_btn = QPushButton('Rou (.rou.xml)')
-        self.read_route_file_btn.clicked.connect(self.evt_read_route_file_btn_clicked)
+        self.read_route_file_btn = QPushButton('Vehicles')
+        self.read_route_file_btn.clicked.connect(self.evt_map_btn_clicked)
 
-        self.read_summary_file_btn = QPushButton('Summary (.sum.xml)')
-        self.read_summary_file_btn.clicked.connect(self.evt_read_summary_file_btn_clicked)
+        self.read_summary_file_btn = QPushButton('Routes')
+        self.read_summary_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
         self.read_tripinfo_file_btn = QPushButton('TripInfo (.trip.xml)')
-        self.read_tripinfo_file_btn.clicked.connect(self.evt_read_tripinfo_file_btn_clicked)
+        self.read_tripinfo_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
         self.read_emissions_file_btn = QPushButton('Emissions (.emi.xml)')
-        self.read_emissions_file_btn.clicked.connect(self.evt_read_emissions_file_btn_clicked)
+        self.read_emissions_file_btn.clicked.connect(self.trip_plot_btn_clicked)
 
         #######################    BUILD TRAFFIC BUTTONS   ############################
         # check box for sumo outputs
@@ -474,11 +474,8 @@ class DlgMain(QDialog):
         self.wdg_outputs = QWidget()
 
         #################################   PLOTS  ############################################
-
-
         # SETUP LAYOUT
         self.setuplayout()
-
 
     #################################   GENERAL FUNCTIONS ############################################
 
@@ -526,7 +523,7 @@ class DlgMain(QDialog):
         self.edges = os.path.join(self.SUMO_tool, 'edges')
         self.html = os.path.join(self.SUMO_tool, 'html')
 
-    ##############################  STRATISTICS  #############################################
+    ##############################  STATISTICS  #############################################
     def evt_read_route_file_btn_clicked(self):
         fpath, extension = QFileDialog.getOpenFileName(self, 'Open File', '/Users/Pablo/',
                                                        'Routes File (*.rou.*)')
@@ -543,22 +540,47 @@ class DlgMain(QDialog):
             self.check_rou_file.setChecked(True)
             QMessageBox.information(self, 'Ok', 'Summary File imported')
 
-    def evt_read_tripinfo_file_btn_clicked(self):
+    def get_statistics_name(self):
+        xmltocsv_files = os.listdir(self.xmltocsv)
+        for f in xmltocsv_files:
+            if 'tripinfo' in f.split('_'):
+                tripinfo_filename = f
+            elif 'emission' in f.split('_'):
+                emissions_filename = f
+            elif 'summary' in f.split('_'):
+                summary_filename = f
+        return tripinfo_filename, emissions_filename, summary_filename
+
+
+
+    def trip_plot_btn_clicked(self):
         self.check_tripinfo_file.setChecked(True)
         # function to generate tripinfo plots and convert to html (interactive plot)
-        if os.path.isdir(self.parsed):
-            parsed_files = os.listdir(self.parsed)
-            if parsed_files:
-                df = pd.read_csv(os.path.join(self.parsed,parsed_files[0]))
-                tripinfo_plot(self, df)
-                # ADD TO html
-                # local_url = os.path.join(self.html,'tripinfo_plot.html')
-                # self.wev.setUrl(QUrl.fromUserInput(url))
-                # self.wev.repaint()
+        if os.path.isdir(self.xmltocsv):
+            trip_name, emi_name, sum_name = self.get_statistics_name()
+            if trip_name:
+                df = pd.read_csv(os.path.join(self.xmltocsv,trip_name))
+                single_plot(self, df)
+                url = os.path.join(self.html,'plot.html')
+                if os.path.isfile(url):
+                    self.wev.setUrl(QUrl.fromUserInput(url))
+                    self.wev.repaint()
+                else:
+                    QMessageBox.information(self, 'Error', f'Plot was not generated.')
             else:
                 QMessageBox.information(self, 'Error', f'Parsed directory is empty: {self.parsed}')
         else:
             QMessageBox.information(self, 'Error', f'Please generate simulations. The results folder is empty.')
+
+    def evt_map_btn_clicked(self):
+        edges = '/Users/Pablo/Documents/STG_GUI/outputs/rt/edges/%s_edges.xml'
+        plot_tool_path = os.path.join(self.SUMO_exec,'tools','visualization')
+        cmd=f'python {plot_tool_path}/plot_net_dump.py -v -n {self.network} --measures density,density --xlabel [m] --ylabel [m] -i {edges},{edges} --xlim 500,3900 --ylim 1200,3100 --default-width 2 --min-color-value 0 --max-color-value 1 -s 6,4 --colormap "#0:#00c000,.25:#408040,.5:#808080,.75:#804040,1:#c00000"'
+        print(cmd)
+        os.system(cmd)
+
+
+
 
 
     def evt_read_emissions_file_btn_clicked(self):
@@ -634,7 +656,9 @@ class DlgMain(QDialog):
         self.thread.start()
         # Final resets
         self.run_simulation_btn.setEnabled(False)
+        self.process_outputs_simulation_btn.setEnabled(False)
         self.thread.finished.connect(lambda: self.run_simulation_btn.setEnabled(True))
+        self.thread.finished.connect(lambda: self.process_outputs_simulation_btn.setEnabled(True))
         self.thread.finished.connect(lambda: self.cmd_output_str.setPlainText(f"Simulating: \n{self.run_command}"
                                                  "\n==============================================="
                                                  f"\nSimulation finished !!!!!!!! "
