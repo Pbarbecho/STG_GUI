@@ -528,7 +528,7 @@ def single_plot(folders, df):
     fig.tight_layout()
     # convert to html and save in html folder
     mpld3.save_html(fig, os.path.join(folders.html, 'plot.html'), template_type='simple')
-    fig.savefig(os.path.join(folders.plots, 'plot.pdf'))
+    #fig.savefig(os.path.join(folders.plots, 'plot.pdf'))
 
 
 def OD_plots(df, tittle):

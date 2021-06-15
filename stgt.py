@@ -506,7 +506,7 @@ class DlgMain(QDialog):
         if not os.path.lexists(self.SUMO_outputs): os.makedirs(self.SUMO_outputs)
         self.SUMO_tool = os.path.join(self.SUMO_outputs, self.tool)
         create_folder(self.SUMO_tool)
-        subfolders = ['html', 'trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
+        subfolders = ['plots ','html', 'trips', 'O', 'dua', 'ma', 'cfg', 'outputs', 'detector', 'xmltocsv', 'parsed', 'reroute',
                       'edges', 'duaiterate']
         # create subfolders
         for sf in subfolders: create_folder(os.path.join(self.SUMO_tool, sf))
@@ -560,7 +560,6 @@ class DlgMain(QDialog):
 
 
     def trip_plot_btn_clicked(self):
-        self.check_tripinfo_file.setChecked(True)
         # function to generate tripinfo plots and convert to html (interactive plot)
         if os.path.isdir(self.xmltocsv):
             trip_name, emi_name, sum_name = self.get_statistics_name()
