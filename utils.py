@@ -47,6 +47,50 @@ def print_time(process_name):
     print(f"\n{process_name} Time =", current_time)
 
 
+def gen_MArouter(O, i,O_files, folders):
+                #(O, i, O_files, trips, folders):
+    net_file = folders.network
+    # read O files
+    print(os.listdir(folders.O))
+    O_listToStr = ','.join([f'{os.path.join(folders.O, elem)}' for elem in O_files])
+
+    marouter_conf = os.path.join(folders.parents_dir, 'templates', 'marouter.cfg.xml')  # duaroter.cfg file location
+
+    # Open original file
+    tree = ET.parse(marouter_conf)
+
+    # Update trip input
+    parent = tree.find('input')
+    # ET.SubElement(parent, 'route-files').set('value', f'{trips}')
+    ET.SubElement(parent, 'net-file').set('value', f'{net_file}')
+    ET.SubElement(parent, 'od-matrix-files').set('value', f'{O_listToStr}')
+
+    # update additionals
+    #TAZ = os.path.join(folders.parents_dir, '../templates', 'TAZ.xml')
+    TAZ = os.path.join(folders.taz_file)
+    print('pablo', TAZ)
+    add_list = [TAZ]
+    additionals = ','.join([elem for elem in add_list])
+
+    # Update detector
+    ET.SubElement(parent, 'additional-files').set('value', f'{additionals}')
+
+    # Update output
+    parent = tree.find('output')
+    curr_name = os.path.basename(O)
+    output_name = os.path.join(folders.ma, f'{curr_name}_ma_{i}.rou.xml')
+    ET.SubElement(parent, 'output-file').set('value', output_name)
+
+    # Update seed number
+    parent = tree.find('random_number')
+    ET.SubElement(parent, 'seed').set('value', f'{i}')
+
+    # Write xml
+    cfg_name = os.path.join(folders.O, f'{curr_name}_marouter_{i}.cfg.xml')
+    tree.write(cfg_name)
+    return cfg_name, output_name
+
+
 def gen_DUArouter(trips, i, folders):
     duarouter_conf = os.path.join(folders.parents_dir, 'templates', 'duarouter.cfg.xml')  # duaroter.cfg file location
     #net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')

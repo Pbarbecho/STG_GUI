@@ -6,7 +6,7 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/marouterConfiguration.xsd">
     <input>
        
-	<taz-param value = "Hospitalet, SanAdria"/>
+	<taz-param value = "taz_0, taz_1"/>
     </input>
     <output>
         <precision value="2" type="INT" help="Defines the number of digits after the comma for floating point output"/>

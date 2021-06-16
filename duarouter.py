@@ -1,7 +1,7 @@
 import os, sys, glob
 import xml.etree.ElementTree as ET
 from joblib import Parallel, delayed, parallel_backend
-from utils import SUMO_outputs_process, simulate, gen_sumo_cfg, exec_od2trips, gen_od2trips, create_O_file, parallel_batch_size, gen_DUArouter
+from utils import SUMO_outputs_process, simulate, gen_sumo_cfg, exec_od2trips, gen_od2trips, create_O_file, parallel_batch_size, gen_DUArouter, gen_MArouter
 
 
 def clean_folder(folder):
@@ -29,7 +29,7 @@ def gen_routes(O, k, O_files, folders):
                           
      elif routing == 'ma':
         # Generate MArouter cfg
-        cfg_name, output_name = gen_MArouter(O, k, O_files, output_name, folders)
+        cfg_name, output_name = gen_MArouter(O, k, O_files, folders)
   
      else:
         SystemExit('Routing name not found')
@@ -64,50 +64,10 @@ def gen_route_files(folders, k):
                 # backup O files
                 O_files = os.listdir(folders.O)
                 # Gen DUArouter/MArouter
-                gen_routes(O_name, k, O_files, folders)
+                print(O_files)
+                gen_routes(O_name, k, O_files,folders)
 
 
-
-def gen_MArouter(O, i, O_files, trips, folders):
-    net_file = os.path.join(folders.parents_dir, '../templates', 'osm.net.xml')
-    # read O files
-    O_listToStr = ','.join([f'{os.path.join(folders.O, elem)}' for elem in O_files]) 
- 
-    marouter_conf = os.path.join(folders.parents_dir, '../templates', 'marouter.cfg.xml') # duaroter.cfg file location
-    
-    # Open original file
-    tree = ET.parse(marouter_conf)
-    
-    # Update trip input
-    parent = tree.find('input')
-    #ET.SubElement(parent, 'route-files').set('value', f'{trips}')    
-    ET.SubElement(parent, 'net-file').set('value', f'{net_file}') 
-    ET.SubElement(parent, 'od-matrix-files').set('value', f'{O_listToStr}')    
-  
-    # update additionals 
-    TAZ = os.path.join(folders.parents_dir, '../templates', 'TAZ.xml')
-    add_list = [TAZ]
-    additionals = ','.join([elem for elem in add_list]) 
-    
-    # Update detector
-    ET.SubElement(parent, 'additional-files').set('value', f'{additionals}')    
-     
-    # Update output
-    parent = tree.find('output')
-    curr_name = os.path.basename(O)
-    output_name = os.path.join(folders.ma, f'{curr_name}_ma_{i}.rou.xml')
-    ET.SubElement(parent, 'output-file').set('value', output_name)    
-    
-    # Update seed number
-    parent = tree.find('random_number')
-    ET.SubElement(parent, 'seed').set('value', f'{i}')    
-    
-    # Write xml
-    cfg_name = os.path.join(folders.O, f'{curr_name}_marouter_{i}.cfg.xml')
-    tree.write(cfg_name) 
-    return cfg_name, output_name
-        
-    
 def exec_duarouter_cmd(fname):
     print('\Generating DUArouter.......')
     cmd = f'duarouter -c {fname}'
@@ -165,6 +125,7 @@ def dua_ma(config, k):
     elif config.tool == 'ma':
         # Execute MArouter 
         exec_MArouter(config)
+
 
     """
     simulate(config, processors, gui)

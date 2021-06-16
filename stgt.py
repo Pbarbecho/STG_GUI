@@ -350,7 +350,7 @@ class DlgMain(QDialog):
         # spinbox for multipli factor
         self.factor_spin = QSpinBox()
         self.factor_spin.setWrapping(True)
-        self.factor_spin.setRange(1, 10)
+        self.factor_spin.setRange(1, 20)
         self.factor_spin.setValue(1)
         self.factor_spin.setSingleStep(1)
         self.factor_spin.setMaximumSize(95, 30)
@@ -767,21 +767,30 @@ class DlgMain(QDialog):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
-        self.tool = 'rt'
-        # output default folder
-
+        self.tool = 'ma'
+        # DUARouter requires TAZ O/D names
         self.O_district = self.O_distric.toPlainText()
         self.D_district = self.D_distric.toPlainText()
 
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
-                rt(self, 0, False)  # config, k , gui
+                if QMessageBox.information(self, 'Generating Traffic Demand',
+                                           'Traffic demand generation may take some time, please wait. Proceed?'):
+                    try:
+                        dua_ma(self, 0)
+                        QMessageBox.information(self, 'Traffic Demand', 'Traffic demand successfully generated.')
+                        self.traffic_demand_cmd.setPlainText(
+                            f'DUARouter traffic demand file generated:\n{self.rou_dir}')
+                    except Exception as e:
+                        self.traffic_demand_cmd.setPlainText(str(e))
+                        QMessageBox.information(self, 'Error', 'Traffic demand not generated. See console logs.')
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:
             warn_empty = QMessageBox.information(self, 'Missing File',
                                                  'Please enter a valid Origin/Destination TAZ names.')
+
 
     #########################  DEFINE BUILD NETWORK  EVENTS #############################################
     def evt_net_folder_btn_clicked(self):
