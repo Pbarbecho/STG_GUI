@@ -26,7 +26,7 @@
 	<mapmatch.distance value="1"/>
         <mapmatch.junctions value="false"/>-->
         <bulk-routing value="false"/>
-        <routing-threads value="1"/>
+        <routing-threads value="20"/>
         <routing-algorithm value="dijkstra"/>
         <keep-all-routes value="true"/>
         <skip-new-routes value="false"/>

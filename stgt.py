@@ -88,7 +88,7 @@ class DlgMain(QDialog):
         self.parsed = ''
         self.reroute = ''
         self.edges = ''
-        self.reroute_probability = 50
+        self.reroute_probability = 0
         self.sumo_var_tripinfo = True
         self.sumo_var_emissions = True
         self.sumo_var_summary = True
@@ -366,8 +366,8 @@ class DlgMain(QDialog):
         self.sumo_rerouting_prob_spin = QSpinBox()
         self.sumo_rerouting_prob_spin.setWrapping(True)
         self.sumo_rerouting_prob_spin.setRange(0, 100)
-        self.sumo_rerouting_prob_spin.setValue(50)
-        self.sumo_rerouting_prob_spin.setSingleStep(10)
+        self.sumo_rerouting_prob_spin.setValue(0)
+        self.sumo_rerouting_prob_spin.setSingleStep(5)
         self.sumo_rerouting_prob_spin.setMaximumSize(95, 30)
         self.sumo_rerouting_prob_spin.setAlignment(Qt.AlignRight)
         self.sumo_rerouting_prob_spin.valueChanged.connect(self.evt_sumo_rerouting_prob_spin_clicked)
@@ -949,7 +949,7 @@ class DlgMain(QDialog):
         self.simtime = value
 
     def evt_sumo_rerouting_prob_spin_clicked(self, value):
-        self.reroute_probability = value
+        self.reroute_probability = value/100
 
     def evt_factor_spin_clicked(self, value):
         self.factor = value

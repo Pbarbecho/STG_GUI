@@ -229,8 +229,8 @@ def gen_sumo_cfg(routing_file, k, folders):
 
     # Routing
     parent = tree.find('routing')
-    ET.SubElement(parent, 'device.rerouting.probability').set('value', f'{int(rr_prob)}')
-    ET.SubElement(parent, 'device.rerouting.output').set('value', f'{os.path.join(folders.reroute, "reroute.xml")}')
+    ET.SubElement(parent, 'device.rerouting.probability').set('value', f'{rr_prob}')
+    #ET.SubElement(parent, 'device.rerouting.output').set('value', f'{os.path.join(folders.reroute, "reroute.xml")}')
 
     # Update outputs
     parent = tree.find('output')
