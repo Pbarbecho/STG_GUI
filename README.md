@@ -9,6 +9,9 @@ This is an automation tool for SUMO that generate required confgiration files fo
 Based on SUMO templates structure, this tool reads templates folder and generate configration files  and execute simulations.
 Required inputs include: SUMO valid installation, .ned (road network), real traffic (.csv), origin/destination zones (TAZs).
  
+ 
+Additionally, the STGT tool is provided with GUI and CLI interfaces that guide novice/advanced users through the whole process, from generating the network till process simulation outputs. Novice users are benefited from the previous advanced knowledge requirement regarding the SUMO simulator. Advanced users benefit from the modularity of the STGT tool, which allows us to independently generate the network, the traffic demand, or to run simulations without the necessity of going through the whole process. 
+ 
 
 Feature highlights 
 ------------------
@@ -19,6 +22,33 @@ Feature highlights
 * Runs parallelized simulations;
 
 
+
+# STGT GUI #
+
+By the momento, users can clone the repository and execute the stgt.py script. We are working to release an easy install version. 
+
+
+<p align="left">
+  <img src="logo.png" width="400">
+</p>
+
+<p align="left">
+  <img src="logo.png" width="400">
+</p>
+
+<p align="left">
+  <img src="logo.png" width="400">
+</p>
+
+<p align="left">
+  <img src="logo.png" width="400">
+</p>
+
+
+
+
+
+# STGT CLI #
 
 STG includes the following tool:    
 ```bash
