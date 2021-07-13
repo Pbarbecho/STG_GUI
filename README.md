@@ -25,7 +25,9 @@ Feature highlights
 
 # STGT GUI #
 
-By the momento, users can clone the repository and execute the stgt.py script. We are working to release an easy install version. 
+At the moment, users can clone the repository and execute the stgt.py script.
+
+We are working on releasing an accessible install version. 
 
 
 <p align="left">
