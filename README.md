@@ -2,7 +2,7 @@
   <img src="logo.png" width="400">
 </p>
 
-# Automating SUMO traffic demand generation [STG] #
+# Automating SUMO traffic demand generation tool [STGT] #
 
 STG allows to SUMO users to quickly and easily execute generate traffic demnd for their own sceanrios (i.e., net file). 
 This is an automation tool for SUMO that generate required confgiration files for SUMO tools. 
@@ -31,19 +31,19 @@ We are working on releasing an accessible install version.
 
 
 <p align="left">
-  <img src="screen1.png" width="400">
+  <img src="screen1.png" width="300">
 </p>
 
 <p align="left">
-  <img src="screen2.png" width="400">
+  <img src="screen2.png" width="300">
 </p>
 
 <p align="left">
-  <img src="screen3.png" width="400">
+  <img src="screen3.png" width="300">
 </p>
 
 <p align="left">
-  <img src="screen4.png" width="400">
+  <img src="screen4.png" width="300">
 </p>
 
 
