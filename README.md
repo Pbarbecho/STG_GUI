@@ -29,19 +29,19 @@ By the momento, users can clone the repository and execute the stgt.py script. W
 
 
 <p align="left">
-  <img src="logo.png" width="400">
+  <img src="screen1.pdf" width="400">
 </p>
 
 <p align="left">
-  <img src="logo.png" width="400">
+  <img src="screen2.pdf" width="400">
 </p>
 
 <p align="left">
-  <img src="logo.png" width="400">
+  <img src="screen3.pdf" width="400">
 </p>
 
 <p align="left">
-  <img src="logo.png" width="400">
+  <img src="screen4.pdf" width="400">
 </p>
 
 
