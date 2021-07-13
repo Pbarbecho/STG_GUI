@@ -9,13 +9,6 @@ This is an automation tool for SUMO that generate required confgiration files fo
 Based on SUMO templates structure, this tool reads templates folder and generate configration files  and execute simulations.
 Required inputs include: SUMO valid installation, .ned (road network), real traffic (.csv), origin/destination zones (TAZs).
  
-How to cite us 
---------------
-
-If you use STG for your experiment analysis, we would appreciate a citation of our work:
-
-* Pablo Barbecho Bautista, Luis Urquiza-Aguiar, Mónica Aguilar Igartua, "Evaluation of dynamic route planning impact on vehicular communications with SUMO", 23rd ACM International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems (MSWIM 2020), DOI:10.1145/3416010.3423233 , Alicante, Spain. 16th - 20th November 2020.
-
 
 Feature highlights 
 ------------------
