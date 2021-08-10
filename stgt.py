@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from randomTrips import rt
 from duarouter import dua_ma
+from duaiterate import duai
 from utils import create_folder, SUMO_outputs_process, single_plot
 import subprocess
 import time
@@ -81,6 +82,7 @@ class DlgMain(QDialog):
         self.SUMO_outputs = ''
         self.O = ''
         self.dua = ''
+        self.duai = ''
         self.ma = ''
         self.cfg = ''
         self.detector = ''
@@ -98,6 +100,7 @@ class DlgMain(QDialog):
         self.network = ''
         self.poly = ''
         self.rou_file = ''
+        self.iterations = 1 # used in duaiterate
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
@@ -350,7 +353,7 @@ class DlgMain(QDialog):
         # spinbox for multipli factor
         self.factor_spin = QSpinBox()
         self.factor_spin.setWrapping(True)
-        self.factor_spin.setRange(1, 20)
+        self.factor_spin.setRange(1, 500)
         self.factor_spin.setValue(1)
         self.factor_spin.setSingleStep(1)
         self.factor_spin.setMaximumSize(95, 30)
@@ -514,6 +517,7 @@ class DlgMain(QDialog):
         self.trips = os.path.join(self.SUMO_tool, 'trips')
         self.O = os.path.join(self.SUMO_tool, 'O')
         self.dua = os.path.join(self.SUMO_tool, 'dua')
+        self.duai = os.path.join(self.SUMO_tool, 'duai')
         self.ma = os.path.join(self.SUMO_tool, 'ma')
         self.cfg = os.path.join(self.SUMO_tool, 'cfg')
         self.outputs = os.path.join(self.SUMO_tool, 'outputs')
@@ -747,7 +751,7 @@ class DlgMain(QDialog):
         # Find sumo installation
         self.Update_SUMO_exec_path()
         # Update Selected tool
-        self.tool = 'rt'
+        self.tool = 'duai'
         # output default folder
 
         self.O_district = self.O_distric.toPlainText()
@@ -756,7 +760,7 @@ class DlgMain(QDialog):
         if self.O_district and self.D_district:
             if self.realtraffic:
                 self.update_paths()
-                rt(self, 0, 1, False)
+                duai(self, 0, 1, False)
             else:
                 warn_empty = QMessageBox.information(self, 'Missing File', 'Please select a valid traffic file.')
         else:

@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from joblib import Parallel, delayed, parallel_backend
 from utils import SUMO_outputs_process, simulate, gen_sumo_cfg, exec_od2trips, gen_od2trips, create_O_file, parallel_batch_size, gen_DUArouter, gen_MArouter
 
+#route_0 = "24406397#1"
 
 def clean_folder(folder):
     files = glob.glob(os.path.join(folder,'*'))
@@ -38,7 +39,8 @@ def gen_routes(O, k, O_files, folders):
      # Generate sumo cfg
      gen_sumo_cfg(output_name, k, folders) # last element reroute probability
 
-     
+
+
 def gen_route_files(folders, k):
     """
     Generate O files given the real traffic in csv format. 

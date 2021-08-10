@@ -93,7 +93,6 @@ def gen_MArouter(O, i,O_files, folders):
 
 def gen_DUArouter(trips, i, folders):
     duarouter_conf = os.path.join(folders.parents_dir, 'templates', 'duarouter.cfg.xml')  # duaroter.cfg file location
-    #net_file = os.path.join(folders.parents_dir, 'templates', 'osm.net.xml')
     net_file = folders.network
     # Open original file
     tree = ET.parse(duarouter_conf)
@@ -107,7 +106,12 @@ def gen_DUArouter(trips, i, folders):
     parent = tree.find('output')
     curr_name = os.path.basename(trips).split('_')
     curr_name = curr_name[0] + '_' + curr_name[1]
-    output_name = os.path.join(folders.dua, f'{curr_name}_dua_{i}.rou.xml')
+
+    if folders.tool == 'dua':
+        output_name = os.path.join(folders.dua, f'{curr_name}_dua_{i}.rou.xml')
+    elif folders.tool == 'duai':
+        output_name = os.path.join(folders.duai, f'{curr_name}_dua_{i}.rou.xml')
+
     ET.SubElement(parent, 'output-file').set('value', output_name)
 
     # Update seed number
@@ -198,7 +202,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     ET.SubElement(parent, 'net-file').set('value', f'{net_file}')
     ET.SubElement(parent, 'route-files').set('value', f'{routing_file}')
 
-    edges_add = edges_path(folders)
+    #edges_add = edges_path(folders)
 
     """
     if routing == 'dua':
@@ -215,11 +219,11 @@ def gen_sumo_cfg(routing_file, k, folders):
 
     add_list = []
 
-    if routing == 'dua':add_list = [vtype,edges_add]
-    elif routing == 'ma':add_list = [TAZ, vtype,edges_add]
-    elif routing == 'od2':add_list = [TAZ, vtype,edges_add]
-    elif routing == 'duai':add_list = [edges_add]
-    elif routing == 'rt':add_list = [vtype,edges_add]
+    if routing == 'dua':add_list = [vtype]
+    elif routing == 'ma':add_list = [TAZ, vtype]
+    elif routing == 'od2':add_list = [TAZ, vtype]
+    elif routing == 'duai':add_list = [vtype]
+    elif routing == 'rt':add_list = [vtype]
     else:sys.exit('Routing Tool does not exist')
 
     additionals = ','.join([elem for elem in add_list])
