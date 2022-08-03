@@ -1,4 +1,19 @@
 <vehiculos>
-	<vType id="gas" speedFactor="normc(1,0.8,0.7,1.2)" maxSpeed="14" vClass="passenger" emissionClass="HBEFA3/LDV_D_EU6" color="yellow"/>
-	<vType id="ev" speedFactor="normc(1,0.8,0.7,1.2)" maxSpeed="14" vClass="passenger" emissionClass="HBEFA3/LDV_D_EU6" color="yellow"/>
+	<vType id="gas" speedFactor="normc(1,0.8,0.7,1.2)" maxSpeed="14" minGap="2.5" vClass="passenger" emissionClass="HBEFA3/LDV_D_EU6" color="yellow"/>
+	<vType id="ev" speedFactor="normc(1,0.8,0.7,1.2)" accel="1.0" decel="1.0" length="12" maxSpeed="14.0" sigma="0.0" minGap="2.5" emissionClass="Energy/unknown" color="1,1,1">
+        <param key="has.battery.device" value="true"/>
+        <param key="maximumBatteryCapacity" value="2000"/>
+        <param key="maximumPower" value="1000"/>
+        <param key="vehicleMass" value="10000"/>
+        <param key="frontSurfaceArea" value="5"/>
+        <param key="airDragCoefficient" value="0.6"/>
+        <param key="internalMomentOfInertia" value="0.01"/>
+        <param key="radialDragCoefficient" value="0.5"/>
+        <param key="rollDragCoefficient" value="0.01"/>
+        <param key="constantPowerIntake" value="100"/>
+        <param key="propulsionEfficiency" value="0.9"/>
+        <param key="recuperationEfficiency" value="0.9"/>
+        <param key="stoppingTreshold" value="0.1"/>
+    </vType>
+
 </vehiculos>

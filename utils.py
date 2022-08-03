@@ -202,7 +202,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     ET.SubElement(parent, 'net-file').set('value', f'{net_file}')
     ET.SubElement(parent, 'route-files').set('value', f'{routing_file}')
 
-    #edges_add = edges_path(folders)
+    edges_add = edges_path(folders)
 
     """
     if routing == 'dua':
@@ -223,7 +223,7 @@ def gen_sumo_cfg(routing_file, k, folders):
     elif routing == 'ma':add_list = [TAZ, vtype]
     elif routing == 'od2':add_list = [TAZ, vtype]
     elif routing == 'duai':add_list = [vtype]
-    elif routing == 'rt':add_list = [vtype]
+    elif routing == 'rt':add_list = [vtype,edges_add]
     else:sys.exit('Routing Tool does not exist')
 
     additionals = ','.join([elem for elem in add_list])

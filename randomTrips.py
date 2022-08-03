@@ -156,20 +156,22 @@ def update_vehicle_ID(folders):
 
     # change vehicle type
     ev_penetration = float(folders.ev_penetration)
-    number_of_evs = ev_penetration * total_veh
-    number_of_trip_files = len(trips)
-    evs_per_trip_file = int(number_of_evs/number_of_trip_files)
-    print('\nEVs per file: ', evs_per_trip_file)
+    number_of_evs = int(ev_penetration * total_veh)
+
+    #number_of_trip_files = len(trips)
+    #evs_per_trip_file = int(number_of_evs/number_of_trip_files)
+    print('\nEVs per file: ', number_of_evs)
+
     for f in trips:
         file = os.path.join(folders.trips, f)
         tree = ET.parse(file)
         root = tree.getroot()
-        evs_veh_per_file = evs_per_trip_file
+
         for child in root:
-            if evs_veh_per_file > 0:
+            if number_of_evs > 0:
                 child.set('type', 'ev')
-                evs_veh_per_file -= 1
-                print(evs_veh_per_file)
+                number_of_evs -= 1
+                print(number_of_evs)
             else:
                 child.set('type', 'gas')
         tree.write(file)
