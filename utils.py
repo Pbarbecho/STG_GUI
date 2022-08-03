@@ -17,14 +17,14 @@ rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 rc('text', usetex=False)
 
 # import sumo tool xmltocsv
-os.environ['SUMO_HOME'] = '/opt/sumo-1.8.0'
+os.environ['SUMO_HOME'] = '/DATA/home/pablo/software/sumo-1.7.0'
 
 # number of cpus
 processors = multiprocessing.cpu_count()  # due to memory lack -> Catalunya  map = 2GB
 
 # import sumo tool xmltocsv
 if 'SUMO_HOME' in os.environ:
-    tools = os.path.join('/opt/sumo-1.8.0/', 'tools')
+    tools = os.path.join('/DATA/home/pablo/software/sumo-1.7.0', 'tools')
     curr_dir = os.path.dirname(os.path.realpath(__file__))
     sys.path.append(os.path.join(tools))
 else:

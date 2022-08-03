@@ -73,7 +73,7 @@ class DlgMain(QDialog):
         self.D_district = ''
         self.processors = multiprocessing.cpu_count()
         self.SUMO_exec = os.environ['SUMO_HOME']
-        # self.SUMO_exec = '/opt/sumo-1.5.0/bin/'
+        #self.SUMO_exec = '/DATA/home/pablo/software/sumo-1.7.0/bin/'
         self.parents_dir = os.path.dirname(os.path.abspath('{}/'.format(__file__)))
         self.net_folder_var = self.parents_dir
         self.trips = ''
@@ -101,6 +101,7 @@ class DlgMain(QDialog):
         self.poly = ''
         self.rou_file = ''
         self.iterations = 1 # used in duaiterate
+        self.ev_penetration = 0  # used in randomtrips
 
         # ventana principal
         self.setWindowTitle("SUMO-based Traffic Generation Tool (STGT)")
@@ -364,6 +365,15 @@ class DlgMain(QDialog):
         self.factor_spin_label.setAlignment(Qt.AlignRight)
         self.factor_spin_label.setFont(traffic_setting_label)
 
+        # spinbox for penetration rate
+        self.sumo_ev_penetration_spin = QSpinBox()
+        self.sumo_ev_penetration_spin.setWrapping(True)
+        self.sumo_ev_penetration_spin.setRange(0, 100)
+        self.sumo_ev_penetration_spin.setValue(0)
+        self.sumo_ev_penetration_spin.setSingleStep(5)
+        self.sumo_ev_penetration_spin.setMaximumSize(95, 30)
+        self.sumo_ev_penetration_spin.setAlignment(Qt.AlignRight)
+        self.sumo_ev_penetration_spin.valueChanged.connect(self.evt_sumo_ev_penetration_spin_clicked)
 
         # spinbox for reroute probability
         self.sumo_rerouting_prob_spin = QSpinBox()
@@ -378,6 +388,10 @@ class DlgMain(QDialog):
         self.sumo_rerouting_prob_label = QLabel('Reroute Probability')
         self.sumo_rerouting_prob_label.setAlignment(Qt.AlignRight)
         self.sumo_rerouting_prob_label.setFont(traffic_setting_label)
+
+        self.sumo_ev_penetration_label = QLabel('% EV Penetration')
+        self.sumo_ev_penetration_label.setAlignment(Qt.AlignRight)
+        self.sumo_ev_penetration_label.setFont(traffic_setting_label)
 
         # spinbox for number of simulation hours
         self.simtime_int_btn = QSpinBox()
@@ -900,7 +914,8 @@ class DlgMain(QDialog):
             temp_network_loc = os.path.join(osm_parent_dir, 'osm.net.xml')
             # TO DO update highway else netconvert options
             if self.netconvert_urban_op.isChecked():
-                cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+                #cmd = f'{self.SUMO_exec}./netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
+                cmd = f'{self.SUMO_exec}netconvert -W --opposites.guess.fix-lengths --no-left-connections --check-lane-foes.all --junctions.join-turns --junctions.join --roundabouts.guess --no-turnarounds.tls --no-turnarounds --plain.extend-edge-shape --remove-edges.isolated --show-errors.connections-first-try --keep-edges.by-vclass passenger --ramps.guess --rectangular-lane-cut --edges.join --osm-files {self.osm} -o {temp_network_loc}'
             elif self.netconvert_highway_op.isChecked():
                 cmd = f'{self.SUMO_exec}./netconvert -W --osm-files {self.osm} -o {temp_network_loc}'
             else:
@@ -954,6 +969,9 @@ class DlgMain(QDialog):
 
     def evt_sumo_rerouting_prob_spin_clicked(self, value):
         self.reroute_probability = value/100
+
+    def evt_sumo_ev_penetration_spin_clicked(self, value):
+        self.ev_penetration = value / 100
 
     def evt_factor_spin_clicked(self, value):
         self.factor = value
@@ -1052,11 +1070,16 @@ class DlgMain(QDialog):
         self.traffic_demand_settings_GS_4_ly.addWidget(self.factor_spin_label)
         self.traffic_demand_settings_GS_4_ly.addWidget(self.factor_spin)
 
+        self.traffic_demand_settings_GS_5_ly = QHBoxLayout()
+        self.traffic_demand_settings_GS_5_ly.addWidget(self.sumo_ev_penetration_label)
+        self.traffic_demand_settings_GS_5_ly.addWidget(self.sumo_ev_penetration_spin)
+
         self.traffic_demand_settings_GS_main_ly = QVBoxLayout()
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_1_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_2_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_3_ly)
         self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_4_ly)
+        self.traffic_demand_settings_GS_main_ly.addLayout(self.traffic_demand_settings_GS_5_ly)
 
         self.traffic_demand_settings_main_ly = QHBoxLayout()
         self.traffic_demand_settings_main_ly.addLayout(self.traffic_demand_settings_OD_ly)

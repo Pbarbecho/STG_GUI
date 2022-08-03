@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 from tqdm import tqdm
 from utils import SUMO_outputs_process, simulate, gen_sumo_cfg
-
+import random
 
 def exec_randomTrips(folders, fname, ini_time, veh_number, repetitions):
     # SUMO Tool randomtrips
@@ -112,12 +112,67 @@ def change_veh_ID(trip_file, veh_id_number, folders):
     tree.write(file)
     return veh_id
 
+def count_vehicles(trip_file, folders):
+    # full path
+    file = os.path.join(folders.trips, trip_file)
+    # Open original file
+    tree = ET.parse(file)
+    root = tree.getroot()
+    counter = 0
+    for child in root:
+        counter += 1
+    return counter
+
+def erase_first_line_trips(trip_file, folders):
+    # full path
+    file = os.path.join(folders.trips, trip_file)
+    # Open original file
+    tree = ET.parse(file)
+    root = tree.getroot()
+    veh_id=0
+    # Update via route in xml
+    for child in root:
+        veh_id += 1
+        if child == 'vType':
+            child.remove()
+    # Write xml
+    tree.write(file)
+    return veh_id
 
 def update_vehicle_ID(folders):
     trips = os.listdir(folders.trips)
     veh_id = 0
     print('Update vehicle IDs......\n')
+    # erase first line vtype
+    for f in tqdm(trips): veh_id = erase_first_line_trips(f, folders)
+    # update veh id
     for f in tqdm(trips): veh_id = change_veh_ID(f, veh_id, folders)
+
+    # count number of vehicles
+    total_veh = 0
+    for f in trips:
+        total_veh += count_vehicles(f, folders)
+    print('\nTotal number of vehicles: ',total_veh)
+
+    # change vehicle type
+    ev_penetration = float(folders.ev_penetration)
+    number_of_evs = ev_penetration * total_veh
+    number_of_trip_files = len(trips)
+    evs_per_trip_file = int(number_of_evs/number_of_trip_files)
+    print('\nEVs per file: ', evs_per_trip_file)
+    for f in trips:
+        file = os.path.join(folders.trips, f)
+        tree = ET.parse(file)
+        root = tree.getroot()
+        evs_veh_per_file = evs_per_trip_file
+        for child in root:
+            if evs_veh_per_file > 0:
+                child.set('type', 'ev')
+                evs_veh_per_file -= 1
+                print(evs_veh_per_file)
+            else:
+                child.set('type', 'gas')
+        tree.write(file)
     print('Update vehicle IDs End......\n')
 
 
@@ -140,7 +195,7 @@ def rt(config, k):
     # via route Travessera
     # custom_routes(config)
     # update bundle of trips
-    update_vehicle_ID(config)
+    update_vehicle_ID(config) # change vehicle type
     # read trips
     read_trips = os.listdir(config.trips)
     trips = ','.join([f'{os.path.join(config.trips, elem)}' for elem in read_trips])
