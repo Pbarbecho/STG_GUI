@@ -157,10 +157,15 @@ def update_vehicle_ID(folders):
     # change vehicle type
     ev_penetration = float(folders.ev_penetration)
     number_of_evs = int(ev_penetration * total_veh)
-
+    number_of_gas = total_veh - number_of_evs
     #number_of_trip_files = len(trips)
     #evs_per_trip_file = int(number_of_evs/number_of_trip_files)
-    print('\nEVs per file: ', number_of_evs)
+    print('\nEVs number: ', number_of_evs)
+    print('\nGAS number: ', number_of_gas)
+    iter = True
+    counter = 0
+    counter_gas = 0
+    counter_ev = 0
 
     for f in trips:
         file = os.path.join(folders.trips, f)
@@ -168,15 +173,23 @@ def update_vehicle_ID(folders):
         root = tree.getroot()
 
         for child in root:
-            if number_of_evs > 0:
-                child.set('type', 'ev')
-                number_of_evs -= 1
-                print(number_of_evs)
-            else:
+            counter += 1
+            if iter and number_of_gas > 0:
                 child.set('type', 'gas')
-        tree.write(file)
-    print('Update vehicle IDs End......\n')
+                number_of_gas -= 1
+                if counter_ev == number_of_evs:
+                    iter = True
+                else:
+                    iter = False
+                counter_gas+=1
+            elif counter_ev < number_of_evs:
+                child.set('type', 'ev')
+                counter_ev += 1
+                iter = True
 
+        tree.write(file)
+    print('generated evs:',counter_ev, 'generated gas:',counter_gas)
+    print('Update vehicle IDs End......\n')
 
 def singlexml2csv(f):
     # output directory
