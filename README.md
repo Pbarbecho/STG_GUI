@@ -130,6 +130,9 @@ In case you want to uninstall osm package:
 pip3 uninstall stg
 ```
 
+
+Cite: Pablo Barbecho Bautista, Luis Urquiza-Aguiar, Mónica Aguilar Igartua, "STGT: SUMO-Based Traffic Mobility Generation Tool for Evaluation of Vehicular Networks", 18th ACM Symposium on Performance Evaluation of Wireless Ad Hoc, Sensor, & Ubiquitous Networks (PE-WASUN 2021), pp. 17–24, DOI:10.1145/3479240.3488523, Alicante, Spain. 22nd - 26th November 2021.
+
 ## Authors ##
 
 Pablo Barbecho
