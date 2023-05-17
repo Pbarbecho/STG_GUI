@@ -21,7 +21,7 @@
     </time>
     <processing>
         <scale value="1"/>
-	<vtype value="car"/>
+	<!--<vtype value="car"/>-->
         <spread.uniform value="true"/>
         <different-source-sink value="true"/>
         <timeline.day-in-hours value="false"/>

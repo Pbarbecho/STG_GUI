@@ -23,6 +23,7 @@
         <repair value="true"/>
 	<repair.to value="true"/>
 	<!--<no-internal-links value="false"/>
+	<ignore-route-errors value="true" />
 	<mapmatch.distance value="1"/>
         <mapmatch.junctions value="false"/>-->
         <bulk-routing value="false"/>
